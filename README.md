@@ -18,6 +18,15 @@ The long-term question is whether a planner can choose a stroke by predicting ho
 
 The initial engineering baseline is `facebook/dinov2-small` because it is easy to run and exposes spatial patch tokens. The CLI accepts a different Hugging Face vision-model name later, so an I-JEPA checkpoint can be tested without rewriting the experiment. Using DINOv2 for this diagnostic does **not** turn the thesis into a DINOv2 thesis.
 
+## Project context for humans and agents
+
+- [`AGENTS.md`](AGENTS.md) — operating rules for coding and research agents
+- [`logbooks/STATE.md`](logbooks/STATE.md) — current status, decisions, blockers, and next actions
+- [`docs/thesis-plan.md`](docs/thesis-plan.md) — concise research plan, architecture, baselines, timeline, and fallback
+- [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) — current experiment's pass/fail protocol
+
+The full literature report remains outside the default agent context. It should be consulted for literature review and thesis writing, not automatically loaded for every coding task.
+
 ## Gate 1: embedding sensitivity
 
 The first experiment compares representations for:
@@ -84,8 +93,12 @@ Generated data, figures, and checkpoints are ignored by Git. Keep final thesis f
 
 ```text
 .
+├── AGENTS.md
 ├── docs/
-│   └── gate-1-protocol.md
+│   ├── gate-1-protocol.md
+│   └── thesis-plan.md
+├── logbooks/
+│   └── STATE.md
 ├── experiments/
 │   └── 01_embedding_sensitivity.py
 ├── src/latent_stroke_dynamics/
