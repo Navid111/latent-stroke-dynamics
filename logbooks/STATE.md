@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-19  
 **Branch:** `main`  
 **Current gate:** Gate 1 — frozen-encoder stroke sensitivity  
-**Gate status:** Strong pilot localization; final sparse-control smoke test pending
+**Gate status:** Final pilot validated; formal 25-sample run ready
 
 ## Objective
 
@@ -11,65 +11,63 @@ Determine whether frozen spatial visual features reliably preserve the local cha
 
 ## Completed
 
-- Implemented the deterministic renderer, frozen encoder wrapper, tests, and Gate 1 experiment.
+- Implemented deterministic rendering, frozen DINOv2 encoding, paired controls, plots, metrics, and tests.
 - Fixed environment and plotting compatibility issues.
-- Ran and archived the initial three-sample smoke test.
-- Ran Gate 1 version 2 with paired actions across blank and five-stroke canvases; all six tests passed.
-- Confirmed strong spatial localization of the added stroke on blank and moderately occupied canvases.
-- Confirmed that a global token is inadequate for position-sensitive stroke changes.
-- Diagnosed dense pixel-matched noise as a useful stress test but an unfair primary control because it changes nearly the entire canvas.
-- Added a sparse nuisance control that exactly matches both changed-pixel count and total pixel difference.
-- Added canonical reference-stroke-region metrics and automatic paired gate diagnostics.
-- Froze the formal Gate 1 protocol before the 25-sample run.
+- Ran an initial implementation pilot.
+- Ran a paired dense-noise pilot and confirmed strong spatial localization under blank and moderate crowding.
+- Added a sparse nuisance control matching exact changed-pixel count and total pixel difference.
+- Ran the final three-sample pilot with 48 paired comparisons.
+- Verified exact sparse-control matching and numerical-zero no-change behavior.
+- Confirmed add-stroke reference-region wins in 3/3 samples at crowding 0 and 3/3 at crowding 5.
+- Confirmed median localization lift of 12.40× at crowding 0 and 11.52× at crowding 5.
+- Froze the formal protocol and primary criteria before the 25-sample run.
 
 ## Empirical status
 
-The version-2 pilot supports the feasibility of frozen spatial features:
+Pilot evidence strongly supports spatial stroke visibility:
 
-- added-stroke localization lift was far above random at both crowding levels,
-- crowded heatmaps remained aligned with the new stroke,
-- changed-region response remained enriched relative to unchanged regions,
-- absolute response magnitude weakened with crowding,
-- dense distributed noise produced large feature changes.
+- coherent strokes remain identifiable in the correct region under five-stroke clutter,
+- localization and reference-region separation are strong,
+- global-token response weakens under crowding,
+- dense and sparse pixel noise can create larger diffuse responses than the coherent line on global or fixed top-10% metrics.
 
-Gate 1 has neither passed nor failed because only three samples were used and the final sparse matched control has not yet been executed locally.
+These are pilot findings, not the formal thesis result. Gate 1 has neither passed nor failed until the 25-sample run is evaluated.
 
-## Current decisions
+## Frozen formal decisions
 
-- Use 64×64 grayscale canvases and one straight-line primitive.
-- Use a fixed black, two-pixel-wide test stroke.
-- Reuse each test stroke across nested crowding levels.
-- Keep `facebook/dinov2-small` frozen as the first engineering baseline.
-- Use the sparse support-and-MAE-matched control as the primary nuisance comparison.
-- Keep dense matched noise as a robustness stress test.
-- Compare global, all-patch, top-10%, changed-region, and reference-region metrics.
-- Continue using CPU with batch size 4 on the M1.
-- Do not train a dynamics predictor until the formal Gate 1 result is evaluated.
+- 64×64 grayscale canvases.
+- Fixed black, two-pixel-wide canonical stroke.
+- Nested crowding levels 0, 5, and 15.
+- Frozen `facebook/dinov2-small` patch representation.
+- Sparse support-and-MAE-matched nuisance as primary control.
+- Reference-region separation and localization as primary metrics.
+- Global, fixed top-10%, tiny-noise, dense-noise, width, intensity, and position as required secondary diagnostics.
+- CPU batch size 4 on the M1.
+- No further design changes unless an implementation error invalidates execution.
+- No predictor training until Gate 1 is explicitly evaluated.
 
 ## Next actions
 
-1. Pull the final sparse-control implementation from `main`.
-2. Run `pytest`; seven tests should pass.
-3. Run the three-sample `gate1-v3-smoke` experiment at crowding 0 and 5.
-4. Verify `gate_diagnostics.csv`, sparse-control changed-pixel matching, plots, and heatmaps.
-5. Make no further design changes unless the smoke test reveals an implementation error.
-6. If structurally valid, run the frozen 25-sample formal experiment at crowding 0, 5, and 15.
-7. Archive the formal run and make the explicit Gate 1 decision.
+1. Pull the final documentation update from `main`.
+2. Optionally archive the final pilot as `results/gate1-v3-smoke/2026-08-19/`.
+3. Run the frozen 25-sample experiment at crowding 0, 5, and 15.
+4. Preserve `gate_diagnostics.csv`, full results, aggregate summary, configuration, and figures.
+5. Make an explicit Gate 1 pass, borderline, or fail decision against the frozen criteria.
+6. Only after a pass, begin the deterministic one-step predictor.
 
 ## Immediate commands
 
 ```bash
 git pull
-pytest
 python experiments/01_embedding_sensitivity.py \
-  --samples 3 \
-  --crowding 0 5 \
+  --samples 25 \
+  --crowding 0 5 15 \
   --batch-size 4 \
   --device cpu \
-  --output-dir outputs/gate1-v3-smoke
+  --output-dir outputs/gate1-formal
 ```
 
-## Expected final-smoke artifacts
+## Expected formal artifacts
 
 - `results.csv`
 - `aggregate_summary.csv`
@@ -78,15 +76,9 @@ python experiments/01_embedding_sensitivity.py \
 - `localization_metrics.png`
 - `example_patch_heatmap_crowding_0.png`
 - `example_patch_heatmap_crowding_5.png`
+- `example_patch_heatmap_crowding_15.png`
 - `run_config.json`
-
-## Current blockers and risks
-
-- The sparse-control implementation has not yet been run locally.
-- Python 3.14 remains newer than many research stacks, although the current inference path works.
-- DINOv2 may remain sensitive to dense distributed texture changes; this is now separated from the primary gate decision.
-- The formal thresholds are project-specific and must be reported transparently.
 
 ## Handoff note
 
-The next agent should verify the final sparse-control smoke test and then freeze the formal run. It should not begin the predictor, planner, reinforcement learning, complex brushes, or multi-step rollout unless Gate 1 is explicitly evaluated.
+The next agent should evaluate the frozen formal Gate 1 run. It should not change metrics after seeing results or begin the predictor unless the gate is explicitly passed.
