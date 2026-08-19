@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-19  
 **Branch:** `main`  
 **Current gate:** Gate 1 — frozen-encoder stroke sensitivity  
-**Gate status:** Encoding works; plotting compatibility fix committed; no gate has passed
+**Gate status:** Initial smoke promising but inconclusive; version-2 diagnostic ready for local verification
 
 ## Objective
 
@@ -12,78 +12,80 @@ Determine whether frozen spatial visual features reliably preserve the local cha
 ## Completed
 
 - Created the private `latent-stroke-dynamics` repository.
-- Added a Python project scaffold and installation metadata.
-- Implemented a deterministic grayscale straight-line renderer.
-- Added renderer unit tests.
-- Added a frozen Hugging Face vision-encoder wrapper exposing global and patch features.
-- Added the initial Gate 1 embedding-sensitivity experiment.
-- Added result export, aggregate summaries, distribution plots, and an example patch heatmap.
-- Added the Gate 1 protocol, thesis plan, and agent operating instructions.
-- Created a local virtual environment on a base-model M1 MacBook Air.
-- Fixed the omitted `torchvision` dependency.
-- Successfully downloaded and loaded `facebook/dinov2-small`.
-- Successfully encoded all smoke-test canvases on CPU in the second attempt.
-- Diagnosed a Matplotlib boxplot API incompatibility and committed a compatibility fix.
-- Recorded both setup attempts in `logbooks/2026-08-19.md`.
+- Implemented the deterministic renderer, frozen encoder wrapper, tests, and initial Gate 1 experiment.
+- Fixed the missing `torchvision` dependency and Matplotlib compatibility issue.
+- Successfully ran the first three-sample smoke test on a base-model M1 MacBook Air using CPU.
+- Curated the first result snapshot under `results/gate1-smoke/2026-08-19/`.
+- Recorded that blank-canvas patch features detect and approximately localize an added stroke.
+- Recorded that moderate crowding, distributed noise sensitivity, and all-patch averaging remain unresolved.
+- Implemented Gate 1 version 2 with paired crowding, a pixel-matched noise control, top-10% patch metrics, quantitative localization, faceted plots, and tests.
+- Updated the Gate 1 protocol with criteria frozen before the 25-sample run.
 
 ## Empirical status
 
-The second smoke test completed representation extraction but stopped while producing the distribution plot because the installed Matplotlib version rejected the old `labels` argument. The plotting fix is now on `main` but has not yet been rerun locally.
+The initial smoke test is encouraging but not decisive:
 
-CSV files may have been partially written, but the smoke test is not considered complete until the script reaches its final message and produces all expected artifacts. There is still no justified Gate 1 pass or fail decision.
+- no-change behavior is numerically stable,
+- added strokes on blank canvases produce strong, consistent feature changes,
+- the qualitative patch heatmap follows the changed stroke,
+- the global token is weak for position changes,
+- add-stroke separation becomes inconsistent with five prior strokes,
+- and tiny distributed noise produces unexpectedly large feature changes.
+
+Gate 1 has neither passed nor failed. Version 2 must be validated locally and then run with 25 paired samples.
 
 ## Current decisions
 
-- Begin with 64×64 grayscale canvases.
-- Begin with one straight-line stroke primitive.
-- Start with `facebook/dinov2-small` as a convenient engineering baseline.
-- Keep the encoder frozen.
-- Compare global and spatial patch features.
-- Test blank, moderately occupied, and crowded canvases.
-- Use CPU with batch size 4 for the first M1 smoke test.
-- Do not train a dynamics predictor until Gate 1 has been evaluated.
-- Start Gate 2 with a deterministic one-step predictor if Gate 1 passes.
-- Treat depth-2 or depth-3 planning as optional.
+- Use 64×64 grayscale canvases and one straight-line primitive.
+- Use a fixed black, two-pixel-wide test stroke for the primary add-stroke comparison.
+- Reuse each test stroke across nested crowding levels.
+- Keep `facebook/dinov2-small` frozen as the first engineering baseline.
+- Compare global, all-patch, top-10% patch, and changed-region metrics.
+- Use fair noise controls and quantitative localization.
+- Continue using CPU with batch size 4 on the M1 for now.
+- Do not train a dynamics predictor until Gate 1 is evaluated.
 
 ## Next actions
 
-1. Pull the Matplotlib compatibility fix from `main`.
-2. Re-run the same three-sample Gate 1 smoke command.
-3. Confirm that the script reaches its final “Saved Gate 1 results” message.
-4. Inspect and share the printed mean-distance table.
-5. Inspect `distance_distributions.png` and `example_patch_heatmap.png`.
-6. If the smoke test is structurally valid, run 25 samples at crowding levels 0, 5, and 15.
-7. Record the full result and a justified Gate 1 decision.
+1. Pull the version-2 code and documentation from `main`.
+2. Run `pytest`; all renderer and Gate 1 tests should pass.
+3. Run the three-sample version-2 smoke test at crowding 0 and 5.
+4. Confirm that all expected CSVs and figures are generated.
+5. Inspect separation, localization, and paired crowding behavior.
+6. Fix only genuine implementation or design errors revealed by that smoke test.
+7. If version 2 is structurally valid, run 25 paired samples at crowding 0, 5, and 15.
+8. Record the full result and make an explicit Gate 1 decision.
 
 ## Immediate commands
 
 ```bash
 git pull
+pytest
 python experiments/01_embedding_sensitivity.py \
   --samples 3 \
   --crowding 0 5 \
   --batch-size 4 \
   --device cpu \
-  --output-dir outputs/gate1-smoke
+  --output-dir outputs/gate1-v2-smoke
 ```
 
-## Expected Gate 1 artifacts
+## Expected version-2 artifacts
 
 - `results.csv`
 - `aggregate_summary.csv`
 - `distance_distributions.png`
-- `example_patch_heatmap.png`
+- `localization_metrics.png`
+- `example_patch_heatmap_crowding_0.png`
+- `example_patch_heatmap_crowding_5.png`
 - `run_config.json`
-
-These generated artifacts are ignored by Git. Preserve final evidence by summarizing it in a dated log and later copying selected thesis-ready figures into a tracked `figures/` directory.
 
 ## Current blockers and risks
 
-- The plotting compatibility fix has not yet been verified locally.
-- Python 3.14 is newer than many research stacks, although the current PyTorch, torchvision, Transformers, and DINOv2 inference path now work.
-- A non-zero representation distance is not sufficient evidence of usefulness.
-- Heatmap localization is currently qualitative; a quantitative localization metric should be added only after the initial pipeline works.
+- Version 2 has been committed but not yet executed on the local environment.
+- Python 3.14 remains newer than many research stacks, although the current inference path works.
+- DINOv2 may prefer distributed texture changes over thin geometric marks.
+- The practical gate criteria are project-specific and must be reported transparently.
 
 ## Handoff note
 
-The next agent should complete and inspect Gate 1. It should not begin the predictor, planner, reinforcement learning, complex brushes, or multi-step rollout unless this file is updated with evidence that the earlier gate passed.
+The next agent should verify Gate 1 version 2 and interpret the paired results. It should not begin the predictor, planner, reinforcement learning, complex brushes, or multi-step rollout unless this file is updated with evidence that Gate 1 passed.

@@ -23,23 +23,23 @@ The initial engineering baseline is `facebook/dinov2-small` because it is easy t
 - [`AGENTS.md`](AGENTS.md) — operating rules for coding and research agents
 - [`logbooks/STATE.md`](logbooks/STATE.md) — current status, decisions, blockers, and next actions
 - [`docs/thesis-plan.md`](docs/thesis-plan.md) — concise research plan, architecture, baselines, timeline, and fallback
-- [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) — current experiment's pass/fail protocol
+- [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) — current experiment's controlled design and gate criteria
 
 The full literature report remains outside the default agent context. It should be consulted for literature review and thesis writing, not automatically loaded for every coding task.
 
 ## Gate 1: embedding sensitivity
 
-The first experiment compares representations for:
+Version 2 of the diagnostic now:
 
-1. identical canvases,
-2. tiny pixel noise,
-3. adding one stroke,
-4. shifting a stroke,
-5. changing stroke width,
-6. changing stroke intensity,
-7. repeating those tests with increasingly crowded canvases.
+1. reuses the same proposed stroke across nested crowding levels,
+2. adds a pixel-change-matched noise control,
+3. records action and changed-pixel metadata,
+4. measures the most-changing 10% of patches,
+5. quantifies overlap with the exact changed region,
+6. separates crowding levels in every plot,
+7. saves one example heatmap per crowding level.
 
-It records pixel, global-feature, and patch-feature distances and saves a spatial feature-difference heatmap.
+The initial three-sample snapshot remains under `results/gate1-smoke/2026-08-19/` as preliminary evidence, not as a Gate 1 pass.
 
 ## Quick start
 
@@ -57,37 +57,42 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Run a tiny smoke test first:
+M1 CPU smoke test:
 
 ```bash
 python experiments/01_embedding_sensitivity.py \
   --samples 3 \
   --crowding 0 5 \
-  --output-dir outputs/gate1-smoke
+  --batch-size 4 \
+  --device cpu \
+  --output-dir outputs/gate1-v2-smoke
 ```
 
-Then run a more meaningful first experiment:
+After that smoke test is inspected, the planned Gate 1 run is:
 
 ```bash
 python experiments/01_embedding_sensitivity.py \
   --samples 25 \
   --crowding 0 5 15 \
-  --output-dir outputs/gate1
+  --batch-size 4 \
+  --device cpu \
+  --output-dir outputs/gate1-v2
 ```
 
-The first run downloads the pretrained encoder. On a machine with CUDA, the script selects the GPU automatically; otherwise it runs on CPU.
+Do not start the 25-sample run until the version-2 smoke test completes and its controls and metrics look structurally correct.
 
 ## Generated outputs
 
-Each run writes:
+Each version-2 run writes:
 
-- `results.csv` — one row per controlled comparison
-- `aggregate_summary.csv` — mean and standard deviation by condition
-- `distance_distributions.png` — global, patch, and pixel distances
-- `example_patch_heatmap.png` — where the encoder detected change
+- `results.csv` — one row per controlled comparison with action metadata
+- `aggregate_summary.csv` — mean and standard deviation by condition and crowding
+- `distance_distributions.png` — distance plots faceted by crowding
+- `localization_metrics.png` — changed-region and top-k localization diagnostics
+- `example_patch_heatmap_crowding_<n>.png` — spatial evidence for each crowding level
 - `run_config.json` — reproducibility settings
 
-Generated data, figures, and checkpoints are ignored by Git. Keep final thesis figures by moving selected files into a future tracked `figures/` directory.
+Generated data, figures, and checkpoints are ignored by Git. Curated snapshots may be copied into `results/` and committed with clear labels.
 
 ## Repository layout
 
@@ -103,10 +108,13 @@ Generated data, figures, and checkpoints are ignored by Git. Keep final thesis f
 │   └── 01_embedding_sensitivity.py
 ├── src/latent_stroke_dynamics/
 │   ├── encoder.py
+│   ├── gate1.py
 │   ├── metrics.py
 │   └── renderer.py
 ├── tests/
+│   ├── test_gate1.py
 │   └── test_renderer.py
+├── results/
 ├── data/
 ├── outputs/
 ├── pyproject.toml
@@ -115,4 +123,4 @@ Generated data, figures, and checkpoints are ignored by Git. Keep final thesis f
 
 ## Decision rule
 
-Do not begin the dynamics predictor merely because the calendar says so. Move to Gate 2 only if spatial features respond consistently to controlled stroke changes and remain usable as the canvas becomes crowded. See [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) for the practical pass/fail checklist.
+Do not begin the dynamics predictor merely because the calendar says so. Move to Gate 2 only if the paired separation and localization criteria in [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) are met or a deviation is explicitly justified and documented.
