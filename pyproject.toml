@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
   "torch>=2.2",
+  "torchvision>=0.17",
   "transformers>=4.44",
   "pillow>=10.2",
   "numpy>=1.26",
