@@ -2,9 +2,21 @@
 
 Bachelor's thesis experiments on **action-conditioned latent canvas dynamics for stroke-based rendering**.
 
-The long-term question is whether a planner can choose a stroke by predicting how that stroke will change a canvas in a frozen visual representation space. The project starts with the smallest necessary test instead of immediately training a world model:
+The long-term question is whether a planner can choose a stroke by predicting how that stroke will change a canvas in a frozen visual representation space. The project begins with the smallest necessary tests rather than immediately training a world model.
 
-> Does a frozen visual encoder reliably notice one controlled brushstroke, including where and how it changed the canvas?
+## Current status
+
+**Gate 1 passed on 2026-08-19.** A frozen DINOv2-small patch representation reliably preserved the local consequence of one controlled stroke under blank, moderate, and high synthetic crowding.
+
+| Crowding | Reference-region wins vs sparse control | Median localization lift | Median reference enrichment |
+|---:|---:|---:|---:|
+| 0 | 25/25 (100%) | 12.80× | 2.05× |
+| 5 | 24/25 (96%) | 10.24× | 4.95× |
+| 15 | 25/25 (100%) | 10.60× | 6.77× |
+
+No-change distances remained below `3.6e-7`. The formal run and full interpretation are archived in [`results/gate1-formal/2026-08-19/`](results/gate1-formal/2026-08-19/) and [`docs/gate-1-results.md`](docs/gate-1-results.md).
+
+The project is now authorized to begin **Gate 2: deterministic one-step latent prediction**.
 
 ## Current scope
 
@@ -23,21 +35,24 @@ The initial engineering baseline is `facebook/dinov2-small` because it is easy t
 - [`AGENTS.md`](AGENTS.md) — operating rules for coding and research agents
 - [`logbooks/STATE.md`](logbooks/STATE.md) — current status, decisions, blockers, and next actions
 - [`docs/thesis-plan.md`](docs/thesis-plan.md) — concise research plan, architecture, baselines, timeline, and fallback
-- [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) — final controlled design and frozen gate criteria
+- [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) — frozen Gate 1 design and criteria
+- [`docs/gate-1-results.md`](docs/gate-1-results.md) — formal Gate 1 result and interpretation
 
 ## Gate 1: embedding sensitivity
 
 The finalized diagnostic:
 
-1. reuses the same proposed stroke across nested crowding levels,
-2. includes tiny-noise, dense pixel-MAE-matched, and sparse support-and-MAE-matched controls,
-3. records action and changed-pixel metadata,
-4. measures all-patch, top-10%, changed-region, and reference-stroke-region distances,
-5. quantifies spatial localization and lift over random,
-6. separates crowding levels in every plot,
-7. saves a compact `gate_diagnostics.csv` with paired win rates.
+1. reused the same proposed stroke across nested crowding levels,
+2. included tiny-noise, dense pixel-MAE-matched, and sparse support-and-MAE-matched controls,
+3. recorded action and changed-pixel metadata,
+4. measured all-patch, top-10%, changed-region, and reference-stroke-region distances,
+5. quantified spatial localization and lift over random,
+6. separated crowding levels in every plot,
+7. saved paired win rates in `gate_diagnostics.csv`.
 
-The dense matched control remains a stress test. The sparse matched control is the primary comparison because it matches both pixel-change amount and support size while destroying coherent line structure.
+The dense matched control was retained as a stress test. The sparse matched control was the primary comparison because it matched both pixel-change amount and support size while destroying coherent line structure.
+
+The low fixed top-10% win rates under clutter are reported rather than hidden. Sparse random pixels touch about four times as many patch locations as the connected line, so that metric rewards spatial dispersion. The preregistered reference-region and localization criteria passed decisively.
 
 ## Quick start
 
@@ -53,18 +68,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Final-control M1 CPU smoke test:
-
-```bash
-python experiments/01_embedding_sensitivity.py \
-  --samples 3 \
-  --crowding 0 5 \
-  --batch-size 4 \
-  --device cpu \
-  --output-dir outputs/gate1-v3-smoke
-```
-
-After that smoke test verifies matching and output structure, the formal Gate 1 run is:
+To reproduce the frozen formal Gate 1 run:
 
 ```bash
 python experiments/01_embedding_sensitivity.py \
@@ -72,12 +76,11 @@ python experiments/01_embedding_sensitivity.py \
   --crowding 0 5 15 \
   --batch-size 4 \
   --device cpu \
+  --seed 20260819 \
   --output-dir outputs/gate1-formal
 ```
 
-The experimental design and criteria must remain frozen during the formal run.
-
-## Generated outputs
+## Generated Gate 1 outputs
 
 Each run writes:
 
@@ -98,6 +101,7 @@ Generated data, figures, and checkpoints are ignored by Git. Curated snapshots m
 ├── AGENTS.md
 ├── docs/
 │   ├── gate-1-protocol.md
+│   ├── gate-1-results.md
 │   └── thesis-plan.md
 ├── logbooks/
 │   └── STATE.md
@@ -120,4 +124,4 @@ Generated data, figures, and checkpoints are ignored by Git. Curated snapshots m
 
 ## Decision rule
 
-Do not begin the dynamics predictor merely because the calendar says so. Move to Gate 2 only if the paired separation and localization criteria in [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) are met or a deviation is explicitly justified and documented.
+Gate 1 is complete. Gate 2 should train and compare deterministic one-step predictors before any candidate ranking, reinforcement learning, or multi-step planning work begins.

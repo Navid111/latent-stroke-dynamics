@@ -2,83 +2,60 @@
 
 **Last updated:** 2026-08-19  
 **Branch:** `main`  
-**Current gate:** Gate 1 — frozen-encoder stroke sensitivity  
-**Gate status:** Final pilot validated; formal 25-sample run ready
+**Current gate:** Gate 2 — deterministic one-step latent prediction  
+**Gate status:** Gate 1 formally passed; Gate 2 design is next
 
 ## Objective
 
-Determine whether frozen spatial visual features reliably preserve the local change caused by one controlled stroke. This evidence is required before training an action-conditioned next-representation predictor.
+Train the smallest action-conditioned model that predicts how one deterministic stroke changes frozen spatial canvas features, and determine whether it outperforms trivial baselines on held-out transitions.
 
 ## Completed
 
 - Implemented deterministic rendering, frozen DINOv2 encoding, paired controls, plots, metrics, and tests.
 - Fixed environment and plotting compatibility issues.
-- Ran an initial implementation pilot.
-- Ran a paired dense-noise pilot and confirmed strong spatial localization under blank and moderate crowding.
-- Added a sparse nuisance control matching exact changed-pixel count and total pixel difference.
-- Ran the final three-sample pilot with 48 paired comparisons.
-- Verified exact sparse-control matching and numerical-zero no-change behavior.
-- Confirmed add-stroke reference-region wins in 3/3 samples at crowding 0 and 3/3 at crowding 5.
-- Confirmed median localization lift of 12.40× at crowding 0 and 11.52× at crowding 5.
-- Froze the formal protocol and primary criteria before the 25-sample run.
+- Ran three Gate 1 pilot iterations and used them only to repair implementation and finalize controls.
+- Froze the formal Gate 1 protocol before the final run.
+- Ran the formal Gate 1 experiment with seed `20260819`, 25 samples at each of three crowding levels, eight conditions, and 600 comparison pairs.
+- Archived all formal artifacts under `results/gate1-formal/2026-08-19/`.
+- Evaluated the formal run against the frozen criteria.
+- Declared Gate 1 a pass.
 
-## Empirical status
+## Formal Gate 1 result
 
-Pilot evidence strongly supports spatial stroke visibility:
+| Crowding | Reference-region wins | Median localization lift | Median reference enrichment | No-change max |
+|---:|---:|---:|---:|---:|
+| 0 | 25/25 (100%) | 12.80× | 2.05× | 2.98e-7 |
+| 5 | 24/25 (96%) | 10.24× | 4.95× | 3.58e-7 |
+| 15 | 25/25 (100%) | 10.60× | 6.77× | 3.58e-7 |
 
-- coherent strokes remain identifiable in the correct region under five-stroke clutter,
-- localization and reference-region separation are strong,
-- global-token response weakens under crowding,
-- dense and sparse pixel noise can create larger diffuse responses than the coherent line on global or fixed top-10% metrics.
+The frozen spatial representation reliably preserves the stroke in the correct action region. Fixed top-10% and global-token scores weaken under clutter because sparse random pixels cover many more patch cells and pooled features dilute one local change. These limitations are documented rather than hidden.
 
-These are pilot findings, not the formal thesis result. Gate 1 has neither passed nor failed until the 25-sample run is evaluated.
+See `docs/gate-1-results.md` for the complete interpretation.
 
-## Frozen formal decisions
+## Gate 2 decisions already supported
 
-- 64×64 grayscale canvases.
-- Fixed black, two-pixel-wide canonical stroke.
-- Nested crowding levels 0, 5, and 15.
-- Frozen `facebook/dinov2-small` patch representation.
-- Sparse support-and-MAE-matched nuisance as primary control.
-- Reference-region separation and localization as primary metrics.
-- Global, fixed top-10%, tiny-noise, dense-noise, width, intensity, and position as required secondary diagnostics.
-- CPU batch size 4 on the M1.
-- No further design changes unless an implementation error invalidates execution.
-- No predictor training until Gate 1 is explicitly evaluated.
+- Keep `facebook/dinov2-small` frozen for the initial predictor experiment.
+- Predict spatial patch-token residuals rather than relying only on the global token.
+- Use deterministic one-step transitions.
+- Encode the stroke with normalized action parameters and a patch-aligned action mask.
+- Compare no-change, mean-delta, linear, and small nonlinear predictors.
+- Use separate train, validation, and test seeds that are not the Gate 1 formal seed.
+- Evaluate held-out prediction before candidate ranking.
+- Do not begin reinforcement learning or multi-step planning.
 
 ## Next actions
 
-1. Pull the final documentation update from `main`.
-2. Optionally archive the final pilot as `results/gate1-v3-smoke/2026-08-19/`.
-3. Run the frozen 25-sample experiment at crowding 0, 5, and 15.
-4. Preserve `gate_diagnostics.csv`, full results, aggregate summary, configuration, and figures.
-5. Make an explicit Gate 1 pass, borderline, or fail decision against the frozen criteria.
-6. Only after a pass, begin the deterministic one-step predictor.
+1. Write and freeze a concise Gate 2 protocol: transition distribution, splits, inputs, targets, baselines, metrics, and pass rule.
+2. Add a reproducible transition-dataset generator with explicit train/validation/test seeds.
+3. Add baseline and residual-predictor implementations with unit tests.
+4. Run a tiny overfit/smoke test to verify the learning pipeline.
+5. Run the frozen held-out Gate 2 comparison.
+6. Proceed to candidate-stroke ranking only if the learned predictor beats the frozen baselines.
 
-## Immediate commands
+## Immediate next step
 
-```bash
-git pull
-python experiments/01_embedding_sensitivity.py \
-  --samples 25 \
-  --crowding 0 5 15 \
-  --batch-size 4 \
-  --device cpu \
-  --output-dir outputs/gate1-formal
-```
-
-## Expected formal artifacts
-
-- `results.csv`
-- `aggregate_summary.csv`
-- `gate_diagnostics.csv`
-- `distance_distributions.png`
-- `localization_metrics.png`
-- `example_patch_heatmap_crowding_0.png`
-- `example_patch_heatmap_crowding_5.png`
-- `example_patch_heatmap_crowding_15.png`
-- `run_config.json`
+No new local command is required yet. The next repository change should define and implement the Gate 2 experiment before starting another run.
 
 ## Handoff note
 
-The next agent should evaluate the frozen formal Gate 1 run. It should not change metrics after seeing results or begin the predictor unless the gate is explicitly passed.
+Gate 1 is complete and must not be rerun or retuned. The next agent should preserve its result, design Gate 2 with independent splits, and begin with a deterministic residual predictor. Candidate ranking and planning remain out of scope until one-step prediction passes.

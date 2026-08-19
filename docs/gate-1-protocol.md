@@ -36,7 +36,7 @@ Pilot diagnostics:
 
 The coherent stroke beat sparse noise on fixed top-10% patch distance in 3/3 blank samples but 0/3 five-stroke samples. The sparse control changes the same number of pixels but scatters them across roughly 20–27% of patch locations, whereas the connected line occupies roughly 4–7%. A fixed top-10% statistic therefore measures response to spatially dispersed high-frequency changes as much as action visibility. It remains a reported robustness statistic but is not the primary pass/fail criterion.
 
-No pilot is used as the formal thesis result. The design below is now frozen for the 25-sample run.
+No pilot was used as the formal thesis result. The design below was frozen before the 25-sample run.
 
 ## Final controlled design
 
@@ -81,7 +81,7 @@ The secondary metrics remain important failure analyses, but a diffuse nuisance 
 
 ## Frozen engineering gate for the formal run
 
-These criteria must not be silently changed after viewing the 25-sample result:
+These criteria were frozen before viewing the 25-sample result:
 
 1. `no_change` distances remain at numerical zero.
 2. Add-stroke reference-region distance exceeds the paired sparse-control value in at least 80% of samples at crowding 0 and at least 70% at crowding 5.
@@ -91,27 +91,39 @@ These criteria must not be silently changed after viewing the 25-sample result:
 6. Fixed top-10%, global, tiny-noise, dense-noise, width, intensity, and position results are all reported, including failures, but are secondary diagnostics.
 7. Crowding 15 is a stress test. Failure there alone does not invalidate the scoped Gate 1 result, but it must be discussed.
 
-These are practical project gates, not universal scientific constants. Report raw paired percentages and distributions alongside the decision.
+These are practical project gates, not universal scientific constants. Raw paired percentages and distributions accompany the decision.
+
+## Formal result — 2026-08-19
+
+The frozen run used seed `20260819`, 25 samples per crowding level, eight comparisons, and 600 total pairs. Artifacts are archived under `results/gate1-formal/2026-08-19/`.
+
+| Crowding | Add > sparse top-10% | Add > sparse reference region | Median localization lift | Median reference enrichment | No-change max |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 68% | 100% (25/25) | 12.80× | 2.05× | 2.98e-7 |
+| 5 | 8% | 96% (24/25) | 10.24× | 4.95× | 3.58e-7 |
+| 15 | 4% | 100% (25/25) | 10.60× | 6.77× | 3.58e-7 |
+
+### Criterion evaluation
+
+1. **Pass:** no-change remained at numerical zero at every crowding level.
+2. **Pass:** paired reference-region win rates were 100% at crowding 0 and 96% at crowding 5, above the frozen 80% and 70% thresholds.
+3. **Pass:** median localization lifts were 12.80× and 10.24×, far above the frozen 2.0× and 1.5× thresholds.
+4. **Pass:** median reference-region enrichment was greater than one at both primary crowding levels.
+5. **Pass:** changed-region localization statistics and archived heatmaps indicate a spatially concentrated response. Median localization lift remained above 10× at every crowding level.
+6. **Reported:** fixed top-10% separation weakened sharply with crowding, as predicted from the sparse control's wider patch coverage. Global response also weakened with crowding. These are retained as limitations rather than used to overwrite the primary criteria.
+7. **Stress result:** crowding 15 also passed the reference-region and localization checks, although it was not required for the scoped pass.
 
 ## Decision
 
-### Pass
+**Gate 1 passes.** The representation contains usable local information about the visual consequence of a stroke under the scoped synthetic conditions. Proceed to a deterministic one-step predictor.
 
-Proceed to a deterministic one-step predictor if the formal run meets the primary reference-region and localization criteria under blank and moderate crowding.
+This does not yet show that a learned dynamics model can predict the next representation or rank candidate strokes; those are Gate 2 and Gate 3.
 
-### Borderline
+## What comes after the pass
 
-If localization is convincing but primary separation or crowding robustness is weak, try one justified encoder or feature change at a time and document it. Do not tune on the formal test set.
-
-### Fail
-
-If multiple sensible frozen-feature configurations cannot preserve one-stroke changes, pivot to a representation-suitability thesis rather than forcing a world model.
-
-## What comes after a pass
-
-1. Generate `(canvas, action, next_canvas)` transitions.
-2. Freeze the selected encoder.
-3. Train a small deterministic residual predictor.
+1. Generate new `(canvas, action, next_canvas)` transitions with separate train, validation, and test seeds.
+2. Keep the selected encoder frozen.
+3. Train a small deterministic residual predictor over spatial patch features.
 4. Compare against no-change, mean-delta, and linear baselines.
-5. Test candidate-stroke ranking.
+5. Test candidate-stroke ranking only after one-step prediction succeeds.
 6. Treat depth-2 or depth-3 planning as optional.
