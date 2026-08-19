@@ -6,19 +6,29 @@ Before training an action-conditioned predictor, establish that the target repre
 
 This is a **representation diagnostic**, not yet the thesis's final benchmark.
 
-## Initial smoke-test finding
+## Pilot history
 
-The first three-sample run validated the pipeline and produced an encouraging blank-canvas heatmap: the strongest patch-feature changes followed the added line. It also exposed weaknesses in the first diagnostic design:
+### Initial smoke test
 
-- different random actions were used at different crowding levels,
-- averaging every patch diluted thin local changes,
-- tiny distributed noise caused unexpectedly large feature distances,
-- the original plot pooled crowding levels,
-- localization was only visual.
+The first three-sample run validated the pipeline and produced an encouraging blank-canvas heatmap. It also exposed weaknesses: different actions were used at different crowding levels, all-patch averaging diluted thin local changes, the plot pooled crowding levels, and localization was only visual.
 
-No Gate 1 decision was made from that run. The archived snapshot is under `results/gate1-smoke/2026-08-19/`.
+### Version-2 smoke test
 
-## Version 2 controlled design
+Version 2 used paired strokes across crowding, separated plots, dense pixel-MAE-matched noise, top-10% patch metrics, and quantitative localization.
+
+Findings:
+
+- no-change distances were numerical zero,
+- added strokes localized strongly on blank and five-stroke canvases,
+- median add-stroke localization lift was about `15.9×` at crowding 0 and `7.9×` at crowding 5,
+- the global token weakened sharply under crowding while spatial localization remained strong,
+- add-stroke top-10% distance beat dense matched noise in all three blank samples but none of the three five-stroke samples.
+
+The dense control matched total pixel MAE but changed roughly half the canvas, while the stroke changed only about 1–2% of pixels. It was therefore retained as a stress test rather than used as the primary coherent-stroke comparison.
+
+No Gate 1 decision was made from either pilot. Pilots are used only to debug and freeze the formal design.
+
+## Final pre-run controlled design
 
 For each `sample_id`:
 
@@ -26,6 +36,7 @@ For each `sample_id`:
 2. Generate one sequence of prior strokes.
 3. Construct nested canvases with 0, 5, and 15 prior strokes from that same sequence.
 4. Apply the same test stroke and its controlled variants to every crowding level.
+5. Evaluate every comparison inside the same canonical reference-stroke region as well as globally.
 
 This pairing makes crowding the intended context variable rather than confounding it with different stroke geometry, width, or intensity.
 
@@ -33,7 +44,8 @@ This pairing makes crowding the intended context variable rather than confoundin
 
 - `no_change` — identical image pair.
 - `tiny_pixel_noise` — low-amplitude distributed noise.
-- `pixel_matched_noise` — distributed noise with approximately the same pixel MAE as the added stroke.
+- `pixel_matched_noise` — dense distributed noise with approximately the same pixel MAE as the added stroke; treated as a stress test.
+- `sparse_pixel_matched_noise` — random non-line changes matching both the exact number of changed pixels and total absolute pixel difference of the added stroke; primary nuisance control.
 - `add_stroke` — base canvas versus base plus the canonical stroke.
 - `shift_position` — the same stroke at two nearby positions.
 - `change_width` — one-pixel versus five-pixel width.
@@ -50,8 +62,9 @@ Start with 64×64 grayscale images and one straight-line primitive. Complexity c
 - Mean patch-token cosine distance.
 - Maximum patch-token cosine distance.
 - Mean of the top 10% most-changing patch tokens.
+- Mean distance inside the canonical reference-stroke region for every condition.
 
-The top-10% metric is included because a thin stroke should affect a small spatial subset; averaging all 256 patches can hide a useful local signal.
+The top-10% metric avoids diluting a thin local change across all 256 patches. The reference-region metric compares the coherent stroke and nuisance controls at the location where the action actually occurred.
 
 ### Spatial localization
 
@@ -61,9 +74,9 @@ The exact pixel-change mask is downsampled to the encoder's patch grid. The scri
 - mean feature distance outside changed patches,
 - changed-region enrichment,
 - top-k localization recall,
-- lift over the recall expected from random patch selection.
+- lift over recall expected from random patch selection.
 
-A lift above `1` means the largest feature changes overlap the true changed region more than random selection would. Inspect the heatmaps as well; one scalar cannot reveal every failure mode.
+A lift above `1` means the largest feature changes overlap the true changed region more than random selection would. Inspect heatmaps as well; one scalar cannot reveal every failure mode.
 
 ### Crowding robustness
 
@@ -71,25 +84,27 @@ All plots separate crowding levels. Report blank, moderately occupied, and crowd
 
 ### Global versus spatial features
 
-A global embedding may recognize that the image remains “a drawing” while discarding where the stroke moved. Position-sensitive planning therefore requires spatial patch or intermediate features.
+A global embedding may recognize that the image remains “a drawing” while discarding where a stroke moved. Position-sensitive planning therefore requires spatial patch or intermediate features.
 
-## Provisional engineering gate for the 25-sample run
+## Frozen engineering gate for the 25-sample run
 
-These criteria are frozen before the larger run and must not be silently weakened afterward:
+These criteria are frozen before the formal run and must not be silently weakened afterward:
 
 1. `no_change` distances remain at numerical zero.
-2. For `add_stroke`, the top-10% patch distance exceeds the paired pixel-matched-noise value in at least 80% of samples at crowding 0 and at least 70% at crowding 5.
-3. Median localization top-k lift for `add_stroke` is at least 2.0 at crowding 0 and at least 1.5 at crowding 5.
-4. Heatmaps and changed-region metrics agree that the response is concentrated around the stroke rather than only changing globally.
-5. Results at crowding 15 are reported as a stress test; failure there alone does not invalidate the small-scope thesis.
+2. `add_stroke` top-10% patch distance exceeds the paired `sparse_pixel_matched_noise` value in at least 80% of samples at crowding 0 and at least 70% at crowding 5.
+3. `add_stroke` reference-region distance exceeds the paired sparse-control value in at least 80% of samples at crowding 0 and at least 70% at crowding 5.
+4. Median localization top-k lift for `add_stroke` is at least 2.0 at crowding 0 and at least 1.5 at crowding 5.
+5. Heatmaps and changed-region metrics agree that the response is concentrated around the stroke rather than only changing globally.
+6. Dense pixel-matched noise is reported as a robustness stress test but is not the primary gate control because its spatial support is intentionally different.
+7. Results at crowding 15 are reported as a stress test; failure there alone does not invalidate the small-scope thesis.
 
-These are practical project gates, not universal scientific constants. Report the raw paired percentages and distributions alongside the decision.
+These are practical project gates, not universal scientific constants. Report raw paired percentages and distributions alongside the decision.
 
 ## Decision
 
 ### Pass
 
-Proceed to a deterministic one-step predictor if controlled stroke changes are distinguishable from fair controls, spatial changes are localized, and useful sensitivity remains at moderate crowding.
+Proceed to a deterministic one-step predictor if controlled stroke changes are distinguishable from the sparse matched control, spatial changes are localized, and useful sensitivity remains at moderate crowding.
 
 ### Borderline
 

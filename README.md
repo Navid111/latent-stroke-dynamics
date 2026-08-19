@@ -23,23 +23,21 @@ The initial engineering baseline is `facebook/dinov2-small` because it is easy t
 - [`AGENTS.md`](AGENTS.md) — operating rules for coding and research agents
 - [`logbooks/STATE.md`](logbooks/STATE.md) — current status, decisions, blockers, and next actions
 - [`docs/thesis-plan.md`](docs/thesis-plan.md) — concise research plan, architecture, baselines, timeline, and fallback
-- [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) — current experiment's controlled design and gate criteria
-
-The full literature report remains outside the default agent context. It should be consulted for literature review and thesis writing, not automatically loaded for every coding task.
+- [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) — final controlled design and frozen gate criteria
 
 ## Gate 1: embedding sensitivity
 
-Version 2 of the diagnostic now:
+The finalized diagnostic:
 
 1. reuses the same proposed stroke across nested crowding levels,
-2. adds a pixel-change-matched noise control,
+2. includes tiny-noise, dense pixel-MAE-matched, and sparse support-and-MAE-matched controls,
 3. records action and changed-pixel metadata,
-4. measures the most-changing 10% of patches,
-5. quantifies overlap with the exact changed region,
+4. measures all-patch, top-10%, changed-region, and reference-stroke-region distances,
+5. quantifies spatial localization and lift over random,
 6. separates crowding levels in every plot,
-7. saves one example heatmap per crowding level.
+7. saves a compact `gate_diagnostics.csv` with paired win rates.
 
-The initial three-sample snapshot remains under `results/gate1-smoke/2026-08-19/` as preliminary evidence, not as a Gate 1 pass.
+The dense matched control remains a stress test. The sparse matched control is the primary comparison because it matches both pixel-change amount and support size while destroying coherent line structure.
 
 ## Quick start
 
@@ -48,16 +46,14 @@ Python 3.10+ is recommended.
 ```bash
 git clone https://github.com/Navid111/latent-stroke-dynamics.git
 cd latent-stroke-dynamics
-
 python -m venv .venv
 source .venv/bin/activate       # macOS/Linux
 # .venv\Scripts\activate      # Windows PowerShell
-
 pip install -e ".[dev]"
 pytest
 ```
 
-M1 CPU smoke test:
+Final-control M1 CPU smoke test:
 
 ```bash
 python experiments/01_embedding_sensitivity.py \
@@ -65,10 +61,10 @@ python experiments/01_embedding_sensitivity.py \
   --crowding 0 5 \
   --batch-size 4 \
   --device cpu \
-  --output-dir outputs/gate1-v2-smoke
+  --output-dir outputs/gate1-v3-smoke
 ```
 
-After that smoke test is inspected, the planned Gate 1 run is:
+After that smoke test verifies matching and output structure, the formal Gate 1 run is:
 
 ```bash
 python experiments/01_embedding_sensitivity.py \
@@ -76,17 +72,18 @@ python experiments/01_embedding_sensitivity.py \
   --crowding 0 5 15 \
   --batch-size 4 \
   --device cpu \
-  --output-dir outputs/gate1-v2
+  --output-dir outputs/gate1-formal
 ```
 
-Do not start the 25-sample run until the version-2 smoke test completes and its controls and metrics look structurally correct.
+The experimental design and criteria must remain frozen during the formal run.
 
 ## Generated outputs
 
-Each version-2 run writes:
+Each run writes:
 
 - `results.csv` — one row per controlled comparison with action metadata
 - `aggregate_summary.csv` — mean and standard deviation by condition and crowding
+- `gate_diagnostics.csv` — paired control win rates and localization summaries
 - `distance_distributions.png` — distance plots faceted by crowding
 - `localization_metrics.png` — changed-region and top-k localization diagnostics
 - `example_patch_heatmap_crowding_<n>.png` — spatial evidence for each crowding level
