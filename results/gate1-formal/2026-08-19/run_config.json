@@ -1,0 +1,36 @@
+{
+  "model": "facebook/dinov2-small",
+  "samples_per_crowding_level": 25,
+  "canvas_size": 64,
+  "crowding_levels": [
+    0,
+    5,
+    15
+  ],
+  "batch_size": 4,
+  "seed": 20260819,
+  "device": "cpu",
+  "patch_grid": [
+    16,
+    16
+  ],
+  "comparison_pairs": 600,
+  "comparisons": [
+    "no_change",
+    "tiny_pixel_noise",
+    "pixel_matched_noise",
+    "sparse_pixel_matched_noise",
+    "add_stroke",
+    "shift_position",
+    "change_width",
+    "change_intensity"
+  ],
+  "paired_across_crowding": true,
+  "canonical_test_stroke": {
+    "width": 2,
+    "value": 0,
+    "min_length": 0.35
+  },
+  "gate_control": "sparse_pixel_matched_noise",
+  "dense_pixel_matched_noise_role": "stress_test"
+}

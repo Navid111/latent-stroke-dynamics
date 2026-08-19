@@ -1,0 +1,4 @@
+crowding,samples,add_vs_sparse_top10_win_rate,add_vs_sparse_reference_region_win_rate,add_median_localization_topk_lift,add_median_reference_region_enrichment,no_change_max_patch_distance
+0,25,0.68,1.0,12.8,2.05480865893279,2.980232238769531e-07
+5,25,0.08,0.96,10.240000406901041,4.946115795741335,3.5762786865234375e-07
+15,25,0.04,1.0,10.603550837590145,6.767644155305226,3.5762786865234375e-07
