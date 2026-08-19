@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import dataclass, replace
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -14,107 +13,118 @@ import torch
 from PIL import Image
 
 from latent_stroke_dynamics.encoder import FrozenVisionEncoder
-from latent_stroke_dynamics.metrics import alternating_pair_distances
-from latent_stroke_dynamics.renderer import (
-    Stroke,
-    random_base_canvas,
-    render_stroke,
-    sample_stroke,
+from latent_stroke_dynamics.gate1 import (
+    COMPARISON_ORDER,
+    STRUCTURAL_COMPARISONS,
+    ComparisonPair,
+    build_pairs,
+    changed_pixel_count,
+    patch_change_mask,
+    patch_summary_metrics,
+    pixel_distance,
+    stroke_length_normalized,
 )
+from latent_stroke_dynamics.metrics import alternating_pair_distances
 
 
-COMPARISON_ORDER = [
-    "no_change",
-    "tiny_pixel_noise",
-    "add_stroke",
-    "shift_position",
-    "change_width",
-    "change_intensity",
+AGGREGATE_METRICS = [
+    "pixel_mean_absolute_difference",
+    "global_cosine_distance",
+    "patch_mean_cosine_distance",
+    "patch_max_cosine_distance",
+    "patch_top10pct_mean_cosine_distance",
+    "patch_changed_region_mean_cosine_distance",
+    "patch_unchanged_region_mean_cosine_distance",
+    "changed_patch_fraction",
+    "localization_enrichment",
+    "localization_topk_recall",
+    "localization_topk_lift",
 ]
 
 
-@dataclass(frozen=True)
-class ComparisonPair:
-    before: Image.Image
-    after: Image.Image
-    comparison: str
-    crowding: int
-    sample_id: int
-
-
-def tiny_noise(image: Image.Image, rng: np.random.Generator, sigma: float = 1.25) -> Image.Image:
-    values = np.asarray(image, dtype=np.float32)
-    noisy = np.clip(values + rng.normal(0.0, sigma, size=values.shape), 0, 255)
-    return Image.fromarray(noisy.astype(np.uint8), mode="L")
-
-
-def build_pairs(
-    samples: int,
-    canvas_size: int,
-    crowding_levels: list[int],
-    seed: int,
-) -> list[ComparisonPair]:
-    rng = np.random.default_rng(seed)
-    pairs: list[ComparisonPair] = []
-
-    for crowding in crowding_levels:
-        for sample_id in range(samples):
-            base = random_base_canvas(canvas_size, crowding, rng)
-            stroke = sample_stroke(rng)
-
-            added = render_stroke(base, stroke)
-            shifted = render_stroke(base, stroke.shifted(dx=0.08, dy=-0.06))
-            thin = render_stroke(base, replace(stroke, width=1))
-            thick = render_stroke(base, replace(stroke, width=max(5, stroke.width + 3)))
-            dark = render_stroke(base, replace(stroke, value=16))
-            light = render_stroke(base, replace(stroke, value=176))
-
-            pairs.extend(
-                [
-                    ComparisonPair(base, base.copy(), "no_change", crowding, sample_id),
-                    ComparisonPair(
-                        base,
-                        tiny_noise(base, rng),
-                        "tiny_pixel_noise",
-                        crowding,
-                        sample_id,
-                    ),
-                    ComparisonPair(base, added, "add_stroke", crowding, sample_id),
-                    ComparisonPair(added, shifted, "shift_position", crowding, sample_id),
-                    ComparisonPair(thin, thick, "change_width", crowding, sample_id),
-                    ComparisonPair(dark, light, "change_intensity", crowding, sample_id),
-                ]
-            )
-
-    return pairs
-
-
-def pixel_distance(before: Image.Image, after: Image.Image) -> float:
-    left = np.asarray(before, dtype=np.float32)
-    right = np.asarray(after, dtype=np.float32)
-    return float(np.mean(np.abs(left - right)) / 255.0)
+def _set_boxplot_labels(axis: plt.Axes, labels: list[str]) -> None:
+    axis.set_xticks(range(1, len(labels) + 1))
+    axis.set_xticklabels(labels)
+    axis.tick_params(axis="x", rotation=42, labelsize=8)
+    axis.grid(axis="y", alpha=0.25)
 
 
 def save_distribution_plot(results: pd.DataFrame, output_path: Path) -> None:
+    """Save distance plots with crowding levels separated into rows."""
+
     metrics = [
         ("pixel_mean_absolute_difference", "Pixel mean absolute difference"),
         ("global_cosine_distance", "Global-token cosine distance"),
         ("patch_mean_cosine_distance", "Mean patch-token cosine distance"),
+        ("patch_top10pct_mean_cosine_distance", "Top-10% patch distance"),
     ]
-    available = [name for name in COMPARISON_ORDER if name in set(results["comparison"])]
+    crowding_levels = sorted(int(value) for value in results["crowding"].unique())
+    labels = [name for name in COMPARISON_ORDER if name in set(results["comparison"])]
 
-    figure, axes = plt.subplots(1, len(metrics), figsize=(18, 5))
-    for axis, (metric, title) in zip(axes, metrics):
-        data = [results.loc[results["comparison"] == name, metric].values for name in available]
-        axis.boxplot(data, showfliers=False)
-        # Set tick labels separately for compatibility across Matplotlib versions.
-        axis.set_xticks(range(1, len(available) + 1))
-        axis.set_xticklabels(available)
-        axis.set_title(title)
-        axis.tick_params(axis="x", rotation=40)
-        axis.grid(axis="y", alpha=0.25)
+    figure, axes = plt.subplots(
+        len(crowding_levels),
+        len(metrics),
+        figsize=(5.2 * len(metrics), 4.5 * len(crowding_levels)),
+        squeeze=False,
+    )
+
+    for row, crowding in enumerate(crowding_levels):
+        subset = results.loc[results["crowding"] == crowding]
+        for column, (metric, title) in enumerate(metrics):
+            axis = axes[row, column]
+            data = [subset.loc[subset["comparison"] == name, metric].values for name in labels]
+            axis.boxplot(data, showfliers=False)
+            _set_boxplot_labels(axis, labels)
+            if row == 0:
+                axis.set_title(title)
+            if column == 0:
+                axis.set_ylabel(f"Prior strokes = {crowding}")
+
+    figure.suptitle("Gate 1 distances separated by canvas crowding", y=1.005)
     figure.tight_layout()
-    figure.savefig(output_path, dpi=180)
+    figure.savefig(output_path, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
+def save_localization_plot(results: pd.DataFrame, output_path: Path) -> None:
+    """Save quantitative spatial-localization diagnostics."""
+
+    metrics = [
+        ("patch_changed_region_mean_cosine_distance", "Changed-region distance"),
+        ("localization_topk_recall", "Top-k localization recall"),
+        ("localization_topk_lift", "Top-k lift over random"),
+    ]
+    crowding_levels = sorted(int(value) for value in results["crowding"].unique())
+    labels = [name for name in STRUCTURAL_COMPARISONS if name in set(results["comparison"])]
+
+    figure, axes = plt.subplots(
+        len(crowding_levels),
+        len(metrics),
+        figsize=(5.2 * len(metrics), 4.5 * len(crowding_levels)),
+        squeeze=False,
+    )
+
+    for row, crowding in enumerate(crowding_levels):
+        subset = results.loc[results["crowding"] == crowding]
+        for column, (metric, title) in enumerate(metrics):
+            axis = axes[row, column]
+            data = [
+                subset.loc[subset["comparison"] == name, metric]
+                .replace([np.inf, -np.inf], np.nan)
+                .dropna()
+                .values
+                for name in labels
+            ]
+            axis.boxplot(data, showfliers=False)
+            _set_boxplot_labels(axis, labels)
+            if row == 0:
+                axis.set_title(title)
+            if column == 0:
+                axis.set_ylabel(f"Prior strokes = {crowding}")
+
+    figure.suptitle("Where did the spatial representation change?", y=1.005)
+    figure.tight_layout()
+    figure.savefig(output_path, dpi=180, bbox_inches="tight")
     plt.close(figure)
 
 
@@ -125,32 +135,37 @@ def save_example_heatmap(
     output_path: Path,
 ) -> None:
     heatmap = patch_distances.reshape(*patch_grid).numpy()
+    changed_patches = patch_change_mask(pair.before, pair.after, patch_grid).reshape(
+        *patch_grid
+    )
     before = np.asarray(pair.before)
     after = np.asarray(pair.after)
     difference = np.abs(after.astype(np.float32) - before.astype(np.float32))
 
-    figure, axes = plt.subplots(1, 4, figsize=(14, 3.5))
+    figure, axes = plt.subplots(1, 5, figsize=(17, 3.5))
     axes[0].imshow(before, cmap="gray", vmin=0, vmax=255)
     axes[0].set_title("Before")
     axes[1].imshow(after, cmap="gray", vmin=0, vmax=255)
     axes[1].set_title("After")
     axes[2].imshow(difference, cmap="magma")
     axes[2].set_title("Pixel change")
-    image = axes[3].imshow(heatmap, cmap="magma", interpolation="nearest")
-    axes[3].set_title("Patch-feature change")
-    figure.colorbar(image, ax=axes[3], fraction=0.046, pad=0.04)
+    axes[3].imshow(changed_patches, cmap="gray", vmin=0, vmax=1)
+    axes[3].set_title("Changed patch mask")
+    image = axes[4].imshow(heatmap, cmap="magma", interpolation="nearest")
+    axes[4].set_title("Patch-feature change")
+    figure.colorbar(image, ax=axes[4], fraction=0.046, pad=0.04)
     for axis in axes:
         axis.axis("off")
     figure.suptitle(f"{pair.comparison}; prior strokes = {pair.crowding}")
     figure.tight_layout()
-    figure.savefig(output_path, dpi=180)
+    figure.savefig(output_path, dpi=180, bbox_inches="tight")
     plt.close(figure)
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", default="facebook/dinov2-small")
-    parser.add_argument("--samples", type=int, default=10, help="Samples per crowding level")
+    parser.add_argument("--samples", type=int, default=10, help="Paired samples per crowding level")
     parser.add_argument("--canvas-size", type=int, default=64)
     parser.add_argument("--crowding", nargs="+", type=int, default=[0, 5, 15])
     parser.add_argument("--batch-size", type=int, default=16)
@@ -176,20 +191,33 @@ def main() -> None:
 
     global_distances = alternating_pair_distances(encodings.global_features)
     patch_maps = alternating_pair_distances(encodings.patch_features)
-    patch_mean_distances = patch_maps.mean(dim=-1)
-    patch_max_distances = patch_maps.max(dim=-1).values
 
     rows: list[dict[str, float | int | str]] = []
     for index, pair in enumerate(pairs):
+        patch_metrics = patch_summary_metrics(
+            patch_maps[index],
+            pair.before,
+            pair.after,
+            encodings.patch_grid,
+        )
+        pixels_changed = changed_pixel_count(pair.before, pair.after)
         rows.append(
             {
                 "comparison": pair.comparison,
                 "crowding": pair.crowding,
                 "sample_id": pair.sample_id,
+                "stroke_x0": pair.stroke.x0,
+                "stroke_y0": pair.stroke.y0,
+                "stroke_x1": pair.stroke.x1,
+                "stroke_y1": pair.stroke.y1,
+                "stroke_width": pair.stroke.width,
+                "stroke_value": pair.stroke.value,
+                "stroke_length_normalized": stroke_length_normalized(pair.stroke),
+                "changed_pixel_count": pixels_changed,
+                "changed_pixel_fraction": pixels_changed / (pair.before.width * pair.before.height),
                 "pixel_mean_absolute_difference": pixel_distance(pair.before, pair.after),
                 "global_cosine_distance": float(global_distances[index]),
-                "patch_mean_cosine_distance": float(patch_mean_distances[index]),
-                "patch_max_cosine_distance": float(patch_max_distances[index]),
+                **patch_metrics,
             }
         )
 
@@ -197,59 +225,64 @@ def main() -> None:
     results.to_csv(args.output_dir / "results.csv", index=False)
 
     aggregate = (
-        results.groupby(["comparison", "crowding"], sort=False)[
-            [
-                "pixel_mean_absolute_difference",
-                "global_cosine_distance",
-                "patch_mean_cosine_distance",
-                "patch_max_cosine_distance",
-            ]
-        ]
+        results.groupby(["comparison", "crowding"], sort=False)[AGGREGATE_METRICS]
         .agg(["mean", "std"])
         .reset_index()
     )
     aggregate.to_csv(args.output_dir / "aggregate_summary.csv", index=False)
 
     save_distribution_plot(results, args.output_dir / "distance_distributions.png")
-    example_index = next(
-        index
-        for index, pair in enumerate(pairs)
-        if pair.comparison == "add_stroke" and pair.crowding == min(args.crowding)
-    )
-    save_example_heatmap(
-        pairs[example_index],
-        patch_maps[example_index],
-        encodings.patch_grid,
-        args.output_dir / "example_patch_heatmap.png",
-    )
+    save_localization_plot(results, args.output_dir / "localization_metrics.png")
+
+    for crowding in sorted(set(args.crowding)):
+        example_index = next(
+            index
+            for index, pair in enumerate(pairs)
+            if pair.comparison == "add_stroke"
+            and pair.crowding == crowding
+            and pair.sample_id == 0
+        )
+        save_example_heatmap(
+            pairs[example_index],
+            patch_maps[example_index],
+            encodings.patch_grid,
+            args.output_dir / f"example_patch_heatmap_crowding_{crowding}.png",
+        )
 
     config = {
         "model": args.model,
         "samples_per_crowding_level": args.samples,
         "canvas_size": args.canvas_size,
-        "crowding_levels": args.crowding,
+        "crowding_levels": sorted(set(args.crowding)),
         "batch_size": args.batch_size,
         "seed": args.seed,
         "device": str(encoder.device),
         "patch_grid": list(encodings.patch_grid),
         "comparison_pairs": len(pairs),
+        "comparisons": list(COMPARISON_ORDER),
+        "paired_across_crowding": True,
+        "canonical_test_stroke": {"width": 2, "value": 0, "min_length": 0.35},
     }
     (args.output_dir / "run_config.json").write_text(
         json.dumps(config, indent=2), encoding="utf-8"
     )
 
     display_columns = [
-        "comparison",
-        "crowding",
         "global_cosine_distance",
-        "patch_mean_cosine_distance",
+        "patch_top10pct_mean_cosine_distance",
+        "patch_changed_region_mean_cosine_distance",
+        "localization_topk_lift",
     ]
-    print("\nMean distances by condition:\n")
-    print(results[display_columns].groupby(["comparison", "crowding"]).mean().to_string())
+    print("\nMean diagnostics by condition and crowding:\n")
+    print(
+        results.groupby(["comparison", "crowding"])[display_columns]
+        .mean()
+        .to_string()
+    )
     print(f"\nSaved Gate 1 results to: {args.output_dir.resolve()}")
     print(
-        "Inspect the distributions and heatmap before training a predictor; "
-        "a non-zero number alone is not evidence that the representation is useful."
+        "This is a representation diagnostic, not an automatic pass/fail decision. "
+        "Inspect separation, localization, and crowding robustness together."
     )
 
 
