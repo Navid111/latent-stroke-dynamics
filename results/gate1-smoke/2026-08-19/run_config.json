@@ -1,0 +1,17 @@
+{
+  "model": "facebook/dinov2-small",
+  "samples_per_crowding_level": 3,
+  "canvas_size": 64,
+  "crowding_levels": [
+    0,
+    5
+  ],
+  "batch_size": 4,
+  "seed": 7,
+  "device": "cpu",
+  "patch_grid": [
+    16,
+    16
+  ],
+  "comparison_pairs": 36
+}
