@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-19  
 **Branch:** `main`  
 **Current gate:** Gate 1 — frozen-encoder stroke sensitivity  
-**Gate status:** Smoke test blocked by a dependency error; no gate has passed
+**Gate status:** Encoding works; plotting compatibility fix committed; no gate has passed
 
 ## Objective
 
@@ -20,15 +20,17 @@ Determine whether frozen spatial visual features reliably preserve the local cha
 - Added result export, aggregate summaries, distribution plots, and an example patch heatmap.
 - Added the Gate 1 protocol, thesis plan, and agent operating instructions.
 - Created a local virtual environment on a base-model M1 MacBook Air.
-- Attempted the first CPU smoke test.
-- Diagnosed the first setup failure: `torchvision` was missing from project dependencies.
-- Added `torchvision` to `pyproject.toml` and recorded the failure in `logbooks/2026-08-19.md`.
+- Fixed the omitted `torchvision` dependency.
+- Successfully downloaded and loaded `facebook/dinov2-small`.
+- Successfully encoded all smoke-test canvases on CPU in the second attempt.
+- Diagnosed a Matplotlib boxplot API incompatibility and committed a compatibility fix.
+- Recorded both setup attempts in `logbooks/2026-08-19.md`.
 
 ## Empirical status
 
-The first smoke test stopped during `AutoImageProcessor` initialization because `torchvision` was not installed. No pretrained model was loaded and no canvases were encoded. This is a setup failure, **not** evidence for or against the research hypothesis.
+The second smoke test completed representation extraction but stopped while producing the distribution plot because the installed Matplotlib version rejected the old `labels` argument. The plotting fix is now on `main` but has not yet been rerun locally.
 
-There is still no empirical evidence that DINOv2 or any other frozen encoder passes Gate 1 for this setup.
+CSV files may have been partially written, but the smoke test is not considered complete until the script reaches its final message and produces all expected artifacts. There is still no justified Gate 1 pass or fail decision.
 
 ## Current decisions
 
@@ -45,26 +47,18 @@ There is still no empirical evidence that DINOv2 or any other frozen encoder pas
 
 ## Next actions
 
-1. Pull the dependency fix from `main`.
-2. Re-run `python -m pip install -e ".[dev]"` inside the active environment.
-3. Verify that both `torch` and `torchvision` import successfully.
-4. Run `pytest` and report its output if it has not already been run.
-5. Re-run the three-sample Gate 1 smoke test on CPU with batch size 4.
-6. Inspect `distance_distributions.png`, `example_patch_heatmap.png`, and the CSV files.
-7. If the smoke test is valid, run 25 samples at crowding levels 0, 5, and 15.
-8. Record the exact command, hardware, runtime, errors, and observations in the dated logbook.
-9. Update this file with the measured result and a justified Gate 1 decision.
+1. Pull the Matplotlib compatibility fix from `main`.
+2. Re-run the same three-sample Gate 1 smoke command.
+3. Confirm that the script reaches its final “Saved Gate 1 results” message.
+4. Inspect and share the printed mean-distance table.
+5. Inspect `distance_distributions.png` and `example_patch_heatmap.png`.
+6. If the smoke test is structurally valid, run 25 samples at crowding levels 0, 5, and 15.
+7. Record the full result and a justified Gate 1 decision.
 
 ## Immediate commands
 
 ```bash
 git pull
-python -m pip install -e ".[dev]"
-python -c "import torch, torchvision; print('torch', torch.__version__, 'torchvision', torchvision.__version__)"
-pytest
-```
-
-```bash
 python experiments/01_embedding_sensitivity.py \
   --samples 3 \
   --crowding 0 5 \
@@ -85,13 +79,11 @@ These generated artifacts are ignored by Git. Preserve final evidence by summari
 
 ## Current blockers and risks
 
-- The missing `torchvision` dependency has been fixed in the repository but not yet verified locally.
-- The active environment uses Python 3.14, which is newer than many research stacks. If compatible wheels or imports fail, use Python 3.12.
-- The first encoder run still requires downloading pretrained weights.
-- CPU execution may be slow.
+- The plotting compatibility fix has not yet been verified locally.
+- Python 3.14 is newer than many research stacks, although the current PyTorch, torchvision, Transformers, and DINOv2 inference path now work.
 - A non-zero representation distance is not sufficient evidence of usefulness.
 - Heatmap localization is currently qualitative; a quantitative localization metric should be added only after the initial pipeline works.
 
 ## Handoff note
 
-The next agent should finish debugging and run Gate 1. It should not begin the predictor, planner, reinforcement learning, complex brushes, or multi-step rollout unless this file is updated with evidence that the earlier gate passed.
+The next agent should complete and inspect Gate 1. It should not begin the predictor, planner, reinforcement learning, complex brushes, or multi-step rollout unless this file is updated with evidence that the earlier gate passed.

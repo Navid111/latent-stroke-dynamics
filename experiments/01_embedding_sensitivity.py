@@ -106,7 +106,10 @@ def save_distribution_plot(results: pd.DataFrame, output_path: Path) -> None:
     figure, axes = plt.subplots(1, len(metrics), figsize=(18, 5))
     for axis, (metric, title) in zip(axes, metrics):
         data = [results.loc[results["comparison"] == name, metric].values for name in available]
-        axis.boxplot(data, labels=available, showfliers=False)
+        axis.boxplot(data, showfliers=False)
+        # Set tick labels separately for compatibility across Matplotlib versions.
+        axis.set_xticks(range(1, len(available) + 1))
+        axis.set_xticklabels(available)
         axis.set_title(title)
         axis.tick_params(axis="x", rotation=40)
         axis.grid(axis="y", alpha=0.25)
