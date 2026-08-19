@@ -17,6 +17,7 @@ COMPARISON_ORDER: tuple[str, ...] = (
     "no_change",
     "tiny_pixel_noise",
     "pixel_matched_noise",
+    "sparse_pixel_matched_noise",
     "add_stroke",
     "shift_position",
     "change_width",
@@ -41,6 +42,7 @@ class ComparisonPair:
     crowding: int
     sample_id: int
     stroke: Stroke
+    reference_mask: Image.Image
 
 
 def pixel_distance(before: Image.Image, after: Image.Image) -> float:
@@ -61,6 +63,17 @@ def changed_pixel_count(before: Image.Image, after: Image.Image) -> int:
     if left.shape != right.shape:
         raise ValueError("Images must have the same shape.")
     return int(np.count_nonzero(left != right))
+
+
+def pixel_change_mask_image(before: Image.Image, after: Image.Image) -> Image.Image:
+    """Return a binary image marking every changed pixel."""
+
+    left = np.asarray(before)
+    right = np.asarray(after)
+    if left.shape != right.shape:
+        raise ValueError("Images must have the same shape.")
+    changed = (left != right).astype(np.uint8) * 255
+    return Image.fromarray(changed)
 
 
 def stroke_length_normalized(stroke: Stroke) -> float:
@@ -85,11 +98,7 @@ def pixel_matched_noise(
     rng: np.random.Generator,
     max_iterations: int = 8,
 ) -> Image.Image:
-    """Create distributed noise with approximately the requested normalized MAE.
-
-    This control matches the amount of pixel change caused by the added stroke
-    while destroying its coherent line structure.
-    """
+    """Create dense distributed noise with approximately the requested MAE."""
 
     if target_mae < 0:
         raise ValueError("target_mae cannot be negative.")
@@ -117,6 +126,59 @@ def pixel_matched_noise(
         scale *= target_mae / observed
 
     return Image.fromarray(np.rint(candidate).astype(np.uint8))
+
+
+def sparse_pixel_matched_noise(
+    image: Image.Image,
+    reference_after: Image.Image,
+    rng: np.random.Generator,
+) -> Image.Image:
+    """Scatter the reference change's exact pixel budget at random locations.
+
+    The output matches both the number of changed pixels and the total absolute
+    pixel difference of ``image -> reference_after``. Changed positions from the
+    coherent reference stroke are excluded so the nuisance pattern does not
+    accidentally overlap the action region.
+    """
+
+    base = np.asarray(image, dtype=np.int16)
+    reference = np.asarray(reference_after, dtype=np.int16)
+    if base.shape != reference.shape:
+        raise ValueError("Images must have the same shape.")
+
+    reference_delta = reference - base
+    flat_delta = reference_delta.reshape(-1)
+    reference_changed = flat_delta != 0
+    magnitudes = np.abs(flat_delta[reference_changed]).astype(np.int16)
+    if magnitudes.size == 0:
+        return image.copy()
+
+    flat_base = base.reshape(-1)
+    candidate = flat_base.copy()
+    available = np.flatnonzero(~reference_changed)
+    used = np.zeros(flat_base.shape[0], dtype=bool)
+
+    # Place large changes first because they have the strictest range constraint.
+    for magnitude in np.sort(magnitudes)[::-1]:
+        darken_candidates = available[
+            (~used[available]) & (flat_base[available] >= magnitude)
+        ]
+        if darken_candidates.size:
+            index = int(rng.choice(darken_candidates))
+            candidate[index] = flat_base[index] - magnitude
+        else:
+            lighten_candidates = available[
+                (~used[available]) & (flat_base[available] <= 255 - magnitude)
+            ]
+            if not lighten_candidates.size:
+                raise RuntimeError(
+                    "Could not place the sparse matched perturbation without clipping."
+                )
+            index = int(rng.choice(lighten_candidates))
+            candidate[index] = flat_base[index] + magnitude
+        used[index] = True
+
+    return Image.fromarray(candidate.reshape(base.shape).astype(np.uint8))
 
 
 def _shift_without_clipping(stroke: Stroke) -> Stroke:
@@ -173,13 +235,7 @@ def build_pairs(
     crowding_levels: Sequence[int],
     seed: int,
 ) -> list[ComparisonPair]:
-    """Build paired interventions using one fixed test stroke per sample.
-
-    For a given ``sample_id``, the same proposed stroke is evaluated on nested
-    canvases at every crowding level. The default added stroke is black and two
-    pixels wide so crowding is not confounded with random action intensity or
-    width.
-    """
+    """Build paired interventions using one fixed test stroke per sample."""
 
     if samples < 1:
         raise ValueError("samples must be positive.")
@@ -209,69 +265,59 @@ def build_pairs(
             dark = render_stroke(base, replace(stroke, value=16))
             light = render_stroke(base, replace(stroke, value=176))
             target_mae = pixel_distance(base, added)
+            reference_mask = pixel_change_mask_image(base, added)
+
+            def make_pair(
+                before: Image.Image,
+                after: Image.Image,
+                comparison: str,
+            ) -> ComparisonPair:
+                return ComparisonPair(
+                    before=before,
+                    after=after,
+                    comparison=comparison,
+                    crowding=crowding,
+                    sample_id=sample_id,
+                    stroke=stroke,
+                    reference_mask=reference_mask,
+                )
 
             pairs.extend(
                 [
-                    ComparisonPair(
-                        base,
-                        base.copy(),
-                        "no_change",
-                        crowding,
-                        sample_id,
-                        stroke,
-                    ),
-                    ComparisonPair(
-                        base,
-                        tiny_pixel_noise(base, rng),
-                        "tiny_pixel_noise",
-                        crowding,
-                        sample_id,
-                        stroke,
-                    ),
-                    ComparisonPair(
+                    make_pair(base, base.copy(), "no_change"),
+                    make_pair(base, tiny_pixel_noise(base, rng), "tiny_pixel_noise"),
+                    make_pair(
                         base,
                         pixel_matched_noise(base, target_mae, rng),
                         "pixel_matched_noise",
-                        crowding,
-                        sample_id,
-                        stroke,
                     ),
-                    ComparisonPair(
+                    make_pair(
                         base,
-                        added,
-                        "add_stroke",
-                        crowding,
-                        sample_id,
-                        stroke,
+                        sparse_pixel_matched_noise(base, added, rng),
+                        "sparse_pixel_matched_noise",
                     ),
-                    ComparisonPair(
-                        added,
-                        shifted,
-                        "shift_position",
-                        crowding,
-                        sample_id,
-                        stroke,
-                    ),
-                    ComparisonPair(
-                        thin,
-                        thick,
-                        "change_width",
-                        crowding,
-                        sample_id,
-                        stroke,
-                    ),
-                    ComparisonPair(
-                        dark,
-                        light,
-                        "change_intensity",
-                        crowding,
-                        sample_id,
-                        stroke,
-                    ),
+                    make_pair(base, added, "add_stroke"),
+                    make_pair(added, shifted, "shift_position"),
+                    make_pair(thin, thick, "change_width"),
+                    make_pair(dark, light, "change_intensity"),
                 ]
             )
 
     return pairs
+
+
+def _mask_image_to_patch_mask(
+    mask_image: Image.Image,
+    patch_grid: tuple[int, int],
+) -> torch.Tensor:
+    rows, columns = patch_grid
+    binary = (np.asarray(mask_image) > 0).astype(np.uint8) * 255
+    resized = Image.fromarray(binary).resize(
+        (columns, rows),
+        resample=Image.Resampling.BOX,
+    )
+    coverage = np.asarray(resized, dtype=np.float32) / 255.0
+    return torch.from_numpy(coverage.reshape(-1) > 0.0)
 
 
 def patch_change_mask(
@@ -281,19 +327,26 @@ def patch_change_mask(
 ) -> torch.Tensor:
     """Downsample the exact pixel-change mask to the encoder patch grid."""
 
-    left = np.asarray(before)
-    right = np.asarray(after)
-    if left.shape != right.shape:
-        raise ValueError("Images must have the same shape.")
-
-    changed = (left != right).astype(np.uint8) * 255
-    rows, columns = patch_grid
-    resized = Image.fromarray(changed).resize(
-        (columns, rows),
-        resample=Image.Resampling.BOX,
+    return _mask_image_to_patch_mask(
+        pixel_change_mask_image(before, after),
+        patch_grid,
     )
-    coverage = np.asarray(resized, dtype=np.float32) / 255.0
-    return torch.from_numpy(coverage.reshape(-1) > 0.0)
+
+
+def _region_summary(
+    values: torch.Tensor,
+    mask: torch.Tensor,
+) -> tuple[float, float, float]:
+    if not bool(mask.any()):
+        return float("nan"), float(values.mean()), float("nan")
+
+    inside = float(values[mask].mean())
+    outside_values = values[~mask]
+    outside = float(outside_values.mean()) if outside_values.numel() else float("nan")
+    enrichment = (
+        inside / max(outside, 1e-8) if np.isfinite(outside) else float("nan")
+    )
+    return inside, outside, enrichment
 
 
 def patch_summary_metrics(
@@ -301,6 +354,7 @@ def patch_summary_metrics(
     before: Image.Image,
     after: Image.Image,
     patch_grid: tuple[int, int],
+    reference_mask: Image.Image | None = None,
 ) -> dict[str, float]:
     """Summarize average, concentrated, and spatially localized patch change."""
 
@@ -314,52 +368,45 @@ def patch_summary_metrics(
 
     top_count = max(1, ceil(values.numel() * 0.10))
     top_values = torch.topk(values, k=top_count).values
-    mask = patch_change_mask(before, after, patch_grid)
+    actual_mask = patch_change_mask(before, after, patch_grid)
+    actual_inside, actual_outside, actual_enrichment = _region_summary(
+        values, actual_mask
+    )
 
     metrics: dict[str, float] = {
         "patch_mean_cosine_distance": float(values.mean()),
         "patch_max_cosine_distance": float(values.max()),
         "patch_top10pct_mean_cosine_distance": float(top_values.mean()),
-        "changed_patch_fraction": float(mask.float().mean()),
+        "changed_patch_fraction": float(actual_mask.float().mean()),
+        "patch_changed_region_mean_cosine_distance": actual_inside,
+        "patch_unchanged_region_mean_cosine_distance": actual_outside,
+        "localization_enrichment": actual_enrichment,
     }
 
-    if not bool(mask.any()):
-        metrics.update(
-            {
-                "patch_changed_region_mean_cosine_distance": float("nan"),
-                "patch_unchanged_region_mean_cosine_distance": float(values.mean()),
-                "localization_enrichment": float("nan"),
-                "localization_topk_recall": float("nan"),
-                "localization_topk_lift": float("nan"),
-            }
+    if bool(actual_mask.any()):
+        changed_count = int(actual_mask.sum())
+        top_indices = torch.topk(values, k=changed_count).indices
+        topk_recall = float(actual_mask[top_indices].float().mean())
+        random_recall = changed_count / values.numel()
+        metrics["localization_topk_recall"] = topk_recall
+        metrics["localization_topk_lift"] = topk_recall / random_recall
+    else:
+        metrics["localization_topk_recall"] = float("nan")
+        metrics["localization_topk_lift"] = float("nan")
+
+    if reference_mask is not None:
+        reference_patch_mask = _mask_image_to_patch_mask(reference_mask, patch_grid)
+        reference_inside, reference_outside, reference_enrichment = _region_summary(
+            values, reference_patch_mask
         )
-        return metrics
-
-    changed_values = values[mask]
-    unchanged_values = values[~mask]
-    changed_mean = float(changed_values.mean())
-    unchanged_mean = (
-        float(unchanged_values.mean()) if unchanged_values.numel() else float("nan")
-    )
-
-    changed_count = int(mask.sum())
-    top_indices = torch.topk(values, k=changed_count).indices
-    topk_recall = float(mask[top_indices].float().mean())
-    random_recall = changed_count / values.numel()
+    else:
+        reference_inside = reference_outside = reference_enrichment = float("nan")
 
     metrics.update(
         {
-            "patch_changed_region_mean_cosine_distance": changed_mean,
-            "patch_unchanged_region_mean_cosine_distance": unchanged_mean,
-            "localization_enrichment": (
-                changed_mean / max(unchanged_mean, 1e-8)
-                if np.isfinite(unchanged_mean)
-                else float("nan")
-            ),
-            "localization_topk_recall": topk_recall,
-            "localization_topk_lift": (
-                topk_recall / random_recall if random_recall > 0 else float("nan")
-            ),
+            "patch_reference_region_mean_cosine_distance": reference_inside,
+            "patch_reference_outside_mean_cosine_distance": reference_outside,
+            "reference_region_enrichment": reference_enrichment,
         }
     )
     return metrics

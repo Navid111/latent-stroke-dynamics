@@ -39,6 +39,9 @@ AGGREGATE_METRICS = [
     "localization_enrichment",
     "localization_topk_recall",
     "localization_topk_lift",
+    "patch_reference_region_mean_cosine_distance",
+    "patch_reference_outside_mean_cosine_distance",
+    "reference_region_enrichment",
 ]
 
 
@@ -57,6 +60,10 @@ def save_distribution_plot(results: pd.DataFrame, output_path: Path) -> None:
         ("global_cosine_distance", "Global-token cosine distance"),
         ("patch_mean_cosine_distance", "Mean patch-token cosine distance"),
         ("patch_top10pct_mean_cosine_distance", "Top-10% patch distance"),
+        (
+            "patch_reference_region_mean_cosine_distance",
+            "Reference stroke-region distance",
+        ),
     ]
     crowding_levels = sorted(int(value) for value in results["crowding"].unique())
     labels = [name for name in COMPARISON_ORDER if name in set(results["comparison"])]
@@ -162,6 +169,46 @@ def save_example_heatmap(
     plt.close(figure)
 
 
+def build_gate_diagnostics(results: pd.DataFrame) -> pd.DataFrame:
+    """Summarize the paired pre-run engineering criteria by crowding level."""
+
+    rows: list[dict[str, float | int]] = []
+    for crowding in sorted(int(value) for value in results["crowding"].unique()):
+        subset = results.loc[results["crowding"] == crowding]
+
+        def paired_win_rate(metric: str) -> float:
+            pivot = subset.pivot(index="sample_id", columns="comparison", values=metric)
+            valid = pivot[["add_stroke", "sparse_pixel_matched_noise"]].dropna()
+            return float(
+                (valid["add_stroke"] > valid["sparse_pixel_matched_noise"]).mean()
+            )
+
+        add_rows = subset.loc[subset["comparison"] == "add_stroke"]
+        no_change_rows = subset.loc[subset["comparison"] == "no_change"]
+        rows.append(
+            {
+                "crowding": crowding,
+                "samples": int(add_rows["sample_id"].nunique()),
+                "add_vs_sparse_top10_win_rate": paired_win_rate(
+                    "patch_top10pct_mean_cosine_distance"
+                ),
+                "add_vs_sparse_reference_region_win_rate": paired_win_rate(
+                    "patch_reference_region_mean_cosine_distance"
+                ),
+                "add_median_localization_topk_lift": float(
+                    add_rows["localization_topk_lift"].median()
+                ),
+                "add_median_reference_region_enrichment": float(
+                    add_rows["reference_region_enrichment"].median()
+                ),
+                "no_change_max_patch_distance": float(
+                    no_change_rows["patch_max_cosine_distance"].max()
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", default="facebook/dinov2-small")
@@ -199,6 +246,7 @@ def main() -> None:
             pair.before,
             pair.after,
             encodings.patch_grid,
+            reference_mask=pair.reference_mask,
         )
         pixels_changed = changed_pixel_count(pair.before, pair.after)
         rows.append(
@@ -231,6 +279,9 @@ def main() -> None:
     )
     aggregate.to_csv(args.output_dir / "aggregate_summary.csv", index=False)
 
+    gate_diagnostics = build_gate_diagnostics(results)
+    gate_diagnostics.to_csv(args.output_dir / "gate_diagnostics.csv", index=False)
+
     save_distribution_plot(results, args.output_dir / "distance_distributions.png")
     save_localization_plot(results, args.output_dir / "localization_metrics.png")
 
@@ -262,18 +313,22 @@ def main() -> None:
         "comparisons": list(COMPARISON_ORDER),
         "paired_across_crowding": True,
         "canonical_test_stroke": {"width": 2, "value": 0, "min_length": 0.35},
+        "gate_control": "sparse_pixel_matched_noise",
+        "dense_pixel_matched_noise_role": "stress_test",
     }
     (args.output_dir / "run_config.json").write_text(
         json.dumps(config, indent=2), encoding="utf-8"
     )
 
+    print("\nGate diagnostics by crowding:\n")
+    print(gate_diagnostics.to_string(index=False))
+    print("\nMean diagnostics by condition and crowding:\n")
     display_columns = [
         "global_cosine_distance",
         "patch_top10pct_mean_cosine_distance",
-        "patch_changed_region_mean_cosine_distance",
+        "patch_reference_region_mean_cosine_distance",
         "localization_topk_lift",
     ]
-    print("\nMean diagnostics by condition and crowding:\n")
     print(
         results.groupby(["comparison", "crowding"])[display_columns]
         .mean()
@@ -282,7 +337,7 @@ def main() -> None:
     print(f"\nSaved Gate 1 results to: {args.output_dir.resolve()}")
     print(
         "This is a representation diagnostic, not an automatic pass/fail decision. "
-        "Inspect separation, localization, and crowding robustness together."
+        "Inspect paired separation, localization, and crowding robustness together."
     )
 
 
