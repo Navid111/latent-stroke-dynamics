@@ -16,28 +16,29 @@ Before changing code or proposing work, read:
 
 1. `logbooks/STATE.md` — the current source of truth about completed work and the next action.
 2. `docs/thesis-plan.md` — the stable research question, architecture, baselines, and scope.
-3. The protocol for the active gate, currently `docs/gate-1-protocol.md`.
+3. The protocol for the active gate, currently `docs/gate-2-protocol.md`.
 4. Relevant source files and tests.
 
 The full literature report is intentionally not part of the default repository context. Consult it only for literature review, novelty analysis, or thesis writing. Do not delay the active experiment by repeating the literature survey.
 
 ## Current gate and non-negotiable scope
 
-Unless `logbooks/STATE.md` records a completed and justified gate decision:
+The active task is **Gate 2: deterministic one-step latent prediction**. Gate 1 has formally passed and is frozen.
 
-- The active task is **Gate 1: frozen-encoder stroke sensitivity**.
-- Use 64×64 grayscale canvases initially.
+- Use 64×64 grayscale canvases.
 - Use one deterministic straight-line stroke primitive.
-- Use synthetic controlled transitions.
-- Keep the pretrained visual encoder frozen.
-- Examine spatial patch features as well as a global feature.
-- Treat DINOv2-small as an engineering baseline, not as the thesis contribution.
+- Use synthetic controlled one-step transitions.
+- Keep `facebook/dinov2-small` frozen.
+- Predict spatial patch-token residuals rather than relying on a global token.
+- Encode actions with normalized stroke parameters and a patch-aligned mask.
+- Preserve identity, mean-delta, linear, and small nonlinear baselines.
+- Use independent train, validation, test, and stress seeds.
+- Do not rerun or retune Gate 1.
 - Do not implement reinforcement learning.
-- Do not implement a full painting policy.
+- Do not implement target-guided candidate ranking until Gate 2 passes.
 - Do not implement multi-step rollout.
-- Do not claim that Gate 1, Gate 2, or the thesis hypothesis has passed without recorded experimental evidence.
-
-If Gate 1 passes, the next stage is a small **deterministic one-step residual predictor**. Stochastic or mixture-density dynamics require evidence from an ablation; they are not the default for this deterministic, fully observed renderer.
+- Do not introduce stochastic or mixture-density dynamics without a later justified ablation.
+- Do not claim Gate 2 has passed without a recorded formal result against the frozen protocol.
 
 ## Conceptual boundaries
 
@@ -64,23 +65,7 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Gate 1 smoke test:
-
-```bash
-python experiments/01_embedding_sensitivity.py \
-  --samples 3 \
-  --crowding 0 5 \
-  --output-dir outputs/gate1-smoke
-```
-
-Gate 1 first proper run:
-
-```bash
-python experiments/01_embedding_sensitivity.py \
-  --samples 25 \
-  --crowding 0 5 15 \
-  --output-dir outputs/gate1
-```
+Historical Gate 1 commands remain in `docs/gate-1-protocol.md` and the README for reproduction only. Do not rerun them as active development work.
 
 ## Code standards
 
@@ -96,17 +81,19 @@ python experiments/01_embedding_sensitivity.py \
 
 ## Experimental standards
 
-- Record the exact model, layer or feature choice, seed, data-generation settings, and command.
+- Record the exact model, feature choice, seed, data-generation settings, and command.
 - Preserve negative and failed results.
 - Do not change pass/fail criteria after seeing results without recording and justifying the change.
-- Compare distributions across many examples; never infer success from one attractive heatmap.
+- Compare distributions across many examples; never infer success from one attractive visualization.
 - Separate failures of the representation, predictor, planner, and evaluation metric.
-- Use the encoder-space distance as an internal objective, not as the sole final evaluation metric.
-- Include independent image-space evaluation and exact-renderer baselines.
+- Use the encoder-space distance as an internal objective, not as the sole final painting-quality metric.
+- Include independent image-space evaluation and exact-renderer baselines when the project reaches Gate 3.
 - Avoid novelty claims such as “first ever” unless a fresh, defensible search supports them.
 - Preferred description: “JEPA-inspired latent canvas dynamics” or “action-conditioned joint-embedding prediction for canvas dynamics,” not “a new JEPA architecture.”
 
 ## Baselines that must remain visible
+
+For Gate 2, keep identity, mean-delta, linear, and small nonlinear predictors in the same evaluation table.
 
 When the project reaches candidate-stroke selection, preserve this comparison:
 
@@ -114,7 +101,7 @@ When the project reaches candidate-stroke selection, preserve this comparison:
 2. Exact renderer + latent objective.
 3. Learned latent predictor + latent objective.
 
-Also include random candidate selection and appropriate no-change or linear prediction baselines. This separation is required to identify whether a failure comes from representation choice, prediction, planning, or efficiency.
+Also include random candidate selection. This separation is required to identify whether a failure comes from representation choice, prediction, planning, or efficiency.
 
 ## Working and handoff protocol
 
