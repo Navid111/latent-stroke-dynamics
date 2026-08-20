@@ -16,19 +16,19 @@ The long-term question is whether a planner can choose a stroke by predicting ho
 
 No-change distances remained below `3.6e-7`. The formal run and full interpretation are archived in [`results/gate1-formal/2026-08-19/`](results/gate1-formal/2026-08-19/) and [`docs/gate-1-results.md`](docs/gate-1-results.md).
 
-The project is now authorized to begin **Gate 2: deterministic one-step latent prediction**.
+**Gate 2 is now implemented and awaiting local validation.** Its protocol was frozen before implementation. The code generates independent deterministic transition splits, caches frozen patch features in float16, runs a tiny overfit diagnostic, trains linear and nonlinear action-conditioned residual predictors, compares them with identity and mean-delta baselines, and evaluates counterfactual outcome retrieval. A smoke-sized run can only report `diagnostic_only`; it cannot declare the gate passed.
 
 ## Current scope
 
 - 64×64 grayscale canvases
 - One straight-line stroke primitive
-- Synthetic, deterministic transitions
-- A frozen pretrained encoder
-- Global features **and** spatial patch features
+- Synthetic, deterministic one-step transitions
+- Frozen `facebook/dinov2-small` final-layer patch tokens
+- Action-conditioned residual prediction
 - No reinforcement learning
-- No multi-step rollout until one-step prediction and ranking work
+- No target-guided planning or multi-step rollout until Gate 2 passes
 
-The initial engineering baseline is `facebook/dinov2-small` because it is easy to run and exposes spatial patch tokens. The CLI accepts a different Hugging Face vision-model name later, so an I-JEPA checkpoint can be tested without rewriting the experiment. Using DINOv2 for this diagnostic does **not** turn the thesis into a DINOv2 thesis.
+The CLI accepts a different Hugging Face vision-model name later, so an I-JEPA checkpoint can be tested without rewriting the experiment. Using DINOv2 for this diagnostic does **not** turn the thesis into a DINOv2 thesis.
 
 ## Project context for humans and agents
 
@@ -37,22 +37,7 @@ The initial engineering baseline is `facebook/dinov2-small` because it is easy t
 - [`docs/thesis-plan.md`](docs/thesis-plan.md) — concise research plan, architecture, baselines, timeline, and fallback
 - [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) — frozen Gate 1 design and criteria
 - [`docs/gate-1-results.md`](docs/gate-1-results.md) — formal Gate 1 result and interpretation
-
-## Gate 1: embedding sensitivity
-
-The finalized diagnostic:
-
-1. reused the same proposed stroke across nested crowding levels,
-2. included tiny-noise, dense pixel-MAE-matched, and sparse support-and-MAE-matched controls,
-3. recorded action and changed-pixel metadata,
-4. measured all-patch, top-10%, changed-region, and reference-stroke-region distances,
-5. quantified spatial localization and lift over random,
-6. separated crowding levels in every plot,
-7. saved paired win rates in `gate_diagnostics.csv`.
-
-The dense matched control was retained as a stress test. The sparse matched control was the primary comparison because it matched both pixel-change amount and support size while destroying coherent line structure.
-
-The low fixed top-10% win rates under clutter are reported rather than hidden. Sparse random pixels touch about four times as many patch locations as the connected line, so that metric rewards spatial dispersion. The preregistered reference-region and localization criteria passed decisively.
+- [`docs/gate-2-protocol.md`](docs/gate-2-protocol.md) — frozen Gate 2 data, models, metrics, and decision rule
 
 ## Quick start
 
@@ -68,7 +53,51 @@ pip install -e ".[dev]"
 pytest
 ```
 
-To reproduce the frozen formal Gate 1 run:
+## Gate 2 M1 smoke test
+
+After pulling the latest `main`, run the tests first. Then use this deliberately small CPU command on the base-model Apple Silicon MacBook Air:
+
+```bash
+python experiments/02_one_step_prediction.py \
+  --train-samples 64 \
+  --val-samples 16 \
+  --test-samples 32 \
+  --model-seeds 11 \
+  --epochs 8 \
+  --patience 3 \
+  --encode-batch-size 8 \
+  --encode-chunk-size 32 \
+  --train-batch-size 8 \
+  --encoder-device cpu \
+  --train-device cpu \
+  --output-dir outputs/gate2-smoke
+```
+
+The script encodes in chunks, stores cached features as float16, unloads the frozen encoder, and converts only active training batches to float32. On a retry with identical settings, add `--reuse-cache` to avoid re-encoding.
+
+Do **not** run the formal configuration yet. The formal command will be frozen only after the tests, overfit diagnostic, and smoke artifacts have been inspected.
+
+## Gate 2 outputs
+
+A completed run writes:
+
+- `run_config.json` — exact run settings and formal-eligibility flag
+- `overfit_check.json` — tiny-set learning sanity check
+- `split_metadata.csv` — sample metadata and fingerprints proving split separation
+- `training_history.csv` — per-epoch train and validation losses
+- `prediction_metrics.csv` — held-out per-example errors
+- `aggregate_metrics.csv` — grouped means and standard deviations
+- `counterfactual_retrieval.csv` — true/shifted/width/intensity outcome ranking
+- `gate_diagnostics.csv` — baseline improvements, crowding checks, retrieval, and status
+- `baseline_improvement.png` — held-out improvement over no-change
+- `example_residual_prediction.png` — true residual, predicted residual, error, and action mask
+- `cache/*.pt` — ignored float16 feature caches
+
+Generated data, figures, caches, and checkpoints are ignored by Git. Curated formal snapshots may later be copied into `results/` and committed with clear labels.
+
+## Historical Gate 1 reproduction
+
+Gate 1 is frozen and does not need to be rerun during active Gate 2 work.
 
 ```bash
 python experiments/01_embedding_sensitivity.py \
@@ -80,20 +109,6 @@ python experiments/01_embedding_sensitivity.py \
   --output-dir outputs/gate1-formal
 ```
 
-## Generated Gate 1 outputs
-
-Each run writes:
-
-- `results.csv` — one row per controlled comparison with action metadata
-- `aggregate_summary.csv` — mean and standard deviation by condition and crowding
-- `gate_diagnostics.csv` — paired control win rates and localization summaries
-- `distance_distributions.png` — distance plots faceted by crowding
-- `localization_metrics.png` — changed-region and top-k localization diagnostics
-- `example_patch_heatmap_crowding_<n>.png` — spatial evidence for each crowding level
-- `run_config.json` — reproducibility settings
-
-Generated data, figures, and checkpoints are ignored by Git. Curated snapshots may be copied into `results/` and committed with clear labels.
-
 ## Repository layout
 
 ```text
@@ -102,18 +117,23 @@ Generated data, figures, and checkpoints are ignored by Git. Curated snapshots m
 ├── docs/
 │   ├── gate-1-protocol.md
 │   ├── gate-1-results.md
+│   ├── gate-2-protocol.md
 │   └── thesis-plan.md
 ├── logbooks/
-│   └── STATE.md
+│   ├── STATE.md
+│   └── 2026-08-20.md
 ├── experiments/
-│   └── 01_embedding_sensitivity.py
+│   ├── 01_embedding_sensitivity.py
+│   └── 02_one_step_prediction.py
 ├── src/latent_stroke_dynamics/
 │   ├── encoder.py
 │   ├── gate1.py
+│   ├── gate2.py
 │   ├── metrics.py
 │   └── renderer.py
 ├── tests/
 │   ├── test_gate1.py
+│   ├── test_gate2.py
 │   └── test_renderer.py
 ├── results/
 ├── data/
@@ -124,4 +144,4 @@ Generated data, figures, and checkpoints are ignored by Git. Curated snapshots m
 
 ## Decision rule
 
-Gate 1 is complete. Gate 2 should train and compare deterministic one-step predictors before any candidate ranking, reinforcement learning, or multi-step planning work begins.
+Gate 2 must beat both identity and mean-delta baselines by the frozen margin, remain positive at all three crowding levels, retrieve the true counterfactual outcome above the frozen threshold, and remain stable across formal seeds. Only an exact frozen formal run may receive a pass, borderline, or fail decision. Candidate ranking toward a target belongs to Gate 3 and begins only after a recorded Gate 2 pass.

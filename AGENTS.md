@@ -65,6 +65,8 @@ pip install -e ".[dev]"
 pytest
 ```
 
+The active Gate 2 M1 smoke command is recorded in `README.md` and `logbooks/2026-08-20.md`. Run `pytest` first. A smoke run is diagnostic only and must not be interpreted as the formal gate decision.
+
 Historical Gate 1 commands remain in `docs/gate-1-protocol.md` and the README for reproduction only. Do not rerun them as active development work.
 
 ## Code standards
