@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-20  
 **Branch:** `main`  
 **Current gate:** Gate 2 — deterministic one-step latent prediction  
-**Gate status:** Unit tests passed locally; smoke run next
+**Gate status:** Smoke 1 reviewed; integrity repairs committed; development v2 next
 
 ## Objective
 
@@ -16,13 +16,15 @@ Train the smallest action-conditioned model that predicts how one deterministic 
 - Archived the formal artifacts and declared Gate 1 a pass against its frozen criteria.
 - Read the focused literature-report scope and reconciled it with the project design.
 - Froze `docs/gate-2-protocol.md` before implementing Gate 2.
-- Added deterministic Gate 2 transition generation and split fingerprints.
-- Added a reversal-invariant normalized stroke vector, fractional patch-action mask, and normalized patch coordinates.
-- Added identity, mean-delta, shared linear, and small shared nonlinear residual predictors.
-- Added balanced action/outside loss, spatial errors, and true-versus-counterfactual retrieval.
-- Added Gate 2 unit tests for generation, encodings, masks, tensor shapes, loss, and retrieval.
-- Added an M1-aware experiment pipeline with chunked encoding, float16 disk caches, float32 training batches, tiny overfit check, early stopping, output tables, and plots.
-- Ran the complete local suite on Navid's MacBook Air: 14 tests passed in 1.91 seconds under Python 3.14.4 and pytest 9.1.1.
+- Added deterministic Gate 2 transitions, split fingerprints, normalized action inputs, four baselines/predictors, balanced loss, spatial metrics, retrieval, tests, and an M1-aware experiment pipeline.
+- Ran the complete local suite: 14 tests passed in 1.91 seconds under Python 3.14.4 and pytest 9.1.1.
+- Completed the first end-to-end Gate 2 engineering smoke on the local M1 without a runtime or memory failure.
+- Confirmed a 98.14% tiny-overfit loss reduction and finite decreasing training curves.
+- Observed promising aggregate linear-predictor error but mixed crowding behavior.
+- Found and repaired duplicate counterfactual outcomes that invalidated the first smoke's nominal retrieval chance rate.
+- Amended formal data seeds before any formal run because the original seed prefixes were exposed by the smoke command.
+- Added stricter formal-eligibility, finite-metric, overfit, and candidate-uniqueness checks.
+- Added crowding, retrieval, and training plots plus common-scale residual heatmaps.
 
 ## Formal Gate 1 result
 
@@ -32,9 +34,19 @@ Train the smallest action-conditioned model that predicts how one deterministic 
 | 5 | 24/25 (96%) | 10.24× | 4.95× | 3.58e-7 |
 | 15 | 25/25 (100%) | 10.60× | 6.77× | 3.58e-7 |
 
-The spatial representation preserves the stroke in the correct action region. Global and fixed top-10% summaries weaken under clutter, so Gate 2 uses patch tokens and action-aligned metrics.
-
 See `docs/gate-1-results.md` for the complete interpretation.
+
+## Gate 2 smoke 1
+
+The 64/16/32, one-seed run was diagnostic only. Validation selected the linear predictor.
+
+- action-region MSE improvement versus identity: 48.2%;
+- improvement versus mean delta: 36.8%;
+- crowding improvements versus identity: +67.7%, +6.3%, and −25.7% for 0, 5, and 15 prior strokes;
+- nominal retrieval: 31.25%, but not interpretable because five rows contained exact candidate ties;
+- overfit check: 98.14% loss reduction.
+
+See `docs/gate-2-smoke-1.md` for the review and integrity corrections.
 
 ## Frozen Gate 2 decisions
 
@@ -44,27 +56,30 @@ See `docs/gate-1-results.md` for the complete interpretation.
 - Encode the stroke with normalized parameters, a patch-aligned action mask, and patch coordinates.
 - Compare identity, mean-delta, linear, and small nonlinear predictors.
 - Use independent train, validation, test, and stress seeds.
-- Train each learned predictor with seeds `11`, `22`, and `33` for the formal result.
+- Use formal model seeds `11`, `22`, and `33`.
+- Use untouched amended formal data seeds `20260824`–`20260827`.
+- Require four distinct rendered and encoded outcomes for counterfactual retrieval.
 - Use action-region error and counterfactual retrieval as primary evidence.
 - Do not begin target-guided ranking, reinforcement learning, stochastic dynamics, or multi-step rollout.
 
 ## Validation status
 
-The deterministic Gate 2 implementation has passed all local unit tests. This validates generation, encodings, action masks, predictor shapes, balanced loss, and retrieval logic in the local environment.
+Smoke 1 validates the M1 execution path, encoder caching, overfit path, training loop, evaluation, and artifact generation. It does not validate the original retrieval number because candidate aliases were discovered during review.
 
-The end-to-end path through DINOv2 encoding, disk caching, optimization, metrics, and plots has not yet been smoke-tested. A smoke-sized run remains intentionally ineligible for a gate decision and must report `diagnostic_only`. The formal command remains unfrozen until smoke validation is complete.
+The repair is committed but has not yet passed Navid's local tests. The formal command remains unfrozen, and the untouched amended formal data have not been generated or viewed.
 
 ## Next actions
 
-1. Run the committed Gate 2 smoke experiment on the local M1.
-2. Inspect the complete terminal output and all smoke artifacts.
-3. Repair implementation errors if present without changing the frozen scientific criteria.
-4. If the smoke path is sound, freeze the exact formal Gate 2 command.
-5. Run the formal configuration once and judge it against the frozen protocol.
+1. Pull the integrity-repair commits.
+2. Run the complete `pytest` suite; the new counterfactual-uniqueness test must pass.
+3. Run the 256/64/96 development-v2 command from the README.
+4. Inspect convergence, unique-candidate diagnostics, crowding behavior, and retrieval.
+5. Freeze the exact formal training command only if development v2 is sound.
+6. Run the formal configuration once against untouched data.
 
 ## Immediate next step
 
-Navid should run the Gate 2 smoke command from `README.md` and return its terminal output plus the generated diagnostic files. Gate 1 must not be rerun or retuned.
+Navid should run `git pull`, `pytest`, and then the committed Gate 2 development-v2 command. Gate 1 must not be rerun or retuned.
 
 ## Handoff note
 
