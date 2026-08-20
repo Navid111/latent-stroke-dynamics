@@ -1,8 +1,26 @@
 # Gate 2 protocol — deterministic one-step latent prediction
 
-**Status:** Frozen before implementation and before any Gate 2 result  
+**Status:** Frozen before implementation; amended once after the engineering smoke and before any formal run  
 **Frozen on:** 2026-08-20  
+**Amendment 1:** 2026-08-20  
 **Active research question:** Can a small action-conditioned model predict the spatial representation of the true next canvas better than trivial baselines on held-out one-stroke transitions?
+
+## 0. Amendment record
+
+The first engineering smoke run used 64/16/32-example prefixes from the originally reserved formal data seeds (`20260820`, `20260821`, and `20260822`). Those rows became visible during implementation review, so they are now permanently development-only rather than being reused inside the formal evaluation.
+
+Before any formal run, the untouched formal data block was reassigned mechanically to the next four unused seeds:
+
+```text
+train      20260824
+validation 20260825
+test       20260826
+stress     20260827
+```
+
+The smoke output also revealed exact ties between nominally different rendered counterfactuals on five of 32 rows. Such aliases invalidate the nominal 25% chance rate. The implementation must therefore deterministically try another action from the same semantic class whenever rasterization or occlusion makes a candidate outcome identical to the current canvas or another candidate. All four retrieval outcomes must be pixel-distinct before encoding.
+
+This amendment is an implementation-integrity correction. It does not change the transition distribution, predictor inputs, model families, loss, metrics, numerical thresholds, or three formal model seeds. The original seeds and smoke result remain recorded rather than hidden.
 
 ## 1. Why this gate exists
 
@@ -67,15 +85,15 @@ Examples that change no pixels are rejected and resampled.
 
 | Split | Examples | Data seed | Purpose |
 |---|---:|---:|---|
-| Train | 1,000 | `20260820` | Fit trainable predictors and training-set mean delta |
-| Validation | 200 | `20260821` | Model selection and early stopping only |
-| Test | 300 | `20260822` | One final held-out evaluation |
+| Train | 1,000 | `20260824` | Fit trainable predictors and training-set mean delta |
+| Validation | 200 | `20260825` | Model selection and early stopping only |
+| Test | 300 | `20260826` | One final held-out evaluation |
 
-The Gate 1 formal seed `20260819` is not reused. Splits are generated independently; no canvas, proposed action, or encoded target is shared across them.
+The Gate 1 formal seed `20260819` and the exposed development seeds `20260820`–`20260822` are not reused. Splits are generated independently; no canvas, proposed action, or encoded target is shared across them.
 
 ### Secondary out-of-distribution stress slices
 
-These do not decide the primary pass/fail result. Use 100 examples per slice with independent substreams from seed `20260823`:
+These do not decide the primary pass/fail result. Use 100 examples per slice with independent substreams from seed `20260827`:
 
 1. unseen width: width `5`, otherwise primary settings;
 2. unseen intensity: values from `{16, 80, 176}`, otherwise primary settings;
@@ -159,7 +177,7 @@ For each held-out test transition, retain the same current canvas and construct 
 3. a width-changed stroke;
 4. an intensity-changed stroke.
 
-Encode all four exact outcomes. Score each candidate over the union of their action-covered patches and ask whether `z_hat_next` retrieves the true outcome at rank 1. Chance is 25%.
+All four rendered outcomes must be pixel-distinct. If the first nominal counterfactual aliases another outcome because of rasterization or occlusion, deterministically use the next valid action from that same semantic class. Encode all four exact outcomes. Score each candidate over the union of their action-covered patches and ask whether `z_hat_next` retrieves the true outcome at rank 1. Chance is then 25%.
 
 This is a grounding diagnostic, not target-guided planning. The model is not choosing a stroke toward a target image yet.
 

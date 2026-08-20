@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from hashlib import sha256
 from math import atan2, cos, hypot, sin, sqrt
-from typing import Sequence
+from typing import Iterable, Sequence
 
 import numpy as np
 import torch
@@ -45,8 +45,20 @@ class TransitionExample:
     sample_id: int
 
 
+@dataclass(frozen=True)
+class CounterfactualSet:
+    """Four semantically controlled actions with distinct rendered outcomes."""
+
+    strokes: tuple[Stroke, Stroke, Stroke, Stroke]
+    canvases: tuple[Image.Image, Image.Image, Image.Image, Image.Image]
+
+
 def _images_differ(left: Image.Image, right: Image.Image) -> bool:
     return bool(np.any(np.asarray(left) != np.asarray(right)))
+
+
+def _image_digest(image: Image.Image) -> bytes:
+    return sha256(np.asarray(image, dtype=np.uint8).tobytes()).digest()
 
 
 def build_transition_split(
@@ -208,16 +220,23 @@ def build_action_tensors(
     return actions, masks
 
 
-def _translated_counterfactual(stroke: Stroke) -> Stroke:
-    candidates = (
+def _translated_counterfactual_candidates(stroke: Stroke) -> tuple[Stroke, ...]:
+    offsets = (
         (0.08, 0.00),
         (-0.08, 0.00),
         (0.00, 0.08),
         (0.00, -0.08),
         (0.06, 0.06),
         (-0.06, -0.06),
+        (0.12, 0.00),
+        (-0.12, 0.00),
+        (0.00, 0.12),
+        (0.00, -0.12),
+        (0.12, 0.12),
+        (-0.12, -0.12),
     )
-    for dx, dy in candidates:
+    candidates: list[Stroke] = []
+    for dx, dy in offsets:
         coordinates = (
             stroke.x0 + dx,
             stroke.y0 + dy,
@@ -225,13 +244,15 @@ def _translated_counterfactual(stroke: Stroke) -> Stroke:
             stroke.y1 + dy,
         )
         if all(0.0 <= coordinate <= 1.0 for coordinate in coordinates):
-            return replace(
+            candidate = replace(
                 stroke,
                 x0=coordinates[0],
                 y0=coordinates[1],
                 x1=coordinates[2],
                 y1=coordinates[3],
             )
+            if candidate not in candidates:
+                candidates.append(candidate)
 
     reflected = replace(
         stroke,
@@ -240,37 +261,118 @@ def _translated_counterfactual(stroke: Stroke) -> Stroke:
         x1=1.0 - stroke.x1,
         y1=1.0 - stroke.y1,
     )
-    if reflected != stroke:
-        return reflected
-    return stroke.shifted(dx=0.02, dy=0.0)
+    if reflected != stroke and reflected not in candidates:
+        candidates.append(reflected)
+    return tuple(candidates)
+
+
+def _width_counterfactual_candidates(stroke: Stroke) -> tuple[Stroke, ...]:
+    widths = sorted(
+        (width for width in range(1, 9) if width != stroke.width),
+        key=lambda width: (abs(width - stroke.width), width),
+    )
+    return tuple(replace(stroke, width=width) for width in widths)
+
+
+def _intensity_counterfactual_candidates(stroke: Stroke) -> tuple[Stroke, ...]:
+    preferred = 224 if stroke.value <= 96 else 16
+    pool = [preferred, 0, 16, 32, 64, 80, 96, 128, 176, 224]
+    values: list[int] = []
+    for value in pool:
+        if value != stroke.value and value not in values:
+            values.append(value)
+    return tuple(replace(stroke, value=value) for value in values)
+
+
+def _select_unique_render(
+    current: Image.Image,
+    candidates: Iterable[Stroke],
+    seen_digests: set[bytes],
+    label: str,
+) -> tuple[Stroke, Image.Image]:
+    for candidate in candidates:
+        canvas = render_stroke(current, candidate)
+        digest = _image_digest(canvas)
+        if _images_differ(current, canvas) and digest not in seen_digests:
+            return candidate, canvas
+    raise RuntimeError(
+        f"Could not construct a distinct rendered {label} counterfactual."
+    )
 
 
 def counterfactual_strokes(stroke: Stroke) -> tuple[Stroke, Stroke, Stroke, Stroke]:
-    """Return true, shifted, width-changed, and intensity-changed actions."""
+    """Return the nominal first-choice actions for the four retrieval classes.
 
-    shifted = _translated_counterfactual(stroke)
-    changed_width = replace(
+    Use :func:`build_counterfactual_set` when a current canvas is available;
+    it resolves rasterization or occlusion aliases deterministically.
+    """
+
+    shifted_candidates = _translated_counterfactual_candidates(stroke)
+    if not shifted_candidates:
+        raise RuntimeError("Could not construct a shifted counterfactual action.")
+    return (
         stroke,
-        width=stroke.width + 1 if stroke.width < 5 else stroke.width - 1,
+        shifted_candidates[0],
+        _width_counterfactual_candidates(stroke)[0],
+        _intensity_counterfactual_candidates(stroke)[0],
     )
-    changed_value = replace(
-        stroke,
-        value=224 if stroke.value <= 96 else 16,
+
+
+def build_counterfactual_set(example: TransitionExample) -> CounterfactualSet:
+    """Construct four semantically controlled, pixel-distinct exact outcomes."""
+
+    true_canvas = render_stroke(example.current, example.stroke)
+    if not np.array_equal(np.asarray(true_canvas), np.asarray(example.next_canvas)):
+        raise RuntimeError("Stored next canvas does not match the exact renderer.")
+
+    seen = {_image_digest(example.current), _image_digest(true_canvas)}
+    shifted_stroke, shifted_canvas = _select_unique_render(
+        example.current,
+        _translated_counterfactual_candidates(example.stroke),
+        seen,
+        "position-shifted",
     )
-    return stroke, shifted, changed_width, changed_value
+    seen.add(_image_digest(shifted_canvas))
+
+    width_stroke, width_canvas = _select_unique_render(
+        example.current,
+        _width_counterfactual_candidates(example.stroke),
+        seen,
+        "width-changed",
+    )
+    seen.add(_image_digest(width_canvas))
+
+    intensity_stroke, intensity_canvas = _select_unique_render(
+        example.current,
+        _intensity_counterfactual_candidates(example.stroke),
+        seen,
+        "intensity-changed",
+    )
+
+    return CounterfactualSet(
+        strokes=(
+            example.stroke,
+            shifted_stroke,
+            width_stroke,
+            intensity_stroke,
+        ),
+        canvases=(
+            true_canvas,
+            shifted_canvas,
+            width_canvas,
+            intensity_canvas,
+        ),
+    )
 
 
 def counterfactual_canvases(example: TransitionExample) -> tuple[Image.Image, ...]:
-    """Render the four exact outcomes used by the retrieval diagnostic."""
+    """Render the four unique exact outcomes used by retrieval."""
 
-    return tuple(
-        render_stroke(example.current, stroke)
-        for stroke in counterfactual_strokes(example.stroke)
-    )
+    return build_counterfactual_set(example).canvases
 
 
 def counterfactual_union_mask(
-    stroke: Stroke,
+    example: TransitionExample,
     canvas_size: int,
     patch_grid: tuple[int, int],
 ) -> torch.Tensor:
@@ -278,8 +380,8 @@ def counterfactual_union_mask(
 
     masks = torch.stack(
         [
-            stroke_patch_coverage(item, canvas_size, patch_grid)
-            for item in counterfactual_strokes(stroke)
+            stroke_patch_coverage(stroke, canvas_size, patch_grid)
+            for stroke in build_counterfactual_set(example).strokes
         ]
     )
     return masks.max(dim=0).values
@@ -312,7 +414,11 @@ def make_patch_inputs(
             f"patch_grid implies {expected_patches} patches, received {patches}."
         )
 
-    current = F.layer_norm(current_features, current_features.shape[-1:]) if normalize_current else current_features
+    current = (
+        F.layer_norm(current_features, current_features.shape[-1:])
+        if normalize_current
+        else current_features
+    )
     repeated_actions = actions[:, None, :].expand(-1, patches, -1)
     coordinates = patch_coordinates(patch_grid).to(
         device=current_features.device,
@@ -430,7 +536,11 @@ class MLPPatchDeltaPredictor(nn.Module):
 def parameter_count(model: nn.Module) -> int:
     """Count trainable parameters."""
 
-    return sum(parameter.numel() for parameter in model.parameters() if parameter.requires_grad)
+    return sum(
+        parameter.numel()
+        for parameter in model.parameters()
+        if parameter.requires_grad
+    )
 
 
 def _masked_patch_mean(values: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:

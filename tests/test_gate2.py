@@ -7,10 +7,12 @@ from latent_stroke_dynamics.gate2 import (
     LinearPatchDeltaPredictor,
     MLPPatchDeltaPredictor,
     balanced_patch_mse,
+    build_counterfactual_set,
     build_transition_split,
     counterfactual_canvases,
     counterfactual_retrieval,
     counterfactual_strokes,
+    counterfactual_union_mask,
     stroke_action_vector,
     stroke_patch_coverage,
     transition_fingerprint,
@@ -106,6 +108,33 @@ def test_counterfactuals_change_each_controlled_property() -> None:
     canvases = counterfactual_canvases(example)
     assert len(canvases) == 4
     assert np.array_equal(np.asarray(canvases[0]), np.asarray(example.next_canvas))
+
+
+def test_counterfactual_rendered_outcomes_are_unique() -> None:
+    examples = build_transition_split(32, 64, [0, 5, 15], seed=20260822)
+
+    for example in examples:
+        candidates = build_counterfactual_set(example)
+        digests = {
+            np.asarray(canvas, dtype=np.uint8).tobytes()
+            for canvas in candidates.canvases
+        }
+        assert len(digests) == len(COUNTERFACTUAL_ORDER)
+        assert all(
+            np.any(np.asarray(canvas) != np.asarray(example.current))
+            for canvas in candidates.canvases
+        )
+        assert candidates.strokes[1] != example.stroke
+        assert candidates.strokes[2].width != example.stroke.width
+        assert candidates.strokes[3].value != example.stroke.value
+
+        union_mask = counterfactual_union_mask(
+            example,
+            canvas_size=64,
+            patch_grid=(16, 16),
+        )
+        assert union_mask.shape == (256,)
+        assert bool((union_mask > 0).any())
 
 
 def test_counterfactual_retrieval_recovers_exact_true_candidate() -> None:
