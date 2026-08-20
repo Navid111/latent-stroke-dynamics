@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-20  
 **Branch:** `main`  
 **Current gate:** Gate 2 — deterministic one-step latent prediction  
-**Gate status:** Implementation committed; local validation next
+**Gate status:** Unit tests passed locally; smoke run next
 
 ## Objective
 
@@ -22,6 +22,7 @@ Train the smallest action-conditioned model that predicts how one deterministic 
 - Added balanced action/outside loss, spatial errors, and true-versus-counterfactual retrieval.
 - Added Gate 2 unit tests for generation, encodings, masks, tensor shapes, loss, and retrieval.
 - Added an M1-aware experiment pipeline with chunked encoding, float16 disk caches, float32 training batches, tiny overfit check, early stopping, output tables, and plots.
+- Ran the complete local suite on Navid's MacBook Air: 14 tests passed in 1.91 seconds under Python 3.14.4 and pytest 9.1.1.
 
 ## Formal Gate 1 result
 
@@ -49,22 +50,21 @@ See `docs/gate-1-results.md` for the complete interpretation.
 
 ## Validation status
 
-No claim has been made that the new Gate 2 tests or experiment pass locally. The repository-side implementation is ready for Navid's machine, where the actual Python environment and M1 resource behavior must be checked.
+The deterministic Gate 2 implementation has passed all local unit tests. This validates generation, encodings, action masks, predictor shapes, balanced loss, and retrieval logic in the local environment.
 
-A smoke-sized run is intentionally ineligible for a gate decision and reports `diagnostic_only`. The formal command remains unfrozen until smoke validation is complete.
+The end-to-end path through DINOv2 encoding, disk caching, optimization, metrics, and plots has not yet been smoke-tested. A smoke-sized run remains intentionally ineligible for a gate decision and must report `diagnostic_only`. The formal command remains unfrozen until smoke validation is complete.
 
 ## Next actions
 
-1. Pull the latest `main` on the local M1.
-2. Run the full `pytest` suite and preserve the complete result.
-3. Run the tiny-overfit plus smoke experiment from `README.md`.
-4. Inspect `overfit_check.json`, `gate_diagnostics.csv`, the training history, and both plots.
-5. Repair implementation errors if present without changing the frozen scientific criteria.
-6. Freeze the exact formal Gate 2 command only after the smoke check is sound.
+1. Run the committed Gate 2 smoke experiment on the local M1.
+2. Inspect the complete terminal output and all smoke artifacts.
+3. Repair implementation errors if present without changing the frozen scientific criteria.
+4. If the smoke path is sound, freeze the exact formal Gate 2 command.
+5. Run the formal configuration once and judge it against the frozen protocol.
 
 ## Immediate next step
 
-Navid should run `git pull`, then `pytest`, then the committed Gate 2 smoke command. Gate 1 must not be rerun or retuned.
+Navid should run the Gate 2 smoke command from `README.md` and return its terminal output plus the generated diagnostic files. Gate 1 must not be rerun or retuned.
 
 ## Handoff note
 
