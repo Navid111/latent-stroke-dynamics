@@ -31,8 +31,8 @@ from latent_stroke_dynamics.gate2 import (
     TransitionExample,
     balanced_patch_mse,
     build_action_tensors,
+    build_counterfactual_set,
     build_transition_split,
-    counterfactual_canvases,
     counterfactual_retrieval,
     counterfactual_union_mask,
     parameter_count,
@@ -41,9 +41,19 @@ from latent_stroke_dynamics.gate2 import (
 )
 
 
+FORMAL_MODEL_NAME = "facebook/dinov2-small"
+FORMAL_CANVAS_SIZE = 64
 FORMAL_SPLIT_SIZES = {"train": 1000, "validation": 200, "test": 300}
-FORMAL_DATA_SEEDS = {"train": 20260820, "validation": 20260821, "test": 20260822}
+FORMAL_DATA_SEEDS = {"train": 20260824, "validation": 20260825, "test": 20260826}
+FORMAL_STRESS_SEED = 20260827
 FORMAL_MODEL_SEEDS = {11, 22, 33}
+DEVELOPMENT_DATA_SEEDS = {
+    "train": 20260820,
+    "validation": 20260821,
+    "test": 20260822,
+    "stress": 20260823,
+}
+COUNTERFACTUAL_CACHE_VERSION = 2
 METRIC_COLUMNS = [
     "full_patch_mse",
     "action_region_mse",
@@ -54,8 +64,8 @@ METRIC_COLUMNS = [
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--model", default="facebook/dinov2-small")
-    parser.add_argument("--canvas-size", type=int, default=64)
+    parser.add_argument("--model", default=FORMAL_MODEL_NAME)
+    parser.add_argument("--canvas-size", type=int, default=FORMAL_CANVAS_SIZE)
     parser.add_argument("--crowding", nargs="+", type=int, default=list(PRIMARY_CROWDING))
 
     parser.add_argument("--train-samples", type=int, default=64)
@@ -63,10 +73,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--test-samples", type=int, default=32)
     parser.add_argument("--stress-samples", type=int, default=0)
 
-    parser.add_argument("--train-seed", type=int, default=20260820)
-    parser.add_argument("--val-seed", type=int, default=20260821)
-    parser.add_argument("--test-seed", type=int, default=20260822)
-    parser.add_argument("--stress-seed", type=int, default=20260823)
+    parser.add_argument("--train-seed", type=int, default=DEVELOPMENT_DATA_SEEDS["train"])
+    parser.add_argument("--val-seed", type=int, default=DEVELOPMENT_DATA_SEEDS["validation"])
+    parser.add_argument("--test-seed", type=int, default=DEVELOPMENT_DATA_SEEDS["test"])
+    parser.add_argument("--stress-seed", type=int, default=DEVELOPMENT_DATA_SEEDS["stress"])
     parser.add_argument("--model-seeds", nargs="+", type=int, default=[11])
 
     parser.add_argument("--encode-batch-size", type=int, default=16)
@@ -95,6 +105,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--threads", type=int, default=0)
     parser.add_argument("--reuse-cache", action="store_true")
     parser.add_argument("--skip-counterfactuals", action="store_true")
+    parser.add_argument(
+        "--formal-run",
+        action="store_true",
+        help="Required for a formal decision; do not use until the command is frozen.",
+    )
     parser.add_argument("--output-dir", type=Path, default=Path("outputs/gate2-smoke"))
     parser.add_argument("--cache-dir", type=Path, default=None)
     return parser.parse_args()
@@ -322,6 +337,15 @@ def _encode_examples(
     }
 
 
+def _encoded_candidates_are_unique(candidates: torch.Tensor) -> bool:
+    for sample in candidates:
+        for left in range(sample.shape[0]):
+            for right in range(left + 1, sample.shape[0]):
+                if torch.equal(sample[left], sample[right]):
+                    return False
+    return True
+
+
 def _encode_counterfactuals(
     encoder: FrozenVisionEncoder,
     examples: Sequence[TransitionExample],
@@ -331,17 +355,14 @@ def _encode_counterfactuals(
 ) -> dict[str, Any]:
     candidate_parts: list[torch.Tensor] = []
     patch_grid = tuple(test_payload["patch_grid"])
+    candidate_sets = [build_counterfactual_set(item) for item in examples]
 
     for start in tqdm(
         range(0, len(examples), encode_chunk_size),
         desc="Preparing test counterfactuals",
     ):
-        chunk = examples[start : start + encode_chunk_size]
-        images = [
-            canvas
-            for item in chunk
-            for canvas in counterfactual_canvases(item)
-        ]
+        chunk = candidate_sets[start : start + encode_chunk_size]
+        images = [canvas for item in chunk for canvas in item.canvases]
         encoded = encoder.encode(images, batch_size=encode_batch_size)
         if encoded.patch_grid != patch_grid:
             raise RuntimeError("Counterfactual patch grid does not match test features.")
@@ -354,10 +375,17 @@ def _encode_counterfactuals(
             ).to(torch.float16)
         )
 
+    candidates = torch.cat(candidate_parts, dim=0)
+    if not _encoded_candidates_are_unique(candidates):
+        raise RuntimeError(
+            "At least one pixel-distinct counterfactual pair became identical after "
+            "encoding. Retrieval chance would not be 25%."
+        )
+
     union_masks = torch.stack(
         [
             counterfactual_union_mask(
-                item.stroke,
+                item,
                 canvas_size=test_payload["spec"]["canvas_size"],
                 patch_grid=patch_grid,
             )
@@ -366,12 +394,15 @@ def _encode_counterfactuals(
     )
     return {
         "spec": {
+            "cache_version": COUNTERFACTUAL_CACHE_VERSION,
             "test_spec": test_payload["spec"],
             "candidate_order": list(COUNTERFACTUAL_ORDER),
         },
-        "candidate_next": torch.cat(candidate_parts, dim=0),
+        "candidate_next": candidates,
         "union_masks": union_masks,
         "fingerprints": list(test_payload["fingerprints"]),
+        "all_rendered_candidates_unique": True,
+        "all_encoded_candidates_unique": True,
     }
 
 
@@ -396,6 +427,7 @@ def _prepare_features(
 
     counter_path = cache_dir / "test_counterfactuals.pt"
     expected_counter_spec = {
+        "cache_version": COUNTERFACTUAL_CACHE_VERSION,
         "test_spec": next(spec for spec in specs if spec["name"] == "test"),
         "candidate_order": list(COUNTERFACTUAL_ORDER),
     }
@@ -403,13 +435,11 @@ def _prepare_features(
     counter_missing = not args.skip_counterfactuals
     if not args.skip_counterfactuals and args.reuse_cache and counter_path.exists():
         candidate = torch.load(counter_path, map_location="cpu", weights_only=False)
-        if candidate.get("spec") != expected_counter_spec:
-            raise ValueError(
-                "Counterfactual cache metadata mismatch. Remove the cache or omit "
-                "--reuse-cache."
-            )
-        counter_payload = candidate
-        counter_missing = False
+        if candidate.get("spec") == expected_counter_spec:
+            counter_payload = candidate
+            counter_missing = False
+        else:
+            print("Ignoring stale counterfactual cache and rebuilding its candidates.")
 
     encoder: FrozenVisionEncoder | None = None
     if missing_specs or counter_missing:
@@ -591,6 +621,12 @@ def _train_model(
             }
         )
 
+        if epoch == 1 or epoch % 5 == 0 or epoch == args.epochs:
+            print(
+                f"  {family}/{seed} epoch {epoch}: "
+                f"train={train_loss:.6g}, validation={validation_loss:.6g}"
+            )
+
         if validation_loss < best_validation - 1e-12:
             best_validation = validation_loss
             best_state = copy.deepcopy(model.state_dict())
@@ -598,6 +634,7 @@ def _train_model(
         else:
             stale_epochs += 1
             if stale_epochs >= args.patience:
+                print(f"  {family}/{seed} early-stopped at epoch {epoch}.")
                 break
 
     model.load_state_dict(best_state)
@@ -754,9 +791,12 @@ def _flatten_aggregate_columns(frame: pd.DataFrame) -> pd.DataFrame:
     return frame
 
 
-def _aggregate_metrics(metrics: pd.DataFrame) -> pd.DataFrame:
+def _aggregate_metrics(metrics: pd.DataFrame, by_crowding: bool = False) -> pd.DataFrame:
+    group_columns = ["model", "seed", "split"]
+    if by_crowding:
+        group_columns.append("crowding")
     aggregate = (
-        metrics.groupby(["model", "seed", "split"], sort=False)[METRIC_COLUMNS]
+        metrics.groupby(group_columns, sort=False)[METRIC_COLUMNS]
         .agg(["mean", "std"])
         .reset_index()
     )
@@ -779,16 +819,23 @@ def _formal_eligible(
     counter_payload: dict[str, Any] | None,
 ) -> bool:
     return (
-        args.train_samples == FORMAL_SPLIT_SIZES["train"]
+        args.formal_run
+        and args.model == FORMAL_MODEL_NAME
+        and args.canvas_size == FORMAL_CANVAS_SIZE
+        and args.train_samples == FORMAL_SPLIT_SIZES["train"]
         and args.val_samples == FORMAL_SPLIT_SIZES["validation"]
         and args.test_samples == FORMAL_SPLIT_SIZES["test"]
         and args.train_seed == FORMAL_DATA_SEEDS["train"]
         and args.val_seed == FORMAL_DATA_SEEDS["validation"]
         and args.test_seed == FORMAL_DATA_SEEDS["test"]
+        and args.stress_seed == FORMAL_STRESS_SEED
+        and len(args.model_seeds) == len(FORMAL_MODEL_SEEDS)
         and set(args.model_seeds) == FORMAL_MODEL_SEEDS
         and args.stress_samples == 100
         and counter_payload is not None
-        and set(args.crowding) == set(PRIMARY_CROWDING)
+        and bool(counter_payload.get("all_rendered_candidates_unique"))
+        and bool(counter_payload.get("all_encoded_candidates_unique"))
+        and tuple(args.crowding) == PRIMARY_CROWDING
     )
 
 
@@ -798,6 +845,7 @@ def _build_gate_diagnostics(
     selected_family: str,
     args: argparse.Namespace,
     counter_payload: dict[str, Any] | None,
+    overfit: dict[str, float | int | bool],
 ) -> pd.DataFrame:
     test = metrics.loc[metrics["split"] == "test"]
     identity = float(
@@ -827,7 +875,9 @@ def _build_gate_diagnostics(
             ].mean()
         )
         improvement = 1.0 - selected_crowding_error / max(identity_error, 1e-12)
-        crowding_improvements[f"crowding_{crowding}_improvement_vs_identity"] = improvement
+        crowding_improvements[
+            f"crowding_{crowding}_improvement_vs_identity"
+        ] = improvement
         positive_every_crowding = positive_every_crowding and improvement > 0.0
 
     per_seed = selected.groupby("seed")["action_region_mse"].mean()
@@ -840,10 +890,36 @@ def _build_gate_diagnostics(
         else float("nan")
     )
 
+    metric_values_finite = bool(
+        np.isfinite(metrics[METRIC_COLUMNS].to_numpy(dtype=float)).all()
+    )
+    retrieval_values_finite = bool(
+        not selected_retrieval.empty
+        and np.isfinite(
+            selected_retrieval[
+                ["true_margin"]
+                + [f"score_{candidate}" for candidate in COUNTERFACTUAL_ORDER]
+            ].to_numpy(dtype=float)
+        ).all()
+    )
+    candidates_unique = bool(
+        counter_payload is not None
+        and counter_payload.get("all_rendered_candidates_unique")
+        and counter_payload.get("all_encoded_candidates_unique")
+    )
+    implementation_sanity = bool(
+        overfit["loss_decreased"]
+        and metric_values_finite
+        and retrieval_values_finite
+        and candidates_unique
+    )
+
     formal = _formal_eligible(args, counter_payload)
     minimum_improvement = min(improvement_identity, improvement_mean)
     if not formal:
         status = "diagnostic_only"
+    elif not implementation_sanity:
+        status = "fail"
     elif (
         minimum_improvement >= 0.30
         and positive_every_crowding
@@ -868,6 +944,10 @@ def _build_gate_diagnostics(
         "counterfactual_top1_accuracy": retrieval_accuracy,
         "positive_improvement_every_crowding": positive_every_crowding,
         "all_model_seeds_beat_identity": stable_seeds,
+        "overfit_loss_decreased": bool(overfit["loss_decreased"]),
+        "all_metrics_finite": metric_values_finite and retrieval_values_finite,
+        "all_counterfactual_candidates_unique": candidates_unique,
+        "implementation_sanity_passed": implementation_sanity,
         **crowding_improvements,
     }
     return pd.DataFrame([row])
@@ -893,6 +973,86 @@ def _save_error_plot(metrics: pd.DataFrame, output_path: Path) -> None:
     plt.close(figure)
 
 
+def _save_crowding_plot(metrics: pd.DataFrame, output_path: Path) -> None:
+    test = metrics.loc[metrics["split"] == "test"]
+    levels = sorted(test["crowding"].unique())
+    identity = (
+        test.loc[test["model"] == "identity"]
+        .groupby("crowding")["action_region_mse"]
+        .mean()
+    )
+    models = ["mean_delta", "linear", "mlp"]
+    x = np.arange(len(levels), dtype=float)
+    width = 0.24
+
+    figure, axis = plt.subplots(figsize=(8, 4.8))
+    for index, model in enumerate(models):
+        model_error = (
+            test.loc[test["model"] == model]
+            .groupby("crowding")["action_region_mse"]
+            .mean()
+        )
+        improvements = [
+            1.0 - float(model_error.loc[level]) / max(float(identity.loc[level]), 1e-12)
+            for level in levels
+        ]
+        axis.bar(
+            x + (index - 1) * width,
+            improvements,
+            width=width,
+            label=model,
+        )
+
+    axis.axhline(0.0, color="black", linewidth=1)
+    axis.axhline(0.30, color="tab:green", linestyle="--", label="30% gate margin")
+    axis.set_xticks(x, [str(level) for level in levels])
+    axis.set_xlabel("Prior-stroke crowding")
+    axis.set_ylabel("Improvement over identity")
+    axis.set_title("Held-out action-region prediction by crowding")
+    axis.legend()
+    axis.grid(axis="y", alpha=0.25)
+    figure.tight_layout()
+    figure.savefig(output_path, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
+def _save_training_plot(history: pd.DataFrame, output_path: Path) -> None:
+    figure, axis = plt.subplots(figsize=(8, 4.8))
+    for (model, seed), group in history.groupby(["model", "seed"], sort=False):
+        axis.plot(
+            group["epoch"],
+            group["validation_balanced_mse"],
+            marker="o",
+            markersize=3,
+            label=f"{model}/{seed}",
+        )
+    axis.set_xlabel("Epoch")
+    axis.set_ylabel("Validation balanced MSE")
+    axis.set_title("Gate 2 validation curves")
+    axis.grid(alpha=0.25)
+    axis.legend()
+    figure.tight_layout()
+    figure.savefig(output_path, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
+def _save_retrieval_plot(retrieval: pd.DataFrame, output_path: Path) -> None:
+    summary = retrieval.groupby("model", sort=False)["top1_correct"].mean()
+    figure, axis = plt.subplots(figsize=(7, 4.5))
+    axis.bar(summary.index, summary.values)
+    axis.axhline(0.25, color="black", linestyle=":", label="25% chance")
+    axis.axhline(0.50, color="tab:green", linestyle="--", label="50% gate threshold")
+    axis.set_ylim(0.0, 1.0)
+    axis.set_ylabel("Counterfactual top-1 accuracy")
+    axis.set_title("Gate 2 counterfactual retrieval")
+    axis.tick_params(axis="x", rotation=20)
+    axis.legend()
+    axis.grid(axis="y", alpha=0.25)
+    figure.tight_layout()
+    figure.savefig(output_path, dpi=180, bbox_inches="tight")
+    plt.close(figure)
+
+
 def _save_example_heatmap(
     model: nn.Module,
     payload: dict[str, Any],
@@ -910,19 +1070,45 @@ def _save_example_heatmap(
     error = torch.linalg.vector_norm(predicted[0] - true_delta[0], dim=-1).cpu()
     action_mask = masks[0].cpu()
     patch_grid = tuple(payload["patch_grid"])
+    shared_min = float(torch.minimum(true_magnitude.min(), predicted_magnitude.min()))
+    shared_max = float(torch.maximum(true_magnitude.max(), predicted_magnitude.max()))
 
     figure, axes = plt.subplots(1, 4, figsize=(14, 3.5))
-    panels = [
-        (true_magnitude, "True residual magnitude", "magma"),
-        (predicted_magnitude, "Predicted residual magnitude", "magma"),
-        (error, "Prediction error", "viridis"),
-        (action_mask, "Proposed-stroke mask", "gray"),
-    ]
-    for axis, (values, title, cmap) in zip(axes, panels):
-        image = axis.imshow(values.reshape(*patch_grid), cmap=cmap, interpolation="nearest")
-        axis.set_title(title)
+    first = axes[0].imshow(
+        true_magnitude.reshape(*patch_grid),
+        cmap="magma",
+        interpolation="nearest",
+        vmin=shared_min,
+        vmax=shared_max,
+    )
+    axes[0].set_title("True residual magnitude")
+    axes[1].imshow(
+        predicted_magnitude.reshape(*patch_grid),
+        cmap="magma",
+        interpolation="nearest",
+        vmin=shared_min,
+        vmax=shared_max,
+    )
+    axes[1].set_title("Predicted residual magnitude")
+    second = axes[2].imshow(
+        error.reshape(*patch_grid),
+        cmap="viridis",
+        interpolation="nearest",
+    )
+    axes[2].set_title("Prediction error")
+    third = axes[3].imshow(
+        action_mask.reshape(*patch_grid),
+        cmap="gray",
+        interpolation="nearest",
+        vmin=0.0,
+        vmax=1.0,
+    )
+    axes[3].set_title("Proposed-stroke mask")
+    for axis in axes:
         axis.axis("off")
-        figure.colorbar(image, ax=axis, fraction=0.046, pad=0.04)
+    figure.colorbar(first, ax=axes[:2], fraction=0.025, pad=0.02)
+    figure.colorbar(second, ax=axes[2], fraction=0.046, pad=0.04)
+    figure.colorbar(third, ax=axes[3], fraction=0.046, pad=0.04)
     figure.tight_layout()
     figure.savefig(output_path, dpi=180, bbox_inches="tight")
     plt.close(figure)
@@ -1010,7 +1196,7 @@ def main() -> None:
                 if split_name == "test" and counter_payload is not None
                 else None
             )
-            rows, retrieval = _evaluate_model(
+            rows, retrieval_rows_for_model = _evaluate_model(
                 model_name,
                 seed,
                 model,
@@ -1021,12 +1207,13 @@ def main() -> None:
                 counter_payload=split_counter,
             )
             metric_rows.extend(rows)
-            retrieval_rows.extend(retrieval)
+            retrieval_rows.extend(retrieval_rows_for_model)
 
     metrics = pd.DataFrame(metric_rows)
     retrieval = pd.DataFrame(retrieval_rows)
     history_frame = pd.DataFrame(histories)
     aggregate = _aggregate_metrics(metrics)
+    aggregate_by_crowding = _aggregate_metrics(metrics, by_crowding=True)
     selected_family = _select_model_family(metrics)
     diagnostics = _build_gate_diagnostics(
         metrics,
@@ -1034,10 +1221,15 @@ def main() -> None:
         selected_family,
         args,
         counter_payload,
+        overfit,
     )
 
     metrics.to_csv(args.output_dir / "prediction_metrics.csv", index=False)
     aggregate.to_csv(args.output_dir / "aggregate_metrics.csv", index=False)
+    aggregate_by_crowding.to_csv(
+        args.output_dir / "aggregate_metrics_by_crowding.csv",
+        index=False,
+    )
     history_frame.to_csv(args.output_dir / "training_history.csv", index=False)
     _split_metadata(payloads).to_csv(
         args.output_dir / "split_metadata.csv",
@@ -1051,6 +1243,13 @@ def main() -> None:
         )
 
     _save_error_plot(metrics, args.output_dir / "baseline_improvement.png")
+    _save_crowding_plot(metrics, args.output_dir / "crowding_improvement.png")
+    _save_training_plot(history_frame, args.output_dir / "training_curves.png")
+    if not retrieval.empty:
+        _save_retrieval_plot(
+            retrieval,
+            args.output_dir / "counterfactual_retrieval.png",
+        )
     example_seed = sorted(args.model_seeds)[0]
     _save_example_heatmap(
         trained_models[(selected_family, example_seed)],
@@ -1078,7 +1277,14 @@ def main() -> None:
         "learning_rate": args.learning_rate,
         "weight_decay": args.weight_decay,
         "hidden_dim": args.hidden_dim,
+        "counterfactual_cache_version": COUNTERFACTUAL_CACHE_VERSION,
         "counterfactuals_enabled": counter_payload is not None,
+        "all_counterfactual_candidates_unique": bool(
+            counter_payload is not None
+            and counter_payload.get("all_rendered_candidates_unique")
+            and counter_payload.get("all_encoded_candidates_unique")
+        ),
+        "formal_run_requested": args.formal_run,
         "formal_eligible": bool(diagnostics.iloc[0]["formal_eligible"]),
         "gate_status": str(diagnostics.iloc[0]["gate_status"]),
         "objective": "balanced action-region and outside-region residual MSE",
