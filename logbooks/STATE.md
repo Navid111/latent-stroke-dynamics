@@ -1,73 +1,63 @@
 # Current State
 
-**Last updated:** 2026-08-20  
+**Last updated:** 2026-08-21  
 **Branch:** `main`  
 **Current gate:** Gate 2 — deterministic one-step latent prediction  
-**Gate status:** Development v2 reviewed; retrieval decomposition next
+**Gate status:** Formal configuration frozen; untouched formal run next
 
 ## Objective
 
-Train the smallest action-conditioned model that predicts how one deterministic stroke changes frozen spatial canvas features, and determine whether it outperforms trivial baselines on held-out transitions.
+Determine whether a small action-conditioned predictor can estimate one-stroke changes in frozen spatial canvas features well enough for later candidate-stroke planning.
 
 ## Completed
 
-- Froze and passed Gate 1; archived its formal result.
-- Read the focused literature-report scope and reconciled it with the project design.
-- Froze the Gate 2 protocol before predictor implementation.
-- Implemented deterministic transitions, split fingerprints, action encodings, identity/mean/linear/MLP predictors, balanced loss, spatial metrics, counterfactual retrieval, tests, caching, training, and plots.
-- Passed the initial 14-test suite and completed engineering smoke 1.
-- Found and repaired duplicate counterfactual outcomes; amended formal data seeds before any formal run because their old prefixes were exposed.
-- Passed the revised 15-test suite in 1.99 seconds under Python 3.14.4.
-- Completed development v2 with 256/64/96 examples and one model seed on the local M1.
-- Verified unique rendered and encoded candidates, finite metrics, successful overfit check, and a stable end-to-end pipeline.
-- Observed strong held-out average-error prediction and positive improvement at every crowding level.
-- Observed counterfactual retrieval near chance and far below the frozen threshold.
-- Added a no-retraining retrieval-decomposition script and unit tests.
+- Froze, ran, and passed Gate 1.
+- Froze the Gate 2 scientific protocol before predictor implementation.
+- Implemented and locally validated deterministic transitions, action encoding, four baselines/predictors, balanced loss, caching, metrics, retrieval, plots, and tests.
+- Repaired duplicate counterfactual outcomes and transparently retired exposed development seed prefixes before formal evaluation.
+- Completed development v2 on 256/64/96 examples.
+- Observed 57.2% action-region improvement over identity, 51.4% over mean delta, and positive improvement at every crowding level.
+- Observed 22/96 top-1 retrieval with unique candidates.
+- Passed the 18-test suite in 3.55 seconds.
+- Decomposed retrieval without retraining: position and intensity pairwise wins were 66.7%, while width pairwise wins were 46.9%.
+- Determined that no remaining implementation defect justifies changing the primary experiment.
+- Froze the exact formal command and configuration before generating amended formal data.
 
-## Gate 2 development-v2 result
+## Development interpretation
 
-Validation selected the linear predictor.
+The predictor learns broad action-conditioned latent consequences and is not completely action-blind. Its main weakness is precise stroke-width discrimination, consistent with a smooth or lower-amplitude MSE prediction. Development evidence cannot decide Gate 2.
 
-- action-region MSE: 0.000973;
-- improvement versus identity: 57.2%;
-- improvement versus mean delta: 51.4%;
-- crowding improvements: +77.3%, +35.2%, and +9.3% for 0, 5, and 15 prior strokes;
-- counterfactual retrieval: 22/96 = 22.9%;
-- implementation sanity: passed;
-- formal eligibility: false.
+See:
 
-The predictor captures broad latent consequences but appears to smooth or underestimate the exact stroke effect. See `docs/gate-2-dev-v2.md`.
+- `docs/gate-2-dev-v2.md`;
+- `docs/gate-2-retrieval-diagnostics.md`;
+- `docs/gate-2-formal-config.md`.
 
-## Frozen Gate 2 decisions
+## Frozen formal configuration
 
-- Frozen encoder: `facebook/dinov2-small`.
-- Target: spatial patch-token residual `delta = z_next - z_current`.
-- Deterministic one-step transitions only.
-- Identity, mean-delta, linear, and small nonlinear predictors remain visible.
-- Formal model seeds: `11`, `22`, and `33`.
-- Untouched amended formal data seeds: `20260824`–`20260827`.
-- Four rendered and encoded counterfactual outcomes must be distinct.
-- Primary evidence: action-region error and counterfactual retrieval.
-- No target-guided ranking, reinforcement learning, stochastic dynamics, or multi-step rollout.
-
-## Validation status
-
-Development v2 validates the implementation and supports one-step latent predictability under average error. It does not support precise counterfactual discrimination. No formal split has been generated or viewed, and no Gate 2 decision has been made.
-
-The next step analyzes existing development outputs only. It must not retrain, re-encode, alter thresholds, or use `--formal-run`.
+- Train/validation/test: 1,000/200/300.
+- Stress: 100 examples per frozen slice.
+- Data seeds: `20260824`, `20260825`, `20260826`, stress base `20260827`.
+- Model seeds: `11`, `22`, `33`.
+- Epochs: 30; patience: 6.
+- Learning rate: 0.001; weight decay: 0.0001.
+- Hidden size: 256; train batch: 16.
+- CPU encoding and training on the M1.
+- Exact command: `docs/gate-2-formal-config.md`.
 
 ## Next actions
 
-1. Pull and test the retrieval-diagnostic code.
-2. Run `experiments/02b_retrieval_diagnostics.py` on `outputs/gate2-dev-v2`.
-3. Inspect candidate preferences, pairwise win rates, margins, and metadata slices.
-4. Decide whether the implementation is ready to freeze as-is for the formal run or whether a clearly identified implementation defect remains.
-5. Freeze the exact formal training command before touching amended formal data.
+1. Pull the formal-freeze commit.
+2. Run the exact command once without modifying settings.
+3. Verify `formal_eligible: true`.
+4. Preserve all terminal output and generated artifacts.
+5. Judge the result against the frozen rule without tuning.
+6. Add the pixel-space control before Gate 3 or the final thesis comparison.
 
 ## Immediate next step
 
-Run the lightweight retrieval decomposition. Do not rerun DINOv2 encoding or predictor training.
+Run the untouched formal Gate 2 experiment. Do not change code, data seeds, hyperparameters, thresholds, or candidate construction first.
 
 ## Handoff note
 
-A mixed result is scientifically useful: low average latent error and weak exact action discrimination answer different questions. Preserve both rather than optimizing away the retrieval failure.
+A pass is not assumed. A mixed or failed result—strong average prediction but weak exact retrieval—is a valid thesis outcome and must be reported honestly.

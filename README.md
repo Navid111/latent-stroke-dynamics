@@ -2,91 +2,79 @@
 
 Bachelor's thesis experiments on **action-conditioned latent canvas dynamics for stroke-based rendering**.
 
-The long-term question is whether a planner can choose a stroke by predicting how that stroke will change a canvas in a frozen visual representation space. The project uses explicit gates rather than immediately training a world model.
-
 ## Current status
 
-**Gate 1 passed on 2026-08-19.** The frozen DINOv2-small patch representation preserved a controlled stroke in the correct spatial region under blank, moderate, and high synthetic crowding.
+**Gate 1 passed on 2026-08-19.** The frozen DINOv2-small patch representation preserved controlled stroke changes under all primary crowding levels.
 
-**Gate 2 development v2 completed on 2026-08-20.** The selected linear predictor reduced held-out action-region MSE by 57.2% versus identity and 51.4% versus mean delta, with positive improvement at all three crowding levels. Exact four-way counterfactual retrieval was only 22/96 (22.9%), despite verified unique candidates. Gate 2 has therefore **not** passed or failed: the implementation is sound, but the mixed development result needs one no-retraining retrieval decomposition before the formal command is frozen.
+**Gate 2 formal configuration was frozen on 2026-08-21.** Development v2 showed strong average-error prediction but near-chance exact retrieval. A no-retraining decomposition identified stroke width as the main confusion rather than total action blindness. No implementation defect remained, so the architecture, loss, metrics, thresholds, hyperparameters, and untouched formal data are now frozen.
 
-See [`docs/gate-2-dev-v2.md`](docs/gate-2-dev-v2.md) for the complete review.
+Key documents:
 
-## Current scope
+- [`docs/gate-2-dev-v2.md`](docs/gate-2-dev-v2.md)
+- [`docs/gate-2-retrieval-diagnostics.md`](docs/gate-2-retrieval-diagnostics.md)
+- [`docs/gate-2-formal-config.md`](docs/gate-2-formal-config.md)
+- [`configs/gate2-formal-2026-08-21.json`](configs/gate2-formal-2026-08-21.json)
 
-- 64×64 grayscale canvases
-- One deterministic straight-line stroke
-- Frozen `facebook/dinov2-small` patch tokens
-- Action-conditioned one-step residual prediction
-- No reinforcement learning
-- No target-guided planning or multi-step rollout until Gate 2 passes
+Gate 2 has not yet passed or failed.
 
-## Project context
+## Formal Gate 2 run
 
-- [`AGENTS.md`](AGENTS.md) — operating rules
-- [`logbooks/STATE.md`](logbooks/STATE.md) — current source of truth
-- [`docs/thesis-plan.md`](docs/thesis-plan.md) — research plan and scope
-- [`docs/gate-1-protocol.md`](docs/gate-1-protocol.md) — frozen Gate 1 design
-- [`docs/gate-1-results.md`](docs/gate-1-results.md) — formal Gate 1 result
-- [`docs/gate-2-protocol.md`](docs/gate-2-protocol.md) — Gate 2 protocol and Amendment 1
-- [`docs/gate-2-smoke-1.md`](docs/gate-2-smoke-1.md) — engineering smoke review
-- [`docs/gate-2-dev-v2.md`](docs/gate-2-dev-v2.md) — larger development review
-
-## Quick start
-
-Python 3.10+ is recommended.
-
-```bash
-git clone https://github.com/Navid111/latent-stroke-dynamics.git
-cd latent-stroke-dynamics
-python -m venv .venv
-source .venv/bin/activate       # macOS/Linux
-# .venv\Scripts\activate      # Windows PowerShell
-pip install -e ".[dev]"
-pytest
-```
-
-## Current next step: retrieval decomposition
-
-Pull and test the lightweight diagnostic:
+Pull the frozen configuration:
 
 ```bash
 git pull
-pytest
 ```
 
-Then analyze the existing development-v2 files:
+Run the exact command once:
 
 ```bash
-python experiments/02b_retrieval_diagnostics.py \
-  --input-dir outputs/gate2-dev-v2
+python experiments/02_one_step_prediction.py \
+  --model facebook/dinov2-small \
+  --canvas-size 64 \
+  --crowding 0 5 15 \
+  --train-samples 1000 \
+  --val-samples 200 \
+  --test-samples 300 \
+  --stress-samples 100 \
+  --train-seed 20260824 \
+  --val-seed 20260825 \
+  --test-seed 20260826 \
+  --stress-seed 20260827 \
+  --model-seeds 11 22 33 \
+  --epochs 30 \
+  --patience 6 \
+  --learning-rate 0.001 \
+  --weight-decay 0.0001 \
+  --hidden-dim 256 \
+  --overfit-examples 4 \
+  --overfit-steps 30 \
+  --overfit-learning-rate 0.005 \
+  --encode-batch-size 8 \
+  --encode-chunk-size 32 \
+  --train-batch-size 16 \
+  --encoder-device cpu \
+  --train-device cpu \
+  --formal-run \
+  --output-dir outputs/gate2-formal-2026-08-21
 ```
 
-This command does **not** load DINOv2, re-encode canvases, retrain a model, or use formal data. It writes into:
+Keep the M1 connected to power, prevent sleep, and avoid memory-heavy applications. The run encodes six data splits and trains six learned models, so it will take substantially longer than development v2.
+
+A successful configuration must report:
 
 ```text
-outputs/gate2-dev-v2/retrieval-diagnostics/
+formal_eligible: true
 ```
 
-The outputs include:
+If the process is interrupted before completing, the identical command may be retried with `--reuse-cache`. Do not rerun a completed formal result.
 
-- `retrieval_summary.csv`
-- `retrieval_by_crowding.csv`
-- `retrieval_by_stroke_width.csv`
-- `retrieval_by_stroke_value.csv`
-- `retrieval_by_stroke_length.csv`
-- `retrieval_diagnostic.json`
-- `candidate_selection_distribution.png`
-- `pairwise_true_win_rates.png`
-- `true_margin_distribution.png`
-- `retrieval_by_crowding.png`
+## Frozen decision rule
 
-Do not add `--formal-run`, and do not generate the amended formal splits yet.
+The validation-selected family, averaged over seeds `11`, `22`, and `33`, must:
 
-## Gate 2 experiment outputs
+1. improve action-region MSE by at least 30% versus both identity and mean delta;
+2. remain positive versus identity at crowding 0, 5, and 15;
+3. achieve at least 50% counterfactual top-1 retrieval;
+4. pass implementation and seed-stability checks.
 
-The main experiment writes exact configuration, overfit diagnostics, split fingerprints, per-example and aggregate errors, metrics by crowding, retrieval rows, training history, feature caches, and diagnostic plots. Generated outputs and caches are ignored by Git; curated formal artifacts may later be copied into `results/`.
-
-## Decision rule
-
-Only an exact, explicitly marked formal run may receive a Gate 2 decision. It must beat identity and mean delta by the frozen aggregate margin, remain positive at all primary crowding levels, retrieve the true outcome above the frozen threshold, and remain stable across three model seeds. Gate 3 begins only after a recorded Gate 2 pass.
+Only the formal run may receive a Gate 2 decision. No target-guided planning, reinforcement learning, or multi-step rollout begins before that decision.
