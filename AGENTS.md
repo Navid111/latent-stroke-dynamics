@@ -19,13 +19,13 @@ Before changing code or proposing work, read:
 
 ## Current status and non-negotiable scope
 
-Gate 1 passed. Gate 2 completed and formally failed because retrieval was 27.7%, despite strong average-error prediction. The pixel-space explanatory control protocol and implementation are committed; local tests and the development-only smoke are next.
+Gate 1 passed. Latent Gate 2 formally failed because retrieval was 27.7%, despite strong average-error prediction. The pixel-control protocol was frozen before implementation, all 24 tests passed, and the development smoke passed every integrity check. The unchanged paired pixel-control run is now authorized once.
 
-- Do not rerun or retune the completed formal Gate 2 experiment.
+- Do not rerun or retune the completed latent Gate 2 experiment.
 - Do not alter the frozen Gate 2 result or relabel it borderline.
 - Do not optimize against formal test rows.
 - Preserve the strong average-error result and weak retrieval result together.
-- Follow the frozen pixel-control protocol and review its smoke before the paired run.
+- Run the paired pixel control exactly once with its frozen configuration.
 - Do not implement target-guided planning, reinforcement learning, or multi-step rollout.
 - Treat contrastive losses, spatially interacting architectures, and width-specific objectives as future work or explicitly post-formal ablations.
 

@@ -5,28 +5,21 @@ Bachelor's thesis experiments on **action-conditioned latent canvas dynamics for
 ## Current status
 
 - **Gate 1 passed** on 2026-08-19.
-- **Gate 2 formally failed** on 2026-08-21 under its frozen conjunctive rule.
-- **Pixel-space explanatory control protocol frozen** on 2026-08-21 before implementation.
+- **Latent Gate 2 formally failed** on 2026-08-21 because retrieval was 27.7%.
+- **Pixel-control smoke passed all engineering checks** on 2026-08-21.
+- **The single frozen paired pixel-control run is authorized.**
 
-The latent model predicted broad one-step consequences strongly but retrieved the exact outcome only 27.7%. It was reliable for position and intensity yet systematically confused stroke width.
+## Why the pixel control exists
 
-## Active experiment
+The latent model predicted broad one-step consequences well but confused exact stroke width. The pixel control asks whether the same deterministic action is recoverable in a full-resolution image-space formulation.
 
-The next experiment is a minimal action-conditioned pixel-space predictor using the same deterministic transition distribution. It predicts normalized 64×64 pixel residuals from:
+The development-only pixel smoke achieved 93.75% four-way retrieval and 98.4% true-vs-width pairwise accuracy, with 100% exact-oracle retrieval and all sanity checks passing. This is promising but not decisive because it used 64 test examples and one model seed.
 
-- the current pixel value;
-- the same seven-value stroke vector;
-- an exact full-resolution proposed-stroke mask;
-- normalized pixel coordinates.
+Run the unchanged paired configuration only once using [`docs/pixel-control-paired-command.md`](docs/pixel-control-paired-command.md). The protocol is in [`docs/pixel-space-control-protocol.md`](docs/pixel-space-control-protocol.md).
 
-The comparison retains identity, mean-delta, linear, small nonlinear, and exact compositing-oracle methods. See [`docs/pixel-space-control-protocol.md`](docs/pixel-space-control-protocol.md).
-
-The control asks whether exact action information is recoverable in pixel space. It cannot revise the completed latent Gate 2 decision, and Gate 3 planning remains blocked.
-
-## Key results
+## Key latent results
 
 - [`docs/gate-2-results.md`](docs/gate-2-results.md)
-- [`docs/gate-2-formal-visual-review.md`](docs/gate-2-formal-visual-review.md)
 - [`docs/gate-2-formal-retrieval-diagnostics.md`](docs/gate-2-formal-retrieval-diagnostics.md)
 - [`results/gate2-formal/2026-08-21/`](results/gate2-formal/2026-08-21/)
 
@@ -39,4 +32,4 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Do not rerun or retune the completed latent formal experiment. Any contrastive or width-specific latent objective is future work, not a replacement for the recorded result.
+Do not rerun or retune the completed latent formal experiment. Do not alter the frozen paired pixel-control settings after seeing its result. Gate 3 planning remains blocked.

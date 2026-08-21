@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-21  
 **Branch:** `main`  
 **Current stage:** Pixel-space explanatory control  
-**Status:** Protocol frozen; implementation committed; local tests and smoke pending
+**Status:** Smoke passed; single frozen paired run authorized
 
 ## Closed results
 
@@ -13,33 +13,30 @@
 
 No latent rerun or test tuning is authorized.
 
-## Pixel-control implementation
+## Pixel-control smoke
 
-Committed components:
+The development-only 128/32/64 smoke completed after all 24 tests passed.
 
-- normalized grayscale pixel tensors;
-- exact full-resolution proposed-action masks;
-- current pixel, seven-value action, mask, and coordinate inputs;
-- identity and training mean-delta baselines;
-- shared affine and `11 -> 64 -> 1` MLP predictors;
-- renderer-equivalent exact compositing oracle;
-- balanced inside/outside residual loss;
-- clamped next-canvas metrics;
-- unique four-way pixel retrieval;
-- seed-aware summaries, subgroup tables, and plots;
-- paired-control eligibility guard;
-- deterministic unit tests.
+- validation-selected family: MLP;
+- action-region improvement versus identity: 91.1%;
+- action-region improvement versus mean delta: 90.7%;
+- four-way retrieval: 93.75%;
+- true-vs-width pairwise win rate: 98.4%;
+- exact oracle retrieval: 100%;
+- exact oracle maximum action-region MSE: `3.55e-15`;
+- implementation sanity: passed;
+- smoke status: `diagnostic_only`, as required.
 
-## Next actions
+No implementation repair or setting change is justified by the smoke.
 
-1. Pull the implementation and run all 24 tests locally.
-2. Run the 128/32/64 development-only engineering smoke on seeds `20260830`–`20260832`.
-3. Review sanity, oracle exactness, metrics, retrieval, and plots.
-4. Only then run the single frozen paired control.
+## Next action
+
+Run the single frozen paired control exactly as recorded in `docs/pixel-control-paired-command.md` and `configs/pixel-control-paired-2026-08-21.json`. Then archive and compare its result with the fixed latent Gate 2 result.
 
 ## Boundaries
 
-- The smoke must remain `diagnostic_only`.
-- Do not run the paired command before smoke review.
-- The pixel control cannot revise the latent Gate 2 fail.
+- Run the paired control once.
+- Do not change seeds, thresholds, architecture, or training settings after seeing it.
+- Do not rerun the latent formal experiment.
+- The pixel control cannot convert latent Gate 2 into a pass.
 - Do not begin Gate 3 planning.
