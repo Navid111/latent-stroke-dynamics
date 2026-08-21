@@ -4,77 +4,36 @@ Bachelor's thesis experiments on **action-conditioned latent canvas dynamics for
 
 ## Current status
 
-**Gate 1 passed on 2026-08-19.** The frozen DINOv2-small patch representation preserved controlled stroke changes under all primary crowding levels.
+- **Gate 1 passed** on 2026-08-19: frozen DINOv2-small patch features preserved controlled stroke changes spatially.
+- **Gate 2 formally failed** on 2026-08-21 under its frozen conjunctive rule.
 
-**Gate 2 formal configuration was frozen on 2026-08-21.** Development v2 showed strong average-error prediction but near-chance exact retrieval. A no-retraining decomposition identified stroke width as the main confusion rather than total action blindness. No implementation defect remained, so the architecture, loss, metrics, thresholds, hyperparameters, and untouched formal data are now frozen.
+Gate 2 produced a strong mixed result. The validation-selected three-seed MLP reduced test action-region MSE by **61.8% versus identity** and **57.1% versus mean delta**, remained positive at every crowding level, passed all sanity checks, and generalized to every stress slice. Exact counterfactual retrieval was only **27.7%**, below both the frozen 50% requirement and 35% fail boundary.
 
-Key documents:
+The conclusion is not that nothing was learned. Broad latent stroke consequences are highly predictable, but the current deterministic MSE predictors do not preserve enough exact action detail for planning.
 
-- [`docs/gate-2-dev-v2.md`](docs/gate-2-dev-v2.md)
-- [`docs/gate-2-retrieval-diagnostics.md`](docs/gate-2-retrieval-diagnostics.md)
-- [`docs/gate-2-formal-config.md`](docs/gate-2-formal-config.md)
-- [`configs/gate2-formal-2026-08-21.json`](configs/gate2-formal-2026-08-21.json)
+See:
 
-Gate 2 has not yet passed or failed.
+- [`docs/gate-2-results.md`](docs/gate-2-results.md)
+- [`results/gate2-formal/2026-08-21/`](results/gate2-formal/2026-08-21/)
+- [`docs/gate-2-protocol.md`](docs/gate-2-protocol.md)
 
-## Formal Gate 2 run
+## Frozen decision
 
-Pull the frozen configuration:
+| Criterion | Formal result | Outcome |
+|---|---:|---|
+| Improvement vs identity | 61.8% | Pass |
+| Improvement vs mean delta | 57.1% | Pass |
+| Positive at crowding 0/5/15 | Yes | Pass |
+| Counterfactual retrieval | 27.7% | **Fail** |
+| Sanity and seed stability | Passed | Pass |
 
-```bash
-git pull
-```
+The formal latent run must not be rerun or retuned. Gate 3 target-guided planning does not begin with this predictor.
 
-Run the exact command once:
+## Next work
 
-```bash
-python experiments/02_one_step_prediction.py \
-  --model facebook/dinov2-small \
-  --canvas-size 64 \
-  --crowding 0 5 15 \
-  --train-samples 1000 \
-  --val-samples 200 \
-  --test-samples 300 \
-  --stress-samples 100 \
-  --train-seed 20260824 \
-  --val-seed 20260825 \
-  --test-seed 20260826 \
-  --stress-seed 20260827 \
-  --model-seeds 11 22 33 \
-  --epochs 30 \
-  --patience 6 \
-  --learning-rate 0.001 \
-  --weight-decay 0.0001 \
-  --hidden-dim 256 \
-  --overfit-examples 4 \
-  --overfit-steps 30 \
-  --overfit-learning-rate 0.005 \
-  --encode-batch-size 8 \
-  --encode-chunk-size 32 \
-  --train-batch-size 16 \
-  --encoder-device cpu \
-  --train-device cpu \
-  --formal-run \
-  --output-dir outputs/gate2-formal-2026-08-21
-```
+1. Run the existing no-retraining retrieval decomposition on the formal output for interpretation only.
+2. Complete the formal artifact archive.
+3. Implement the preregistered small action-conditioned pixel-space control.
+4. Compare pixel and latent prediction for the thesis conclusion.
 
-Keep the M1 connected to power, prevent sleep, and avoid memory-heavy applications. The run encodes six data splits and trains six learned models, so it will take substantially longer than development v2.
-
-A successful configuration must report:
-
-```text
-formal_eligible: true
-```
-
-If the process is interrupted before completing, the identical command may be retried with `--reuse-cache`. Do not rerun a completed formal result.
-
-## Frozen decision rule
-
-The validation-selected family, averaged over seeds `11`, `22`, and `33`, must:
-
-1. improve action-region MSE by at least 30% versus both identity and mean delta;
-2. remain positive versus identity at crowding 0, 5, and 15;
-3. achieve at least 50% counterfactual top-1 retrieval;
-4. pass implementation and seed-stability checks.
-
-Only the formal run may receive a Gate 2 decision. No target-guided planning, reinforcement learning, or multi-step rollout begins before that decision.
+Potential contrastive losses, spatially interacting predictors, or width-specific objectives are future work or post-formal ablations and cannot replace the recorded Gate 2 result.
