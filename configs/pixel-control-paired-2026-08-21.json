@@ -1,0 +1,37 @@
+{
+  "status": "frozen",
+  "frozen_on": "2026-08-21",
+  "analysis_type": "paired_pixel_space_control",
+  "canvas_size": 64,
+  "crowding": [0, 5, 15],
+  "split_sizes": {
+    "train": 1000,
+    "validation": 200,
+    "test": 300,
+    "stress_per_slice": 100
+  },
+  "data_seeds": {
+    "train": 20260824,
+    "validation": 20260825,
+    "test": 20260826,
+    "stress_base": 20260827
+  },
+  "model_seeds": [11, 22, 33],
+  "training": {
+    "epochs": 30,
+    "patience": 6,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "hidden_dim": 64,
+    "batch_size": 16,
+    "device": "cpu"
+  },
+  "overfit_check": {
+    "examples": 4,
+    "steps": 30,
+    "learning_rate": 0.005
+  },
+  "paired_control_run": true,
+  "output_dir": "outputs/pixel-control-paired-2026-08-21",
+  "latent_gate2_decision_unchanged": "fail"
+}

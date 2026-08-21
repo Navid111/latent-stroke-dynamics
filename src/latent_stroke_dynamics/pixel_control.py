@@ -275,6 +275,18 @@ def exact_compositor_delta(
     return exact_next - current
 
 
+class ExactCompositorPixelDeltaPredictor(nn.Module):
+    """Non-learned renderer-equivalent ceiling used as a sanity check."""
+
+    def forward(
+        self,
+        current: torch.Tensor,
+        actions: torch.Tensor,
+        action_masks: torch.Tensor,
+    ) -> torch.Tensor:
+        return exact_compositor_delta(current, actions, action_masks)
+
+
 def _masked_pixel_mean(values: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
     weights = (mask > 0).to(values.dtype)
     flat_values = values.flatten(start_dim=1)

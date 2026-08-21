@@ -3,55 +3,43 @@
 **Last updated:** 2026-08-21  
 **Branch:** `main`  
 **Current stage:** Pixel-space explanatory control  
-**Status:** Protocol frozen before implementation
+**Status:** Protocol frozen; implementation committed; local tests and smoke pending
 
 ## Closed results
 
-### Gate 1
+- Gate 1 formally passed.
+- Latent Gate 2 formally failed because retrieval was 27.7%, despite strong and stable average-error prediction.
+- Formal Gate 2 diagnosis isolated width as the main failure: 40.7% pairwise true-vs-width and 48.2% width-alternative selections.
 
-Formal pass: frozen DINOv2-small patch features preserve localized stroke changes.
+No latent rerun or test tuning is authorized.
 
-### Gate 2
+## Pixel-control implementation
 
-Formal fail under the frozen conjunctive rule:
+Committed components:
 
-- selected MLP action-region MSE: 0.000860;
-- improvement versus identity: 61.8%;
-- improvement versus mean delta: 57.1%;
-- crowding improvements: +79.0%, +43.3%, and +25.0%;
-- counterfactual retrieval: 27.7%;
-- all implementation and seed checks passed.
-
-Formal retrieval was stable across seeds and failed specifically on width: the selected MLP chose width-changed outcomes 48.2% of the time and beat them pairwise only 40.7% of the time. Gate 2 is closed; no reruns or latent test tuning are authorized.
-
-## Active question
-
-Can a minimal action-conditioned predictor recover exact stroke outcomes in normalized pixel space when evaluated on paired deterministic transitions?
-
-## Frozen pixel-control design
-
-- Same paired 1,000/200/300 transition splits and three stress slices as Gate 2.
-- Normalized 64×64 grayscale pixels and residual prediction.
-- Per-pixel input: current value, seven-value action vector, exact proposed-action mask, and x/y coordinates.
-- Identity, mean-delta, shared linear, shared `11 -> 64 -> 1` MLP, and exact compositing oracle.
-- Balanced inside/outside pixel residual MSE.
-- Model seeds `11`, `22`, and `33`.
-- Validation-only family selection.
-- Same 50% four-way retrieval standard for explanatory success.
-
-See `docs/pixel-space-control-protocol.md`.
+- normalized grayscale pixel tensors;
+- exact full-resolution proposed-action masks;
+- current pixel, seven-value action, mask, and coordinate inputs;
+- identity and training mean-delta baselines;
+- shared affine and `11 -> 64 -> 1` MLP predictors;
+- renderer-equivalent exact compositing oracle;
+- balanced inside/outside residual loss;
+- clamped next-canvas metrics;
+- unique four-way pixel retrieval;
+- seed-aware summaries, subgroup tables, and plots;
+- paired-control eligibility guard;
+- deterministic unit tests.
 
 ## Next actions
 
-1. Implement the smallest pixel-control core and deterministic tests.
-2. Add an end-to-end CPU experiment with saved tables and plots.
-3. Run the 128/32/64 development-only smoke on seeds `20260830`–`20260832`.
-4. If implementation checks pass, run the paired control once.
-5. Compare pixel and latent width discrimination in the thesis.
+1. Pull the implementation and run all 24 tests locally.
+2. Run the 128/32/64 development-only engineering smoke on seeds `20260830`–`20260832`.
+3. Review sanity, oracle exactness, metrics, retrieval, and plots.
+4. Only then run the single frozen paired control.
 
 ## Boundaries
 
-- Do not rerun or revise the latent Gate 2 formal result.
+- The smoke must remain `diagnostic_only`.
+- Do not run the paired command before smoke review.
+- The pixel control cannot revise the latent Gate 2 fail.
 - Do not begin Gate 3 planning.
-- Do not add contrastive, spatially interacting, or width-specific latent objectives to the primary result.
-- The pixel control is explanatory and cannot retroactively pass Gate 2.

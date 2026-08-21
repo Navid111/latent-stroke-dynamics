@@ -4,6 +4,7 @@ import torch
 from latent_stroke_dynamics.gate2 import ACTION_DIM, build_transition_split
 from latent_stroke_dynamics.pixel_control import (
     PIXEL_INPUT_DIM,
+    ExactCompositorPixelDeltaPredictor,
     LinearPixelDeltaPredictor,
     MLPPixelDeltaPredictor,
     balanced_pixel_mse,
@@ -28,10 +29,8 @@ def test_pixel_inputs_have_frozen_dimension_and_exact_mask() -> None:
         tensors.actions,
         tensors.action_masks,
     )
-
     expected_mask = np.asarray(next_image) != np.asarray(current_image)
     actual_mask = stroke_pixel_mask(stroke, 32).numpy().astype(bool)
-
     assert inputs.shape == (1, 32, 32, PIXEL_INPUT_DIM)
     assert tensors.actions.shape == (1, ACTION_DIM)
     assert np.array_equal(actual_mask, expected_mask)
@@ -42,12 +41,12 @@ def test_pixel_predictors_return_one_residual_per_pixel() -> None:
     actions = torch.rand(2, ACTION_DIM)
     masks = torch.zeros(2, 8, 8)
     masks[:, 2:5, 1:7] = 1.0
-
     linear = LinearPixelDeltaPredictor()
     mlp = MLPPixelDeltaPredictor(hidden_dim=16)
-
+    oracle = ExactCompositorPixelDeltaPredictor()
     assert linear(current, actions, masks).shape == current.shape
     assert mlp(current, actions, masks).shape == current.shape
+    assert oracle(current, actions, masks).shape == current.shape
 
 
 def test_balanced_pixel_loss_preserves_small_action_region() -> None:
@@ -56,7 +55,6 @@ def test_balanced_pixel_loss_preserves_small_action_region() -> None:
     identity = torch.zeros_like(true_delta)
     mask = torch.zeros_like(true_delta)
     mask[:, 0, 0] = 1.0
-
     assert float(balanced_pixel_mse(identity, true_delta, mask)) == 0.5
     assert float(balanced_pixel_mse(true_delta, true_delta, mask)) == 0.0
 
@@ -69,7 +67,6 @@ def test_exact_compositor_reproduces_renderer() -> None:
         tensors.actions,
         tensors.action_masks,
     )
-
     assert torch.allclose(tensors.current + exact_delta, tensors.next_canvas)
 
 
@@ -87,7 +84,6 @@ def test_pixel_counterfactuals_are_unique_and_retrieve_true_outcome() -> None:
         counterfactuals.candidate_next,
         counterfactuals.union_masks,
     )
-
     assert counterfactuals.all_candidates_unique
     assert bool(retrieval["top1_correct"].all())
     assert torch.equal(
