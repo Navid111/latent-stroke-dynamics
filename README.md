@@ -1,32 +1,38 @@
 # Latent Stroke Dynamics
 
-Bachelor's thesis feasibility study on **action-conditioned canvas dynamics for stroke-based rendering**.
+Bachelor's thesis project on action-conditioned canvas dynamics and sequential stroke-based rendering.
 
-## Final experimental status
+## Completed foundation
 
 - **Gate 1 passed:** frozen DINOv2-small spatial features preserve one-stroke changes.
 - **Latent Gate 2 failed:** strong average prediction but only 27.7% exact-action retrieval, dominated by width confusion.
-- **Paired pixel-space control succeeded:** 100% exact-action retrieval across all three seeds.
+- **Paired pixel control succeeded:** 100% exact-action retrieval across all three seeds.
 
-The validation-selected pixel MLP has only 833 parameters. It reduced action-region pixel MSE by 99.950% versus identity and 99.948% versus mean delta, retained effectively complete performance at every crowding level and stress slice, and perfectly distinguished position, width, and intensity alternatives.
+These results motivate a scoped pixel-space pivot rather than abandoning the final painting artifact.
 
-## Main conclusion
+## Active Stage 3
 
-> Exact one-stroke dynamics are learnable by a tiny deterministic model in a full-resolution pixel formulation, but the tested frozen DINOv2 patch-token formulation does not retain enough predictive precision for exact action ranking despite low average latent error.
+Build a command-line painter that accepts an image and constructs a 64×64 grayscale approximation line by line.
 
-This localizes the failure to the **overall tested latent patch formulation**, not necessarily DINOv2 alone. The pixel control also changes target space, spatial resolution, and action-mask resolution.
+Required methods:
+
+1. random candidate selection;
+2. exact-renderer greedy pixel planning;
+3. learned pixel-predictor planning with exact stroke execution.
+
+The controlled comparison uses six synthetic targets, 100 strokes, and 128 candidates per step. Arbitrary user images are qualitative demonstrations.
 
 See:
 
-- [`docs/gate-2-results.md`](docs/gate-2-results.md)
-- [`docs/gate-2-formal-retrieval-diagnostics.md`](docs/gate-2-formal-retrieval-diagnostics.md)
-- [`docs/pixel-control-results.md`](docs/pixel-control-results.md)
-- [`results/gate2-formal/2026-08-21/`](results/gate2-formal/2026-08-21/)
-- [`results/pixel-control/2026-08-21/`](results/pixel-control/2026-08-21/)
+- [`docs/stage-3-pixel-planner-protocol.md`](docs/stage-3-pixel-planner-protocol.md)
+- [`docs/final-artifact-roadmap.md`](docs/final-artifact-roadmap.md)
+- [`docs/latent-vs-pixel-comparison.md`](docs/latent-vs-pixel-comparison.md)
 
-## Next work
+## Main scientific conclusion so far
 
-The core experiments are complete. Next work is figure review, paired latent-versus-pixel result writing, limitations, and thesis preparation—not additional tuning or Gate 3 planning.
+> Exact one-stroke dynamics are learnable by a tiny deterministic model in a full-resolution pixel formulation, while the tested frozen DINOv2 patch-token formulation does not preserve enough predictive precision for exact action ranking.
+
+Stage 3 now tests whether the successful pixel predictor can rank candidate strokes toward a target and produce a working sequential painting artifact.
 
 ## Development environment
 
@@ -37,4 +43,4 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Do not rerun or retune the completed latent or pixel paired experiments. Preserve both the positive pixel result and negative latent retrieval result.
+Do not rerun or retune the completed paired experiments. Keep the final artifact grayscale, 64×64, straight-line, and one-step greedy until the controlled comparison and thesis are complete.

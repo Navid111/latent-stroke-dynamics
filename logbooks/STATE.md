@@ -2,45 +2,56 @@
 
 **Last updated:** 2026-08-21  
 **Branch:** `main`  
-**Current stage:** Thesis comparison and writing  
-**Status:** Experimental core complete; final figures reviewed
+**Current stage:** Stage 3 pixel-space target-guided painter  
+**Status:** Scope explicitly reopened; protocol frozen before implementation
 
-## Final experimental results
+## Completed experimental foundation
 
-### Gate 1
+- Gate 1 passed: frozen DINOv2-small patch features preserve localized strokes.
+- Latent Gate 2 formally failed: 27.7% exact-action retrieval despite strong average prediction.
+- Paired pixel control succeeded: 100% exact-action retrieval across all three seeds.
+- Final latent and pixel figures were reviewed.
+- Results and comparison drafts were started.
 
-**Pass.** Frozen DINOv2-small patch features preserve localized one-stroke changes.
+These results are frozen and must not be rerun or rewritten.
 
-### Latent Gate 2
+## Active goal
 
-**Formal fail.** Average latent prediction was strong, but four-way exact-action retrieval was 27.7%. Width was the dominant failure at 40.7% pairwise true-vs-width accuracy.
+Build the requested final artifact: input an image, preprocess it to a 64×64 grayscale target, and construct an approximation line by line using sequentially selected straight strokes.
 
-### Paired pixel control
+## Required planning methods
 
-**Success.** The 833-parameter MLP improved action-region pixel MSE by 99.950% versus identity and retrieved the true outcome for all 300 test examples under all three seeds. Position, width, and intensity pairwise accuracy were all 100%.
+1. random candidate selection;
+2. exact-renderer greedy pixel selection;
+3. learned pixel-predictor selection followed by exact execution.
 
-## Figure review
+The learned latent predictor remains excluded because it failed exact action retrieval.
 
-Final pixel figures agree with the saved tables. Training is stable, retrieval is unambiguous, and crowding robustness is near complete. The example prediction is visually indistinguishable at ordinary scale. Its error panel is auto-scaled without a colorbar and must be labeled carefully or omitted from the thesis figure because it visually amplifies tiny errors.
+## Frozen Stage 3 settings
 
-## Writing artifacts
+- six controlled 20-stroke synthetic targets;
+- 100 selected strokes per painting;
+- 128 candidates per step;
+- error-guided plus uniform candidate proposal;
+- pixel MSE target objective;
+- shared deterministic budgets and seeds;
+- exact execution after every selection;
+- final MSE, MAE, error curves, ranking agreement, regret, runtime, PNG, JSON, and animation artifacts.
 
-- `docs/latent-vs-pixel-comparison.md`
-- `docs/thesis-results-draft.md`
-- `docs/pixel-control-formal-visual-review.md`
+See `docs/stage-3-pixel-planner-protocol.md`.
 
 ## Next actions
 
-1. Convert the results draft into the thesis chapter structure.
-2. Add verified literature citations and figure numbers.
-3. Create a thesis-ready latent-versus-pixel comparison table and select final plots.
-4. Write methods while exact implementation details remain fresh.
-5. Draft discussion, limitations, and conclusion.
+1. Implement target preprocessing and deterministic candidate generation.
+2. Implement random and exact-greedy planning with tests.
+3. Add a saved demonstration MLP checkpoint using train/validation data only.
+4. Implement learned candidate ranking.
+5. Run a tiny all-method smoke before the controlled comparison.
 
 ## Boundaries
 
-- Do not rerun or retune either paired experiment.
-- Do not revise the latent Gate 2 fail.
-- Do not compare raw latent and pixel MSE values directly across spaces.
-- Do not present the pixel control as a complete painter or a novel JEPA model.
-- Do not begin Gate 3 planning before the core thesis write-up is complete and scope is explicitly reconsidered.
+- Do not rerun or retune the completed latent or paired pixel experiments.
+- Do not use paired test rows to select the demonstration checkpoint.
+- Do not implement a learned latent planner.
+- Keep Stage 3 grayscale, 64×64, straight-line, and one-step greedy.
+- No reinforcement learning, color, textured brushes, or multi-step planning before submission.
