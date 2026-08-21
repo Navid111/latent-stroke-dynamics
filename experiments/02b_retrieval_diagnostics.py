@@ -15,6 +15,7 @@ from latent_stroke_dynamics.retrieval_diagnostics import (
     merge_test_metadata,
     summarize_retrieval,
     summarize_retrieval_by,
+    summarize_retrieval_families,
 )
 
 
@@ -34,16 +35,18 @@ def _model_order(summary: pd.DataFrame) -> list[str]:
 
 
 def _plot_candidate_preferences(summary: pd.DataFrame, output_path: Path) -> None:
-    collapsed = summary.groupby("model", sort=False).mean(numeric_only=True)
-    order = [name for name in _model_order(summary) if name in collapsed.index]
+    order = _model_order(summary)
     bottom = np.zeros(len(order), dtype=float)
     figure, axis = plt.subplots(figsize=(8, 4.8))
     for candidate in CANDIDATE_NAMES:
-        values = collapsed.loc[order, f"predicted_{candidate}_rate"].to_numpy()
+        values = summary.set_index("model").loc[
+            order,
+            f"predicted_{candidate}_rate",
+        ].to_numpy()
         axis.bar(order, values, bottom=bottom, label=candidate)
         bottom += values
     axis.set_ylim(0.0, 1.0)
-    axis.set_ylabel("Fraction selected")
+    axis.set_ylabel("Mean fraction selected across model seeds")
     axis.set_title("Which counterfactual outcome each model retrieves")
     axis.legend()
     axis.grid(axis="y", alpha=0.25)
@@ -53,14 +56,14 @@ def _plot_candidate_preferences(summary: pd.DataFrame, output_path: Path) -> Non
 
 
 def _plot_pairwise_wins(summary: pd.DataFrame, output_path: Path) -> None:
-    collapsed = summary.groupby("model", sort=False).mean(numeric_only=True)
-    order = [name for name in _model_order(summary) if name in collapsed.index]
+    order = _model_order(summary)
     alternatives = list(CANDIDATE_NAMES[1:])
     x = np.arange(len(order), dtype=float)
     width = 0.24
+    indexed = summary.set_index("model")
     figure, axis = plt.subplots(figsize=(8, 4.8))
     for index, alternative in enumerate(alternatives):
-        values = collapsed.loc[
+        values = indexed.loc[
             order,
             f"true_beats_{alternative}_rate",
         ].to_numpy()
@@ -73,7 +76,7 @@ def _plot_pairwise_wins(summary: pd.DataFrame, output_path: Path) -> None:
     axis.axhline(0.5, color="black", linestyle=":", label="50% pairwise")
     axis.set_xticks(x, order)
     axis.set_ylim(0.0, 1.0)
-    axis.set_ylabel("True outcome wins pairwise")
+    axis.set_ylabel("Mean true-outcome win rate across seeds")
     axis.set_title("True outcome versus each counterfactual class")
     axis.legend()
     axis.grid(axis="y", alpha=0.25)
@@ -90,8 +93,8 @@ def _plot_margins(retrieval: pd.DataFrame, output_path: Path) -> None:
             axis.hist(values, bins=24, alpha=0.55, label=model)
     axis.axvline(0.0, color="black", linewidth=1)
     axis.set_xlabel("Best-counterfactual score minus true score")
-    axis.set_ylabel("Examples")
-    axis.set_title("Counterfactual retrieval margins")
+    axis.set_ylabel("Model-seed predictions")
+    axis.set_title("Counterfactual retrieval margins across seeds")
     axis.legend()
     axis.grid(alpha=0.25)
     figure.tight_layout()
@@ -119,13 +122,23 @@ def _plot_by_crowding(frame: pd.DataFrame, output_path: Path) -> None:
     axis.set_xticks(x, [str(level) for level in levels])
     axis.set_ylim(0.0, 1.0)
     axis.set_xlabel("Prior-stroke crowding")
-    axis.set_ylabel("Counterfactual top-1 accuracy")
+    axis.set_ylabel("Mean counterfactual top-1 accuracy across seeds")
     axis.set_title("Retrieval by crowding")
     axis.legend()
     axis.grid(axis="y", alpha=0.25)
     figure.tight_layout()
     figure.savefig(output_path, dpi=180, bbox_inches="tight")
     plt.close(figure)
+
+
+def _load_run_config(input_dir: Path) -> dict[str, object]:
+    path = input_dir / "run_config.json"
+    if not path.exists():
+        return {}
+    loaded = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(loaded, dict):
+        raise ValueError("run_config.json must contain a JSON object.")
+    return loaded
 
 
 def main() -> None:
@@ -143,7 +156,9 @@ def main() -> None:
 
     retrieval = pd.read_csv(retrieval_path)
     metadata = pd.read_csv(metadata_path)
+    run_config = _load_run_config(args.input_dir)
     summary = summarize_retrieval(retrieval)
+    family_summary = summarize_retrieval_families(summary)
     merged = merge_test_metadata(retrieval, metadata)
 
     by_crowding = summarize_retrieval_by(merged, "crowding")
@@ -159,33 +174,92 @@ def main() -> None:
     by_length = summarize_retrieval_by(merged, "stroke_length_bin")
 
     summary.to_csv(output_dir / "retrieval_summary.csv", index=False)
+    family_summary.to_csv(
+        output_dir / "retrieval_family_summary.csv",
+        index=False,
+    )
     by_crowding.to_csv(output_dir / "retrieval_by_crowding.csv", index=False)
     by_width.to_csv(output_dir / "retrieval_by_stroke_width.csv", index=False)
     by_value.to_csv(output_dir / "retrieval_by_stroke_value.csv", index=False)
     by_length.to_csv(output_dir / "retrieval_by_stroke_length.csv", index=False)
 
     _plot_candidate_preferences(
-        summary,
+        family_summary,
         output_dir / "candidate_selection_distribution.png",
     )
-    _plot_pairwise_wins(summary, output_dir / "pairwise_true_win_rates.png")
+    _plot_pairwise_wins(
+        family_summary,
+        output_dir / "pairwise_true_win_rates.png",
+    )
     _plot_margins(retrieval, output_dir / "true_margin_distribution.png")
     _plot_by_crowding(by_crowding, output_dir / "retrieval_by_crowding.png")
 
-    trainable = summary.loc[summary["model"].isin(["linear", "mlp"])]
-    best_row = trainable.sort_values("top1_accuracy", ascending=False).iloc[0]
-    diagnostic = {
-        "best_trainable_model": str(best_row["model"]),
-        "best_trainable_seed": int(best_row["seed"]),
-        "top1_correct": int(best_row["top1_correct"]),
-        "examples": int(best_row["examples"]),
-        "top1_accuracy": float(best_row["top1_accuracy"]),
-        "top1_wilson_low": float(best_row["top1_wilson_low"]),
-        "top1_wilson_high": float(best_row["top1_wilson_high"]),
+    formal_requested = bool(run_config.get("formal_run_requested", False))
+    formal_eligible = bool(run_config.get("formal_eligible", False))
+    analysis_scope = "formal" if formal_requested else "development"
+    selected_family_value = run_config.get("selected_model_family_by_validation")
+    selected_family = (
+        str(selected_family_value) if selected_family_value is not None else None
+    )
+    if selected_family is not None and selected_family not in set(
+        family_summary["model"]
+    ):
+        raise ValueError(
+            "The validation-selected family in run_config.json is absent from "
+            "counterfactual_retrieval.csv."
+        )
+
+    diagnostic: dict[str, object] = {
+        "analysis_scope": analysis_scope,
+        "formal_run_requested": formal_requested,
+        "formal_eligible": formal_eligible,
+        "recorded_gate_status": run_config.get("gate_status"),
+        "selected_model_family_by_validation": selected_family,
         "chance_rate": 0.25,
         "frozen_gate_threshold": 0.50,
-        "formal_decision": "not_applicable_development_data",
+        "decision_note": (
+            "Post-hoc diagnostics cannot change the recorded formal decision."
+            if formal_requested
+            else "Development diagnostics cannot declare a gate decision."
+        ),
     }
+    if selected_family is not None:
+        selected_family_row = family_summary.loc[
+            family_summary["model"] == selected_family
+        ].iloc[0]
+        selected_seed_rows = summary.loc[
+            summary["model"] == selected_family
+        ].sort_values("seed")
+        diagnostic.update(
+            {
+                "selected_family_seed_count": int(
+                    selected_family_row["seed_count"]
+                ),
+                "selected_family_mean_top1_accuracy": float(
+                    selected_family_row["top1_accuracy_mean"]
+                ),
+                "selected_family_seed_std_top1_accuracy": float(
+                    selected_family_row["top1_accuracy_seed_std"]
+                ),
+                "selected_family_min_top1_accuracy": float(
+                    selected_family_row["top1_accuracy_seed_min"]
+                ),
+                "selected_family_max_top1_accuracy": float(
+                    selected_family_row["top1_accuracy_seed_max"]
+                ),
+                "selected_seed_results": [
+                    {
+                        "seed": int(row["seed"]),
+                        "top1_correct": int(row["top1_correct"]),
+                        "examples": int(row["examples"]),
+                        "top1_accuracy": float(row["top1_accuracy"]),
+                        "top1_wilson_low": float(row["top1_wilson_low"]),
+                        "top1_wilson_high": float(row["top1_wilson_high"]),
+                    }
+                    for _, row in selected_seed_rows.iterrows()
+                ],
+            }
+        )
     (output_dir / "retrieval_diagnostic.json").write_text(
         json.dumps(diagnostic, indent=2),
         encoding="utf-8",
@@ -207,10 +281,26 @@ def main() -> None:
         "true_beats_change_width_rate",
         "true_beats_change_intensity_rate",
     ]
-    print("\nGate 2 retrieval decomposition:\n")
+    family_display_columns = [
+        "model",
+        "seeds",
+        "top1_accuracy_mean",
+        "top1_accuracy_seed_std",
+        "top1_accuracy_seed_min",
+        "top1_accuracy_seed_max",
+    ]
+    print("\nGate 2 retrieval decomposition by seed:\n")
     print(summary[display_columns].to_string(index=False))
+    print("\nRetrieval family summary:\n")
+    print(family_summary[family_display_columns].to_string(index=False))
     print(f"\nSaved diagnostics to: {output_dir.resolve()}")
-    print("This analysis uses development data and cannot declare a gate result.")
+    if formal_requested:
+        print(
+            "This is a post-hoc formal diagnostic. The recorded gate decision "
+            f"remains: {run_config.get('gate_status')}."
+        )
+    else:
+        print("This analysis uses development data and cannot declare a gate result.")
 
 
 if __name__ == "__main__":

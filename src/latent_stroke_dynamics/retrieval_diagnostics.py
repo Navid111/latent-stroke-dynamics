@@ -102,6 +102,69 @@ def summarize_retrieval(frame: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def summarize_retrieval_families(summary: pd.DataFrame) -> pd.DataFrame:
+    """Average per-seed diagnostics by family without pooling repeated test rows.
+
+    Formal model seeds predict the same held-out examples, so their rows are not
+    independent binomial trials. This function reports the mean and spread over
+    seed-level accuracies instead of constructing a misleading pooled interval.
+    """
+
+    rate_columns = [
+        *[f"predicted_{candidate}_rate" for candidate in CANDIDATE_NAMES],
+        *[
+            f"true_beats_{candidate}_rate"
+            for candidate in CANDIDATE_NAMES[1:]
+        ],
+        *[
+            f"mean_gap_{candidate}_minus_true"
+            for candidate in CANDIDATE_NAMES[1:]
+        ],
+        *[
+            f"median_gap_{candidate}_minus_true"
+            for candidate in CANDIDATE_NAMES[1:]
+        ],
+    ]
+    _require_columns(
+        summary,
+        [
+            "model",
+            "seed",
+            "examples",
+            "top1_correct",
+            "top1_accuracy",
+            "mean_true_margin",
+            "median_true_margin",
+            *rate_columns,
+        ],
+    )
+
+    rows: list[dict[str, float | int | str]] = []
+    for model, group in summary.groupby("model", sort=False):
+        seed_values = sorted(int(value) for value in group["seed"])
+        accuracies = group["top1_accuracy"].astype(float)
+        row: dict[str, float | int | str] = {
+            "model": str(model),
+            "seeds": ",".join(str(value) for value in seed_values),
+            "seed_count": len(group),
+            "examples_per_seed_min": int(group["examples"].min()),
+            "examples_per_seed_max": int(group["examples"].max()),
+            "top1_correct_mean": float(group["top1_correct"].mean()),
+            "top1_accuracy_mean": float(accuracies.mean()),
+            "top1_accuracy_seed_std": (
+                float(accuracies.std(ddof=1)) if len(group) > 1 else 0.0
+            ),
+            "top1_accuracy_seed_min": float(accuracies.min()),
+            "top1_accuracy_seed_max": float(accuracies.max()),
+            "mean_true_margin": float(group["mean_true_margin"].mean()),
+            "median_true_margin": float(group["median_true_margin"].mean()),
+        }
+        for column in rate_columns:
+            row[column] = float(group[column].mean())
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
 def merge_test_metadata(
     retrieval: pd.DataFrame,
     metadata: pd.DataFrame,
