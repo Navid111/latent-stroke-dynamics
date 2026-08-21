@@ -2,46 +2,45 @@
 
 **Last updated:** 2026-08-21  
 **Branch:** `main`  
-**Current stage:** Experimental core complete  
-**Status:** Paired pixel-space control succeeded; thesis comparison and writing next
+**Current stage:** Thesis comparison and writing  
+**Status:** Experimental core complete; final figures reviewed
 
 ## Final experimental results
 
-### Gate 1 — representation sensitivity
+### Gate 1
 
 **Pass.** Frozen DINOv2-small patch features preserve localized one-stroke changes.
 
-### Gate 2 — latent one-step prediction
+### Latent Gate 2
 
-**Formal fail.** The selected MLP improved action-region latent MSE by 61.8% versus identity and 57.1% versus mean delta, but four-way exact-action retrieval was only 27.7%. Width was the dominant failure: 40.7% true-vs-width pairwise accuracy.
+**Formal fail.** Average latent prediction was strong, but four-way exact-action retrieval was 27.7%. Width was the dominant failure at 40.7% pairwise true-vs-width accuracy.
 
-### Paired pixel-space control
+### Paired pixel control
 
-**Success.** The validation-selected 833-parameter MLP achieved:
+**Success.** The 833-parameter MLP improved action-region pixel MSE by 99.950% versus identity and retrieved the true outcome for all 300 test examples under all three seeds. Position, width, and intensity pairwise accuracy were all 100%.
 
-- action-region pixel MSE: 0.000249;
-- improvement versus identity: 99.950%;
-- improvement versus mean delta: 99.948%;
-- four-way exact-action retrieval: 100% for every seed;
-- position, width, and intensity pairwise accuracy: all 100%;
-- positive performance at all crowding levels;
-- strong performance on all three stress slices;
-- exact-oracle retrieval: 100%;
-- all implementation checks passed.
+## Figure review
 
-The latent Gate 2 decision remains fail. The pixel result localizes the bottleneck to the overall tested latent patch formulation rather than the transition data, action information, candidate construction, or general learnability of the deterministic dynamics.
+Final pixel figures agree with the saved tables. Training is stable, retrieval is unambiguous, and crowding robustness is near complete. The example prediction is visually indistinguishable at ordinary scale. Its error panel is auto-scaled without a colorbar and must be labeled carefully or omitted from the thesis figure because it visually amplifies tiny errors.
+
+## Writing artifacts
+
+- `docs/latent-vs-pixel-comparison.md`
+- `docs/thesis-results-draft.md`
+- `docs/pixel-control-formal-visual-review.md`
 
 ## Next actions
 
-1. Review and archive the remaining pixel-control plots.
-2. Write the paired latent-versus-pixel methods and results comparison.
-3. Draft limitations carefully: the pixel control also changes spatial resolution and uses an exact full-resolution mask, so it does not isolate DINOv2 alone.
-4. Prepare thesis figures and result tables.
-5. Do not begin Gate 3 planning unless the thesis scope is explicitly reopened after the core write-up.
+1. Convert the results draft into the thesis chapter structure.
+2. Add verified literature citations and figure numbers.
+3. Create a thesis-ready latent-versus-pixel comparison table and select final plots.
+4. Write methods while exact implementation details remain fresh.
+5. Draft discussion, limitations, and conclusion.
 
 ## Boundaries
 
-- Do not rerun or retune either completed paired experiment.
+- Do not rerun or retune either paired experiment.
 - Do not revise the latent Gate 2 fail.
-- Do not present the pixel control as a novel painter or JEPA architecture.
-- Treat higher-resolution latent features, contrastive objectives, spatial interaction, and width-aware losses as future work.
+- Do not compare raw latent and pixel MSE values directly across spaces.
+- Do not present the pixel control as a complete painter or a novel JEPA model.
+- Do not begin Gate 3 planning before the core thesis write-up is complete and scope is explicitly reconsidered.
