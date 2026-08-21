@@ -1,0 +1,33 @@
+{
+  "analysis_type": "paired_pixel_space_control",
+  "canvas_size": 64,
+  "pixel_input_dim": 11,
+  "split_specs": [
+    {"name":"train","samples":1000,"seed":20260824,"crowding":[0,5,15],"widths":[1,2,3,4],"values":[0,32,64,96,128],"canvas_size":64,"min_length":0.2},
+    {"name":"validation","samples":200,"seed":20260825,"crowding":[0,5,15],"widths":[1,2,3,4],"values":[0,32,64,96,128],"canvas_size":64,"min_length":0.2},
+    {"name":"test","samples":300,"seed":20260826,"crowding":[0,5,15],"widths":[1,2,3,4],"values":[0,32,64,96,128],"canvas_size":64,"min_length":0.2},
+    {"name":"stress_width","samples":100,"seed":20260827,"crowding":[0,5,15],"widths":[5],"values":[0,32,64,96,128],"canvas_size":64,"min_length":0.2},
+    {"name":"stress_intensity","samples":100,"seed":20260828,"crowding":[0,5,15],"widths":[1,2,3,4],"values":[16,80,176],"canvas_size":64,"min_length":0.2},
+    {"name":"stress_crowding","samples":100,"seed":20260829,"crowding":[10],"widths":[1,2,3,4],"values":[0,32,64,96,128],"canvas_size":64,"min_length":0.2}
+  ],
+  "model_seeds": [11,22,33],
+  "model_parameter_counts": {"identity":0,"mean_delta":0,"exact_oracle":0,"linear":12,"mlp":833},
+  "selected_model_family_by_validation": "mlp",
+  "train_device": "cpu",
+  "train_batch_size": 16,
+  "epochs": 30,
+  "patience": 6,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "hidden_dim": 64,
+  "overfit_examples": 4,
+  "overfit_steps": 30,
+  "overfit_learning_rate": 0.005,
+  "paired_control_run_requested": true,
+  "paired_control_eligible": true,
+  "control_status": "success",
+  "all_counterfactual_candidates_unique": true,
+  "objective": "balanced inside/outside normalized-pixel residual MSE",
+  "evaluation_target": "clamped normalized next-canvas pixels",
+  "formal_gate2_decision_unchanged": "fail"
+}

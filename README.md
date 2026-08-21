@@ -1,27 +1,32 @@
 # Latent Stroke Dynamics
 
-Bachelor's thesis experiments on **action-conditioned latent canvas dynamics for stroke-based rendering**.
+Bachelor's thesis feasibility study on **action-conditioned canvas dynamics for stroke-based rendering**.
 
-## Current status
+## Final experimental status
 
-- **Gate 1 passed** on 2026-08-19.
-- **Latent Gate 2 formally failed** on 2026-08-21 because retrieval was 27.7%.
-- **Pixel-control smoke passed all engineering checks** on 2026-08-21.
-- **The single frozen paired pixel-control run is authorized.**
+- **Gate 1 passed:** frozen DINOv2-small spatial features preserve one-stroke changes.
+- **Latent Gate 2 failed:** strong average prediction but only 27.7% exact-action retrieval, dominated by width confusion.
+- **Paired pixel-space control succeeded:** 100% exact-action retrieval across all three seeds.
 
-## Why the pixel control exists
+The validation-selected pixel MLP has only 833 parameters. It reduced action-region pixel MSE by 99.950% versus identity and 99.948% versus mean delta, retained effectively complete performance at every crowding level and stress slice, and perfectly distinguished position, width, and intensity alternatives.
 
-The latent model predicted broad one-step consequences well but confused exact stroke width. The pixel control asks whether the same deterministic action is recoverable in a full-resolution image-space formulation.
+## Main conclusion
 
-The development-only pixel smoke achieved 93.75% four-way retrieval and 98.4% true-vs-width pairwise accuracy, with 100% exact-oracle retrieval and all sanity checks passing. This is promising but not decisive because it used 64 test examples and one model seed.
+> Exact one-stroke dynamics are learnable by a tiny deterministic model in a full-resolution pixel formulation, but the tested frozen DINOv2 patch-token formulation does not retain enough predictive precision for exact action ranking despite low average latent error.
 
-Run the unchanged paired configuration only once using [`docs/pixel-control-paired-command.md`](docs/pixel-control-paired-command.md). The protocol is in [`docs/pixel-space-control-protocol.md`](docs/pixel-space-control-protocol.md).
+This localizes the failure to the **overall tested latent patch formulation**, not necessarily DINOv2 alone. The pixel control also changes target space, spatial resolution, and action-mask resolution.
 
-## Key latent results
+See:
 
 - [`docs/gate-2-results.md`](docs/gate-2-results.md)
 - [`docs/gate-2-formal-retrieval-diagnostics.md`](docs/gate-2-formal-retrieval-diagnostics.md)
+- [`docs/pixel-control-results.md`](docs/pixel-control-results.md)
 - [`results/gate2-formal/2026-08-21/`](results/gate2-formal/2026-08-21/)
+- [`results/pixel-control/2026-08-21/`](results/pixel-control/2026-08-21/)
+
+## Next work
+
+The core experiments are complete. Next work is figure review, paired latent-versus-pixel result writing, limitations, and thesis preparation—not additional tuning or Gate 3 planning.
 
 ## Development environment
 
@@ -32,4 +37,4 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Do not rerun or retune the completed latent formal experiment. Do not alter the frozen paired pixel-control settings after seeing its result. Gate 3 planning remains blocked.
+Do not rerun or retune the completed latent or pixel paired experiments. Preserve both the positive pixel result and negative latent retrieval result.
