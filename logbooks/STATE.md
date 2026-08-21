@@ -2,53 +2,56 @@
 
 **Last updated:** 2026-08-21  
 **Branch:** `main`  
-**Current gate:** Gate 2 complete — formal fail  
-**Gate status:** Closed and fully diagnosed; pixel-space control next
+**Current stage:** Pixel-space explanatory control  
+**Status:** Protocol frozen before implementation
 
-## Formal Gate 2 decision
+## Closed results
 
-The exact frozen run completed with `formal_eligible: true` and selected the MLP family by validation error.
+### Gate 1
 
-- action-region MSE: 0.000860;
+Formal pass: frozen DINOv2-small patch features preserve localized stroke changes.
+
+### Gate 2
+
+Formal fail under the frozen conjunctive rule:
+
+- selected MLP action-region MSE: 0.000860;
 - improvement versus identity: 61.8%;
 - improvement versus mean delta: 57.1%;
 - crowding improvements: +79.0%, +43.3%, and +25.0%;
 - counterfactual retrieval: 27.7%;
-- all seeds beat identity;
-- overfit, finite-metric, and candidate-uniqueness checks passed.
+- all implementation and seed checks passed.
 
-The gate **failed** because retrieval was below the frozen 50% requirement and 35% fail boundary.
+Formal retrieval was stable across seeds and failed specifically on width: the selected MLP chose width-changed outcomes 48.2% of the time and beat them pairwise only 40.7% of the time. Gate 2 is closed; no reruns or latent test tuning are authorized.
 
-## Final retrieval diagnosis
+## Active question
 
-The selected MLP was stable across seeds:
+Can a minimal action-conditioned predictor recover exact stroke outcomes in normalized pixel space when evaluated on paired deterministic transitions?
 
-- seed accuracies: 26.3%, 27.3%, and 29.3%;
-- seed standard deviation: 1.53 percentage points;
-- width-changed candidate selected: 48.2%;
-- true beats shifted position: 77.9%;
-- true beats changed intensity: 75.2%;
-- true beats changed width: 40.7%.
+## Frozen pixel-control design
 
-The model is not broadly action-insensitive. Its dominant failure is precise width discrimination. More data improved average prediction and other action dimensions but left width pairwise accuracy essentially unchanged from development.
+- Same paired 1,000/200/300 transition splits and three stress slices as Gate 2.
+- Normalized 64×64 grayscale pixels and residual prediction.
+- Per-pixel input: current value, seven-value action vector, exact proposed-action mask, and x/y coordinates.
+- Identity, mean-delta, shared linear, shared `11 -> 64 -> 1` MLP, and exact compositing oracle.
+- Balanced inside/outside pixel residual MSE.
+- Model seeds `11`, `22`, and `33`.
+- Validation-only family selection.
+- Same 50% four-way retrieval standard for explanatory success.
 
-## Completed
-
-- Gate 1 formally passed and was archived.
-- Gate 2 protocol, amendment, implementation, development diagnostics, and formal command were committed before formal evaluation.
-- The formal run used untouched amended data and all three preregistered model seeds.
-- Formal tables and plots were reviewed and agreed.
-- Multi-seed retrieval diagnostics passed 19 local tests and were archived.
-- Gate 2 is closed without rerunning or post-test tuning.
+See `docs/pixel-space-control-protocol.md`.
 
 ## Next actions
 
-1. Freeze the minimal action-conditioned pixel-space control before implementation.
-2. Use it to distinguish a latent-target/objective bottleneck from a general deterministic-predictor bottleneck.
-3. Preserve identity, mean-delta, linear, and small nonlinear comparisons.
-4. Do not begin Gate 3 target-guided planning with the failed latent predictor.
-5. Treat contrastive, spatially interacting, or width-specific latent objectives as future work or explicitly post-formal ablations.
+1. Implement the smallest pixel-control core and deterministic tests.
+2. Add an end-to-end CPU experiment with saved tables and plots.
+3. Run the 128/32/64 development-only smoke on seeds `20260830`–`20260832`.
+4. If implementation checks pass, run the paired control once.
+5. Compare pixel and latent width discrimination in the thesis.
 
-## Immediate next step
+## Boundaries
 
-Write and freeze the pixel-space control protocol, then implement its smallest deterministic version. No further latent Gate 2 runs are authorized.
+- Do not rerun or revise the latent Gate 2 formal result.
+- Do not begin Gate 3 planning.
+- Do not add contrastive, spatially interacting, or width-specific latent objectives to the primary result.
+- The pixel control is explanatory and cannot retroactively pass Gate 2.
