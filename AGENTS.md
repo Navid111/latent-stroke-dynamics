@@ -14,17 +14,18 @@ Before changing code or proposing work, read:
 2. `docs/thesis-plan.md`;
 3. `docs/gate-2-protocol.md`;
 4. `docs/gate-2-results.md`;
-5. relevant source files and tests.
+5. `docs/pixel-space-control-protocol.md`;
+6. relevant source files and tests.
 
 ## Current status and non-negotiable scope
 
-Gate 1 passed. Gate 2 completed and formally failed because retrieval was 27.7%, despite strong average-error prediction.
+Gate 1 passed. Gate 2 completed and formally failed because retrieval was 27.7%, despite strong average-error prediction. The pixel-space explanatory control protocol and implementation are committed; local tests and the development-only smoke are next.
 
 - Do not rerun or retune the completed formal Gate 2 experiment.
 - Do not alter the frozen Gate 2 result or relabel it borderline.
 - Do not optimize against formal test rows.
 - Preserve the strong average-error result and weak retrieval result together.
-- The active fallback is the preregistered small action-conditioned pixel-space control.
+- Follow the frozen pixel-control protocol and review its smoke before the paired run.
 - Do not implement target-guided planning, reinforcement learning, or multi-step rollout.
 - Treat contrastive losses, spatially interacting architectures, and width-specific objectives as future work or explicitly post-formal ablations.
 
@@ -35,7 +36,7 @@ Gate 1 passed. Gate 2 completed and formally failed because retrieval was 27.7%,
 - The predictor estimates a next representation conditioned on current state and action.
 - A planner proposes and ranks candidate strokes.
 
-The failed retrieval criterion means the current predictor is not authorized for Gate 3 planning.
+The failed latent retrieval criterion means the current latent predictor is not authorized for Gate 3 planning. The pixel control is explanatory and cannot retroactively revise that decision.
 
 ## Environment
 
@@ -64,8 +65,8 @@ For the pixel-space control and final comparison, preserve:
 
 1. identity/no-change;
 2. training-set mean delta;
-3. a small action-conditioned learned predictor;
-4. exact-renderer references where applicable.
+3. shared linear and small nonlinear action-conditioned predictors;
+4. the renderer-equivalent exact compositing oracle.
 
 ## Handoff protocol
 
