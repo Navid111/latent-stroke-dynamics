@@ -1,0 +1,20 @@
+{
+  "analysis_scope": "formal",
+  "formal_run_requested": true,
+  "formal_eligible": true,
+  "recorded_gate_status": "fail",
+  "selected_model_family_by_validation": "mlp",
+  "chance_rate": 0.25,
+  "frozen_gate_threshold": 0.5,
+  "decision_note": "Post-hoc diagnostics cannot change the recorded formal decision.",
+  "selected_family_seed_count": 3,
+  "selected_family_mean_top1_accuracy": 0.27666666666666667,
+  "selected_family_seed_std_top1_accuracy": 0.01527525231651948,
+  "selected_family_min_top1_accuracy": 0.2633333333333333,
+  "selected_family_max_top1_accuracy": 0.29333333333333333,
+  "selected_seed_results": [
+    {"seed": 11, "top1_correct": 79, "examples": 300, "top1_accuracy": 0.2633333333333333, "top1_wilson_low": 0.21671070808563797, "top1_wilson_high": 0.3159405154466235},
+    {"seed": 22, "top1_correct": 82, "examples": 300, "top1_accuracy": 0.2733333333333333, "top1_wilson_low": 0.22600476318273954, "top1_wilson_high": 0.3263935917495673},
+    {"seed": 33, "top1_correct": 88, "examples": 300, "top1_accuracy": 0.29333333333333333, "top1_wilson_low": 0.24468550320426607, "top1_wilson_high": 0.34720711452813136}
+  ]
+}

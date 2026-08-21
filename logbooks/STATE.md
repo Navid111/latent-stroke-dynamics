@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-21  
 **Branch:** `main`  
 **Current gate:** Gate 2 complete — formal fail  
-**Gate status:** Closed under the frozen rule; fallback control next
+**Gate status:** Closed and fully diagnosed; pixel-space control next
 
 ## Formal Gate 2 decision
 
@@ -17,31 +17,38 @@ The exact frozen run completed with `formal_eligible: true` and selected the MLP
 - all seeds beat identity;
 - overfit, finite-metric, and candidate-uniqueness checks passed.
 
-The gate **failed** solely because retrieval was below the frozen 50% requirement and the 35% fail boundary. See `docs/gate-2-results.md`.
+The gate **failed** because retrieval was below the frozen 50% requirement and 35% fail boundary.
 
-## Interpretation
+## Final retrieval diagnosis
 
-The predictor robustly learns the broad one-step latent consequence of a stroke, including on unseen width, intensity, and crowding slices. It does not preserve enough exact action detail for reliable four-way counterfactual ranking. Average latent error and action-level usefulness are therefore not interchangeable.
+The selected MLP was stable across seeds:
 
-This is a valid mixed thesis result, not a broken experiment.
+- seed accuracies: 26.3%, 27.3%, and 29.3%;
+- seed standard deviation: 1.53 percentage points;
+- width-changed candidate selected: 48.2%;
+- true beats shifted position: 77.9%;
+- true beats changed intensity: 75.2%;
+- true beats changed width: 40.7%.
+
+The model is not broadly action-insensitive. Its dominant failure is precise width discrimination. More data improved average prediction and other action dimensions but left width pairwise accuracy essentially unchanged from development.
 
 ## Completed
 
 - Gate 1 formally passed and was archived.
-- Gate 2 protocol, amendment, implementation, development diagnostics, and formal command were committed before the formal run.
+- Gate 2 protocol, amendment, implementation, development diagnostics, and formal command were committed before formal evaluation.
 - The formal run used untouched amended data and all three preregistered model seeds.
-- The formal Gate 2 result was recorded without rerunning or post-test tuning.
-- Decisive configuration and diagnostic artifacts were archived under `results/gate2-formal/2026-08-21/`.
+- Formal tables and plots were reviewed and agreed.
+- Multi-seed retrieval diagnostics passed 19 local tests and were archived.
+- Gate 2 is closed without rerunning or post-test tuning.
 
 ## Next actions
 
-1. Do not rerun or retune the completed formal latent experiment.
-2. Run the no-retraining retrieval decomposition on the formal output for interpretation only.
-3. Collect the remaining formal plots and training history for the archive.
-4. Implement the preregistered small action-conditioned pixel-space control.
-5. Compare pixel-space and latent behavior for the final thesis result.
-6. Do not begin Gate 3 target-guided planning with the failed latent predictor.
+1. Freeze the minimal action-conditioned pixel-space control before implementation.
+2. Use it to distinguish a latent-target/objective bottleneck from a general deterministic-predictor bottleneck.
+3. Preserve identity, mean-delta, linear, and small nonlinear comparisons.
+4. Do not begin Gate 3 target-guided planning with the failed latent predictor.
+5. Treat contrastive, spatially interacting, or width-specific latent objectives as future work or explicitly post-formal ablations.
 
 ## Immediate next step
 
-Complete the formal artifact review, then scope the pixel-space control. Any contrastive loss, spatial architecture, or width-specific objective is post-formal future work and cannot replace the recorded result.
+Write and freeze the pixel-space control protocol, then implement its smallest deterministic version. No further latent Gate 2 runs are authorized.
