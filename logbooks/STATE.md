@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
 **Current stage:** Stage 3 pixel-space target-guided painter  
-**Status:** Foundation passed; random/exact engineering smoke ready
+**Status:** Random/exact smoke passed; learned checkpoint workflow ready for local validation
 
 ## Frozen completed foundation
 
@@ -16,48 +16,57 @@ Do not rerun, retune, relabel, or replace these results.
 
 ## Stage 3 validation
 
-The full local suite passed on the base M1 MacBook Air:
+- Full suite before learned-planner code: `30 passed in 2.57s`.
+- Random/exact smoke: engineering pass.
+- Exact greedy reduced MSE by 50.20% after 20 strokes.
+- Random reduced MSE by 3.03%.
+- Exact improved all 20 steps and deterministic replay passed.
+- Static images and progress curves were visually coherent.
 
-```text
-30 passed in 2.57s
-```
+## Learned checkpoint implementation
 
-This validates preprocessing, deterministic candidate generation, random/exact planning, prior gates, renderer behavior, and pixel-control utilities together.
+Added:
 
-## Smoke implementation
+- `src/latent_stroke_dynamics/learned_pixel_planner.py`;
+- `experiments/05_train_pixel_planner_checkpoint.py`;
+- `tests/test_learned_pixel_planner.py`.
 
-Added `experiments/04_pixel_planner_smoke.py` with:
+The module supports strict checkpoint metadata, state-dict hashing, safe reloading, batched candidate scores, learned one-step ranking, exact execution, and per-step exact regret diagnostics.
 
-- one fixed 20-stroke synthetic target;
-- random and exact-greedy planning;
-- 20 selected strokes and 32 candidates per step;
-- deterministic exact replay;
-- finite-metric validation;
-- progress CSVs and stroke JSON;
-- final PNGs, fixed-scale error comparison, progress curves, and GIFs;
-- diagnostic-only run configuration.
+The demonstration trainer uses only:
 
-## Required local run
+- 1,000 training rows, seed `20260824`;
+- 200 validation rows, seed `20260825`;
+- MLP seed `11`;
+- the frozen 833-parameter architecture and training settings.
+
+It does not generate or use paired test rows.
+
+## Required local validation
 
 ```bash
 git pull
 source .venv/bin/activate
-python experiments/04_pixel_planner_smoke.py
+pytest
 ```
 
-Send the complete terminal output, `summary.csv`, `run_config.json`, `final_comparison.png`, and `progress_curves.png` for review.
+Expected: 33 tests. If they pass, run:
+
+```bash
+python experiments/05_train_pixel_planner_checkpoint.py
+```
 
 ## Next actions
 
-1. Review the random/exact smoke numerically and visually.
-2. Repair engineering issues only if the smoke exposes one.
-3. Add a saved demonstration MLP checkpoint from train/validation data only.
-4. Implement learned candidate ranking with exact execution.
-5. Run a tiny all-method smoke before the controlled comparison.
+1. Validate 33 tests locally.
+2. Train and integrity-check the separate demonstration checkpoint.
+3. Review checkpoint metadata and history.
+4. Add the all-method random/exact/learned smoke.
+5. Freeze and run the six-target controlled comparison.
 
 ## Boundaries
 
-- The smoke is diagnostic only.
-- Do not rerun completed paired experiments.
-- Do not use paired test rows to select a demonstration checkpoint.
-- Keep Stage 3 grayscale, 64×64, straight-line, and one-step greedy.
+- Checkpoint weights remain local and ignored by Git.
+- No paired test rows may be used for checkpoint training or selection.
+- The checkpoint is a deployment artifact, not a new paired-control result.
+- The learned planner always executes selected strokes with the exact renderer.
