@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
-**Current stage:** Validate the user-facing painter, then freeze the representation extension  
-**Status:** Painter implementation committed; local test validation pending
+**Current stage:** Repair and revalidate qualitative target preprocessing  
+**Status:** 36-test painter suite passed; MNIST smoke exposed polarity mismatch; repair committed
 
 ## Completed experimental chain
 
@@ -16,32 +16,36 @@ Do not rerun, retune, relabel, or replace these results.
 
 ## Stage 3 controlled decision
 
-- controlled eligible: true;
-- control status: success;
-- implementation integrity: passed;
 - learned improved all six targets;
 - learned mean final MSE: `0.060032`;
 - random mean final MSE: `0.155971`;
 - exact mean final MSE: `0.050479`;
 - learned reduction versus random: `61.51%`;
 - learned/exact ratio: `1.18925`;
-- exact top-1/top-5 agreement: `33.5%` / `58.67%`;
-- mean exact rank: `7.51` of 128;
-- mean one-step regret: `0.0003867`;
-- deterministic replay: passed.
+- implementation integrity and deterministic replay passed.
 
 The completed controlled output must be preserved and the comparison must not be run again.
 
-## User-facing painter
+## User-facing painter validation
 
-Committed files:
+The first implementation passed `36 tests in 2.81s`, including all artifact and overwrite guards.
 
-- `paint.py`;
-- `src/latent_stroke_dynamics/painting_cli.py`;
-- `tests/test_painting_cli.py`;
-- `docs/paint-command.md`.
+The first learned arbitrary-image smoke used an MNIST-style white digit on a black background. Its result was poor:
 
-The command supports random, exact, and learned planning and saves the processed target, final painting, metrics, ordered strokes, frames, GIF, progress plot, and fixed-scale comparison. It verifies the frozen checkpoint, refuses output overwrite, preserves incomplete work, and labels all user images qualitative.
+- initial MSE `0.798784`;
+- final MSE `0.533353`;
+- 33.23% reduction;
+- top-1/top-5 exact agreement `15%` / `45%`;
+- mean exact rank `11.75` of 32;
+- mean regret `0.011429`.
+
+This is a renderer/target polarity mismatch. The painter starts with white and draws only values `{0, 32, 64, 96, 128}`. It cannot paint a white digit onto a black canvas, so pixel MSE drives strokes across the black background. The original failed output is a valid qualitative limitation and must be preserved.
+
+## Repair
+
+The qualitative command now defaults to `--polarity auto`. It inspects the resized target border and inverts targets whose border median is below `127.5`, mapping light-on-dark inputs to the trained dark-on-white convention. `preserve` and `invert` overrides are available. Both pre-normalization and normalized targets are saved; metadata records the decision.
+
+This changes only arbitrary-image preprocessing. It does not change the renderer, learned checkpoint, proposal logic, controlled targets, controlled metrics, or controlled decision.
 
 ## Immediate next action
 
@@ -51,20 +55,13 @@ source .venv/bin/activate
 pytest
 ```
 
-Expected total after the three new painter tests: `36 passed`.
+Expected total after two parameterized polarity tests: `38 passed`.
 
-Do not run a user image until the full suite passes. After validation, use a 20-stroke/32-candidate learned smoke before a full 100-stroke/128-candidate demonstration.
+If validation passes, rerun the same 20-stroke/32-candidate MNIST smoke in a new output directory with `--polarity auto`. Do not run the 100-stroke version yet.
 
 ## Authorized later extension
 
-After the painter is secure, freeze a new post-core protocol comparing:
-
-1. existing DINOv2 latent result;
-2. one reconstruction-oriented frozen encoder;
-3. one small task-trained spatial latent encoder;
-4. existing raw-pixel control.
-
-This must use new untouched data seeds and cannot modify earlier gates.
+After the painter is secure, freeze a new post-core protocol comparing existing DINOv2, one reconstruction-oriented frozen encoder, one task-trained spatial latent encoder, and the existing raw-pixel control on untouched seeds.
 
 ## Boundaries
 
