@@ -212,6 +212,40 @@ def summary_row(run: RunLike, elapsed_seconds: float) -> dict[str, Any]:
     return row
 
 
+def validate_summary_metrics(summaries: pd.DataFrame) -> None:
+    """Require finite metrics while allowing non-applicable baseline diagnostics."""
+
+    shared_columns = [
+        "steps",
+        "candidates_per_step",
+        "initial_mse",
+        "final_mse",
+        "final_mae",
+        "relative_mse_improvement",
+        "improved_steps",
+        "elapsed_seconds",
+    ]
+    shared = summaries[shared_columns].to_numpy(dtype=float)
+    if not bool(np.isfinite(shared).all()):
+        raise RuntimeError("All-method smoke contains a non-finite shared metric.")
+
+    learned_columns = [
+        "exact_top1_rate",
+        "exact_top5_rate",
+        "mean_exact_rank",
+        "mean_exact_regret",
+        "max_exact_regret",
+    ]
+    learned = summaries.loc[
+        summaries["method"] == "learned",
+        learned_columns,
+    ].to_numpy(dtype=float)
+    if learned.shape != (1, len(learned_columns)) or not bool(
+        np.isfinite(learned).all()
+    ):
+        raise RuntimeError("Learned-planner diagnostics contain a non-finite metric.")
+
+
 def save_progress_plot(runs: tuple[RunLike, ...], output_path: Path) -> None:
     colors = {"random": "tab:blue", "exact": "tab:orange", "learned": "tab:green"}
     figure, axis = plt.subplots(figsize=(7.5, 4.5))
@@ -354,9 +388,7 @@ def main() -> None:
             summary_row(learned_run, learned_elapsed),
         ]
     )
-    numeric = summaries.select_dtypes(include=[np.number]).dropna(axis=1, how="all")
-    if not bool(np.isfinite(numeric.to_numpy(dtype=float)).all()):
-        raise RuntimeError("All-method smoke summary contains a non-finite metric.")
+    validate_summary_metrics(summaries)
     summaries.to_csv(args.output_dir / "summary.csv", index=False)
     learned_diagnostics = pd.DataFrame(step_rows(learned_run))
     learned_diagnostics.to_csv(
