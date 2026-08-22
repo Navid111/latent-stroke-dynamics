@@ -1,4 +1,5 @@
 from copy import deepcopy
+import json
 from pathlib import Path
 
 import pytest
@@ -29,10 +30,10 @@ from latent_stroke_dynamics.representation_extension import (
 )
 
 
-CONFIG_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "configs"
-    / "representation-extension-2026-08-22.json"
+ROOT = Path(__file__).resolve().parents[1]
+CONFIG_PATH = ROOT / "configs" / "representation-extension-2026-08-22.json"
+FULL_COMMAND_PATH = (
+    ROOT / "configs" / "representation-extension-full-command-2026-08-22.json"
 )
 
 
@@ -43,6 +44,22 @@ def test_frozen_extension_config_is_valid_and_seed_disjoint() -> None:
         "vit_mae",
         "task_autoencoder",
     }
+
+
+def test_frozen_full_command_uses_untouched_seeds_and_single_run() -> None:
+    command = json.loads(FULL_COMMAND_PATH.read_text(encoding="utf-8"))
+    assert command["status"] == (
+        "frozen_after_development_review_before_primary_data"
+    )
+    assert command["primary_seeds"] == [20261024, 20261025, 20261026]
+    assert command["stress_seeds"] == [
+        20261027,
+        20261028,
+        20261029,
+        20261030,
+    ]
+    assert command["development_metrics_used_to_change_settings"] is False
+    assert command["single_authorized_run"] is True
 
 
 def test_extension_config_rejects_seed_reuse() -> None:

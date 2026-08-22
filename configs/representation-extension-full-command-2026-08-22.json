@@ -1,0 +1,16 @@
+{
+  "status": "frozen_after_development_review_before_primary_data",
+  "script": "experiments/10_representation_extension_full.py",
+  "validation_command": "python experiments/10_representation_extension_full.py --validate-only",
+  "run_command": "python experiments/10_representation_extension_full.py --run-frozen-extension",
+  "scientific_config": "configs/representation-extension-2026-08-22.json",
+  "output_dir": "outputs/representation-extension-2026-08-22",
+  "primary_seeds": [20261024, 20261025, 20261026],
+  "stress_seeds": [20261027, 20261028, 20261029, 20261030],
+  "development_metrics_used_to_change_settings": false,
+  "reporting_only_repairs_after_smoke": [
+    "count all autoencoder parameters after freezing"
+  ],
+  "single_authorized_run": true,
+  "historical_decisions_unchanged": true
+}
