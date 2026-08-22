@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
 **Current stage:** Frozen post-core representation extension  
-**Status:** Protocol/config committed before implementation and data generation
+**Status:** Foundation implemented; local validation pending
 
 ## Frozen completed evidence
 
@@ -18,35 +18,38 @@ No completed result may be rerun, retuned, or relabeled.
 
 ## Active extension
 
-Frozen files:
+Frozen before implementation:
 
 - `docs/representation-extension-protocol.md`;
 - `configs/representation-extension-2026-08-22.json`.
 
-New representations:
+Implemented without extension-data generation:
 
-1. frozen deterministic unmasked final spatial tokens from `facebook/vit-mae-base`;
-2. a small reconstruction-trained 32×16×16 convolutional autoencoder latent.
-
-Historical DINOv2 and pixel outcomes are anchors only and will not be rerun. The extension uses untouched seeds `20261024`–`20261030`; development smoke uses `20261020`–`20261022`.
-
-Each new representation is classified independently by average residual error, crowding behavior, four-way action retrieval, and integrity checks. The required action-usable retrieval threshold remains 50%.
+- deterministic unmasked raster-ordered ViT-MAE wrapper;
+- fixed MAE noise and restoration helpers;
+- frozen 32×16×16 convolutional autoencoder architecture;
+- train-only latent channel standardization;
+- reconstruction and freeze helpers;
+- configuration-drift and seed-overlap guards;
+- eight unit tests;
+- validation-only and two-image MAE smoke commands.
 
 ## Immediate next action
 
-Implement, without generating extension data:
+```bash
+git pull --ff-only
+source .venv/bin/activate
+pytest
+python experiments/08_representation_extension.py --validate-only
+python experiments/08_representation_extension.py --mae-smoke
+```
 
-1. deterministic unmasked ViT-MAE wrapper and repeatability test;
-2. convolutional autoencoder and reconstruction tests;
-3. latent standardization and checkpoint-integrity helpers;
-4. shared extension configuration validation;
-5. smoke/full-run guards.
-
-Then run the complete repository tests before any development smoke.
+Expected: `46 passed`, then `foundation_valid`, then `mae_encoder_smoke_passed`. The MAE smoke may download model weights but generates no extension split.
 
 ## Boundaries
 
-- No new extension data have been generated.
+- Do not run any full extension command yet.
+- No extension split has been generated.
 - No test split may enter fitting, normalization, or selection.
-- Do not substitute a different pretrained encoder if ViT-MAE deterministic unmasked extraction fails.
+- Do not substitute another pretrained encoder if the deterministic MAE smoke fails.
 - No additional encoder, joint training, contrastive loss, or latent planner before both frozen representations are archived.
