@@ -39,10 +39,10 @@ def example_tensors() -> tuple[torch.Tensor, ...]:
     return current, true_delta, true_next, candidates, masks
 
 
-def test_frozen_ranking_config_authorizes_development_not_formal() -> None:
+def test_frozen_ranking_config_authorizes_validated_formal_run() -> None:
     config = load_ranking_config(CONFIG)
     assert config["development"]["authorized"] is True
-    assert config["formal_reserved"]["authorized"] is False
+    assert config["formal_reserved"]["authorized"] is True
     assert config["frozen_representation"]["latent_statistics_sha256"] == (
         STATISTICS_SHA256
     )
@@ -59,11 +59,12 @@ def test_config_rejects_development_authorization_without_statistics_hash() -> N
         validate_ranking_config(broken)
 
 
-def test_config_rejects_formal_authorization() -> None:
+def test_config_rejects_formal_without_development_authorization() -> None:
     config = load_ranking_config(CONFIG)
     broken = deepcopy(config)
+    broken["development"]["authorized"] = False
     broken["formal_reserved"]["authorized"] = True
-    with pytest.raises(ValueError, match="Formal data remain unauthorized"):
+    with pytest.raises(ValueError, match="completed development authorization"):
         validate_ranking_config(broken)
 
 

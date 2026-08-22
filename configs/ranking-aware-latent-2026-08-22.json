@@ -40,7 +40,7 @@
     "output_dir": "outputs/ranking-aware-latent-development-2026-08-22"
   },
   "formal_reserved": {
-    "authorized": false,
+    "authorized": true,
     "train": {"samples": 1000, "seed": 20261104},
     "validation": {"samples": 200, "seed": 20261105},
     "test": {"samples": 300, "seed": 20261106},

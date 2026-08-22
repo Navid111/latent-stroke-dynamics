@@ -1,0 +1,29 @@
+{
+  "status": "single_formal_run_authorized_after_validation",
+  "authorized": true,
+  "authorized_at_local_date": "2026-08-22",
+  "validation_evidence": {
+    "pytest": "73 passed in 5.94s",
+    "validation_status": "ranking_latent_formal_runner_valid_unauthorized",
+    "formal_output_dir_available": true,
+    "formal_incomplete_dir_available": true,
+    "formal_data_generated": false,
+    "models_trained": false,
+    "checkpoint_state_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900",
+    "latent_statistics_file_sha256": "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903",
+    "development_adjudication_sha256": "0a25edc09fb6764ec7ece310326bf930799fbf7357ac729c1a2e8f68be6990e9",
+    "development_split_metadata_sha256": "0791ffa9cc9c519b6d09fb068eee6fc2900f8659d2d8e5bce371d865559a3940",
+    "synthetic_gradient_finite": true
+  },
+  "selected_setting": {
+    "ranking_weight": 1.0,
+    "temperature": 0.05,
+    "selection_used_validation_only": true
+  },
+  "formal_seeds": [20261104, 20261105, 20261106, 20261107, 20261108, 20261109, 20261110],
+  "model_seeds": [11, 22, 33],
+  "single_run_only": true,
+  "retuning_forbidden": true,
+  "rerun_forbidden_after_completion": true,
+  "historical_decisions_unchanged": true
+}

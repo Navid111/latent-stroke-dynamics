@@ -21,20 +21,20 @@ All prior experiments and the ranking-aware development grid are complete and im
 
 ## Active task
 
-Validate the implemented formal ranking-aware comparison without data generation:
+One formal ranking-aware comparison is authorized after successful local validation:
 
 ```bash
 pytest
 python experiments/14_ranking_aware_latent_formal.py --validate-only
+python experiments/14_ranking_aware_latent_formal.py --run-formal-comparison
 ```
-
-Formal execution remains unauthorized until local validation is reviewed and a separate authorization commit lands.
 
 ## Hard boundaries
 
-- Do not use `--run-formal-comparison` yet.
+- Run the formal comparison exactly once.
+- If it fails, preserve `.incomplete` and report the traceback; do not retry.
+- If it succeeds, do not rerun or retune it.
 - Never rerun development or experiment 10.
-- Do not generate formal seeds before authorization.
 - Do not change lambda `1.0`, temperature `0.05`, encoder, canvas, renderer, strokes, architecture, thresholds, split sizes, or seeds.
 - Test/stress rows cannot affect training, early stopping, or selection.
-- Preserve all raw and adjudicated development artifacts.
+- Preserve all raw and adjudicated artifacts.

@@ -51,11 +51,11 @@ def test_formal_ranking_fails_without_matched_gain() -> None:
     assert result["checks"]["retrieval_gain_at_least_10_points"] is False
 
 
-def test_formal_command_and_selected_setting_are_frozen_unauthorized() -> None:
+def test_formal_command_is_authorized_after_validation_and_setting_stays_frozen() -> None:
     command = json.loads(COMMAND.read_text(encoding="utf-8"))
     selected = json.loads(SELECTED.read_text(encoding="utf-8"))
-    assert command["status"] == "implemented_before_formal_authorization"
-    assert command["authorized"] is False
+    assert command["status"] == "authorized_after_local_validation"
+    assert command["authorized"] is True
     assert command["formal_seeds"] == list(range(20261104, 20261111))
     assert selected["ranking_weight"] == 1.0
     assert selected["temperature"] == 0.05

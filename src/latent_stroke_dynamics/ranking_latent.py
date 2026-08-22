@@ -122,11 +122,19 @@ def validate_ranking_config(config: Mapping[str, Any]) -> None:
 
     development = _mapping(config.get("development"), "development")
     formal = _mapping(config.get("formal_reserved"), "formal_reserved")
-    if development.get("authorized") is not False:
+    development_authorized = development.get("authorized")
+    formal_authorized = formal.get("authorized")
+    if development_authorized is not False and development_authorized is not True:
+        raise ValueError("Development authorization must be boolean.")
+    if formal_authorized is not False and formal_authorized is not True:
+        raise ValueError("Formal authorization must be boolean.")
+    if development_authorized is True and statistics_hash is None:
+        raise ValueError("Development cannot be authorized before the statistics hash.")
+    if formal_authorized is True:
+        if development_authorized is not True:
+            raise ValueError("Formal authorization requires completed development authorization.")
         if statistics_hash is None:
-            raise ValueError("Development cannot be authorized before the statistics hash.")
-    if formal.get("authorized") is not False:
-        raise ValueError("Formal data remain unauthorized.")
+            raise ValueError("Formal authorization requires the frozen statistics hash.")
     expected_development = {
         "train": (128, 20261101),
         "validation": (64, 20261102),

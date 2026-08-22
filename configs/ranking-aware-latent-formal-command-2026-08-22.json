@@ -1,6 +1,6 @@
 {
-  "status": "implemented_before_formal_authorization",
-  "authorized": false,
+  "status": "authorized_after_local_validation",
+  "authorized": true,
   "script": "experiments/14_ranking_aware_latent_formal.py",
   "validation_command": "python experiments/14_ranking_aware_latent_formal.py --validate-only",
   "run_command": "python experiments/14_ranking_aware_latent_formal.py --run-formal-comparison",

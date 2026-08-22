@@ -1,37 +1,28 @@
-# Ranking-aware latent formal comparison — validation handoff
+# Ranking-aware latent formal comparison — authorized handoff
 
-## Frozen formal design
+## Validation evidence
 
-- selected ranking weight: `1.0`;
-- selected temperature: `0.05`;
-- frozen task-autoencoder checkpoint/statistics;
-- three matched MSE-only seeds and three ranking-aware seeds;
-- primary 1,000/200/300 train/validation/test transitions;
-- four 100-example secondary stress slices;
-- formal seeds `20261104`–`20261110`;
-- conjunctive 50% retrieval, +10-point matched gain, average-error, crowding, oracle, seed, and integrity criteria.
+- `73 passed in 5.94s`;
+- status: `ranking_latent_formal_runner_valid_unauthorized`;
+- frozen checkpoint/statistics hashes matched;
+- selected ranking weight/temperature matched `1.0` / `0.05`;
+- formal output and incomplete-output paths were clear;
+- no formal data generated and no models trained.
 
-## Implemented safeguards
+## Authorization
 
-The runner verifies the archived development adjudication and selected setting, frozen hashes and sizes, local development fingerprints, formal/development disjointness, validation-only early stopping, test exclusion from selection, method-aware history finiteness, candidate uniqueness, exact-target oracles, finite metrics, parameter counts, tiny-overfit behavior, atomic output handling, and overwrite refusal.
+A separate commit now authorizes exactly one formal run. No scientific setting changed.
 
-## Validate without generating formal data
+## Final preflight and run
 
 ```bash
 git pull --ff-only
 source .venv/bin/activate
 pytest
 python experiments/14_ranking_aware_latent_formal.py --validate-only
+python experiments/14_ranking_aware_latent_formal.py --run-formal-comparison
 ```
 
-Expected test total: `73 passed`.
+Expected preflight: `73 passed` and status `ranking_latent_formal_runner_valid_authorized`, with both authorization fields true and both output-path-available fields true.
 
-Expected status:
-
-```text
-ranking_latent_formal_runner_valid_unauthorized
-```
-
-Both formal authorization fields must remain false, both formal output paths must be available, and `formal_data_generated`/`models_trained` must remain false.
-
-Send the complete pytest result and validation JSON. Do not use `--run-formal-comparison` yet. Formal authorization will be committed separately after validation review.
+This is the only authorized formal execution. If the command errors, do not retry or delete the `.incomplete` directory; report the complete traceback. If it completes, do not rerun or retune it. Send `outputs/ranking-aware-latent-formal-2026-08-22/formal_summary.json`.
