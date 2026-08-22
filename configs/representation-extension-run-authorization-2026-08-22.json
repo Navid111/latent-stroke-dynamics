@@ -1,0 +1,15 @@
+{
+  "status": "authorized_after_validation",
+  "authorized_on": "2026-08-22",
+  "authorized_command": "python experiments/10_representation_extension_full.py --run-frozen-extension",
+  "validated_test_count": 51,
+  "validated_test_status": "passed",
+  "validation_status": "full_command_valid",
+  "authorized_run_has_started_at_authorization": false,
+  "primary_or_stress_data_generated_at_authorization": false,
+  "output_dir_available_at_authorization": true,
+  "development_metrics_changed_settings": false,
+  "single_authorized_run": true,
+  "rerun_or_retuning_allowed": false,
+  "historical_decisions_unchanged": true
+}

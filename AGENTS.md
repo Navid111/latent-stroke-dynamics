@@ -31,25 +31,24 @@ Do not rerun, retune, relabel, or replace these results.
 
 ## Active scope
 
-The single full representation-extension command is committed but not yet authorized to generate data. The only next actions are local tests and `--validate-only`.
+The full representation-extension command passed 51 tests and validation-only review. Exactly one full run is authorized using:
 
-Authorized now:
+```bash
+python experiments/10_representation_extension_full.py --run-frozen-extension
+```
 
-- `pytest`;
-- `python experiments/10_representation_extension_full.py --validate-only`;
-- implementation repair only if either validation fails.
+No flags or concurrent process are authorized.
 
-Not authorized until validation is reviewed:
+## Run boundaries
 
-- `--run-frozen-extension`;
-- generating seeds `20261024`–`20261030`;
-- changing any scientific setting;
-- additional encoders, fine-tuning, joint training, or latent planning;
-- any prior-result rerun.
+- Execute the frozen command once.
+- Do not edit code, config, architecture, seeds, thresholds, epochs, or output paths before or during the run.
+- On success, never rerun or retune; preserve all results.
+- On error/interruption, preserve the traceback and `.incomplete` directory and request review before any retry.
+- No additional encoders, fine-tuning, joint training, latent planning, or prior-result reruns.
 
 ## Interpretation boundaries
 
-- Development metrics are diagnostic only.
 - The task autoencoder is reconstruction-trained, not JEPA.
 - ViT-MAE and the task autoencoder are two formulations, not an exhaustive benchmark.
 - Historical DINOv2 and pixels remain descriptive anchors.

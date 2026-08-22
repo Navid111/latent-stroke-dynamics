@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
 **Current stage:** Frozen post-core representation extension  
-**Status:** Guarded full command committed; validation-only pending
+**Status:** Single full run authorized after successful validation
 
 ## Frozen completed evidence
 
@@ -12,41 +12,44 @@
 - Paired pixel control succeeded at 100% retrieval.
 - Controlled Stage 3 learned planning succeeded across six synthetic targets.
 - MNIST qualitative exact greedy outperformed long-horizon learned pixel planning.
-- Representation development smoke completed in 173.49 seconds with integrity and no primary/stress data.
+- Representation development smoke completed with integrity and no primary/stress data.
 
 No completed result may be rerun, retuned, or relabeled.
 
-## Development interpretation
+## Full-command validation
 
-Task-autoencoder dynamics showed strong average-error improvement and 46.35% retrieval, but development reconstruction failed its threshold. ViT-MAE showed 23.97% improvement and 7.29% retrieval. These are diagnostic only; no scientific setting changed.
+Navid reported:
 
-The autoencoder parameter-count report is corrected prospectively to 49,569 total parameters. The raw development artifact remains unchanged.
+- `51 passed in 6.09s`;
+- status `full_command_valid`;
+- autoencoder total parameters `49,569`;
+- frozen dynamics parameter counts matched;
+- output directory available;
+- primary/stress data not generated;
+- authorized run not started;
+- development metrics changed no setting;
+- historical decisions unchanged.
 
-## Full command
-
-Frozen files:
-
-- `configs/representation-extension-full-command-2026-08-22.json`;
-- `experiments/10_representation_extension_full.py`;
-- `docs/representation-extension-full-handoff.md`.
-
-The runner contains exact primary/stress split guards, validation-only mode, train/validation/test separation, three-seed autoencoder selection, train-only standardization, matched dynamics, retrieval/oracle checks, stress evaluation, explicit classification, figures, atomic output publication, and no-overwrite protection.
-
-## Immediate next action
+## Authorized next action
 
 ```bash
 git pull --ff-only
 source .venv/bin/activate
-pytest
-python experiments/10_representation_extension_full.py --validate-only
+python experiments/10_representation_extension_full.py --run-frozen-extension
 ```
 
-Expected: `51 passed`, then `full_command_valid`. Stop after validation and send both outputs. Do not start the full run yet.
+Run exactly once with no additional flags or concurrent process. Keep the machine awake and connected to power.
+
+On success, send:
+
+```text
+outputs/representation-extension-2026-08-22/extension_summary.json
+```
+
+On failure, do not rerun. Preserve the traceback and `outputs/representation-extension-2026-08-22.incomplete/` for review.
 
 ## Boundaries
 
-- `--run-frozen-extension` is not yet authorized.
-- Primary/stress seeds remain untouched.
-- Do not rerun the development smoke.
-- Do not change any scientific setting from development metrics.
+- No scientific setting may change.
 - No additional encoder or latent planner before the extension is archived.
+- The full result cannot alter prior Gate 2, pixel-control, or Stage 3 decisions.
