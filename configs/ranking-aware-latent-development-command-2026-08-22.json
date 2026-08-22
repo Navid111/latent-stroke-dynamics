@@ -1,0 +1,16 @@
+{
+  "status": "implemented_before_development_authorization",
+  "authorized": false,
+  "script": "experiments/12_ranking_aware_latent_followup.py",
+  "validation_command": "python experiments/12_ranking_aware_latent_followup.py --validate-only",
+  "run_command": "python experiments/12_ranking_aware_latent_followup.py --run-development-grid",
+  "scientific_config": "configs/ranking-aware-latent-2026-08-22.json",
+  "development_output_dir": "outputs/ranking-aware-latent-development-2026-08-22",
+  "development_seeds": [20261101, 20261102, 20261103],
+  "formal_seeds_reserved": [20261104, 20261105, 20261106, 20261107, 20261108, 20261109, 20261110],
+  "encoding_batch_size": 32,
+  "atomic_incomplete_output": true,
+  "overwrite_allowed": false,
+  "formal_data_generation_allowed": false,
+  "historical_decisions_unchanged": true
+}
