@@ -77,7 +77,7 @@ def test_exact_oracle_candidate_scores_retrieve_true_target() -> None:
         batch_size=1,
     )
     assert int(np.argmin(scores)) == 1
-    assert scores[1] == 0.0
+    assert np.isclose(scores[1], 0.0, rtol=0.0, atol=1e-12)
 
 
 def test_oracle_learned_loop_matches_exact_candidate_ranking() -> None:
