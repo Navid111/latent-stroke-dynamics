@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
 **Current stage:** Frozen post-core representation extension  
-**Status:** Matched development-smoke runner implemented; local validation pending
+**Status:** Development smoke archived; full command not yet frozen
 
 ## Frozen completed evidence
 
@@ -12,58 +12,29 @@
 - Paired pixel control succeeded at 100% retrieval.
 - Controlled Stage 3 learned planning succeeded across six synthetic targets.
 - MNIST qualitative exact greedy reached MSE `0.022196`; learned reached `0.040860` and degraded after step 33.
-- User-facing painter and best-painting output passed all 38 tests.
 
 No completed result may be rerun, retuned, or relabeled.
 
-## Extension validation complete
+## Development smoke
 
-Navid reported:
+- Status: complete and non-decision-making.
+- Runtime: 173.49 seconds.
+- Integrity: passed.
+- Primary/stress data: not generated.
 
-- all 46 foundation tests passed;
-- configuration/architecture validation passed;
-- deterministic ViT-MAE wrapper produced `[2, 196, 768]` features;
-- repeated ViT-MAE encoding had maximum difference `0.0`;
-- the fixed stroke produced positive feature change;
-- no extension split was generated.
+Task-autoencoder dynamics showed 71.01% action-region improvement versus identity and 46.35% four-way retrieval. ViT-MAE showed 23.97% improvement and 7.29% retrieval. These values cannot classify either representation.
 
-## Development runner
+The development autoencoder did not satisfy the reconstruction threshold: it was 14.02% worse than the train-mean-image validation baseline. Its latent was non-collapsed and checkpoint reload was exact. Frozen settings remain unchanged for the full run.
 
-Implemented:
-
-- three-seed autoencoder training and validation-only selection;
-- train-only latent channel statistics;
-- checkpoint hashing and exact reload verification;
-- reconstruction baseline and held-out diagnostics;
-- matched task-autoencoder and ViT-MAE transition encoding;
-- linear/MLP dynamics training for seeds `11`, `22`, and `33`;
-- identity/mean-delta baselines, tiny-overfit checks, crowding metrics;
-- four-way retrieval, factor-wise diagnostics, encoded-uniqueness and exact-target oracle checks;
-- atomic output publication and actual saved JSON/CSV artifacts;
-- four additional unit tests.
+The raw summary's autoencoder `parameter_count: 0` was a reporting-only bug caused by counting trainable parameters after freezing. The architecture has 49,569 total parameters. The helper is corrected prospectively; the raw artifact remains preserved.
 
 ## Immediate next action
 
-```bash
-git pull --ff-only
-source .venv/bin/activate
-pytest
-python experiments/09_representation_extension_development.py
-```
-
-Expected tests: `50 passed`.
-
-On successful smoke, send:
-
-```text
-outputs/representation-extension-development-smoke/smoke_summary.json
-```
-
-If execution fails, preserve the `.incomplete` directory and send the traceback. Do not rerun without an implementation review.
+Implement and separately commit the single guarded full command using untouched seeds `20261024`–`20261030`. Run tests and validation-only mode before authorizing primary/stress generation.
 
 ## Boundaries
 
-- Development metrics are non-decision-making.
-- Do not generate primary or stress seeds yet.
-- Do not change architecture or thresholds from smoke outcomes.
+- Do not rerun the development smoke.
+- Do not change architecture, losses, thresholds, epochs, or seeds from smoke metrics.
+- Do not generate primary/stress data until the full command is committed and validation-only checks pass.
 - No additional encoder, joint training, contrastive loss, or latent planner before both frozen representations are archived.

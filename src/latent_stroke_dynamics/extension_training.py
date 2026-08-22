@@ -91,6 +91,12 @@ def seed_everything(seed: int) -> None:
     torch.manual_seed(seed)
 
 
+def total_parameter_count(model: nn.Module) -> int:
+    """Count all parameters, including parameters frozen for evaluation."""
+
+    return sum(parameter.numel() for parameter in model.parameters())
+
+
 def model_state_sha256(model: nn.Module) -> str:
     """Hash model tensor names, shapes, dtypes, and values deterministically."""
 

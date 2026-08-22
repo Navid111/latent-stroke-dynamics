@@ -1,0 +1,131 @@
+{
+  "autoencoder": {
+    "all_losses_finite": true,
+    "best_epoch": 2,
+    "best_validation_reconstruction_mse": 0.06106787174940109,
+    "checkpoint_reload_maximum_difference": 0.0,
+    "checkpoint_reload_passed": true,
+    "development_only": true,
+    "development_reconstruction_threshold_met": false,
+    "implementation_integrity_passed": true,
+    "latent_noncollapsed": true,
+    "mean_train_latent_channel_std": 0.6256723403930664,
+    "parameter_count": 0,
+    "selected_seed": 202,
+    "state_dict_sha256": "314c368fe768b713b550f7df08754a1d63d135e897c9a590d7affd9a323fc522",
+    "test_reconstruction_mae": 0.13003335893154144,
+    "test_reconstruction_mse": 0.07557891309261322,
+    "test_rows_used_for_training_or_selection": false,
+    "validation_improvement_vs_mean_image": -0.14016241253312023,
+    "validation_mean_image_baseline_mse": 0.05356067791581154
+  },
+  "decision_making": false,
+  "development_seeds": {
+    "test": 20261022,
+    "train": 20261020,
+    "validation": 20261021
+  },
+  "elapsed_seconds": 173.48552433401346,
+  "formal_primary_or_stress_data_generated": false,
+  "historical_decisions_unchanged": true,
+  "implementation_integrity_passed": true,
+  "representations": {
+    "task_autoencoder": {
+      "all_encoded_counterfactuals_unique": true,
+      "all_metrics_finite": true,
+      "all_model_seeds_beat_identity": true,
+      "classification": "development_diagnostic_only",
+      "counterfactual_top1_accuracy": 0.4635416666666667,
+      "counterfactual_top1_seed_std": 0.023867581744561665,
+      "crowding_0_improvement": 0.7725292243478431,
+      "crowding_15_improvement": 0.6647467793780452,
+      "crowding_5_improvement": 0.6935715624203628,
+      "decision_making": false,
+      "elapsed_seconds": 7.281823791563511,
+      "exact_target_oracle": {
+        "maximum_candidate_zero_difference": 0.0,
+        "passed": true,
+        "top1_accuracy": 1.0
+      },
+      "feature_dim": 32,
+      "identity_action_region_mse": 0.8684464620309882,
+      "implementation_integrity_passed": true,
+      "improvement_vs_identity": 0.710050477298248,
+      "improvement_vs_mean_delta": 0.6631244610762497,
+      "mean_delta_action_region_mse": 0.7474737939191982,
+      "model_parameter_counts": {
+        "identity": 0,
+        "linear": 1376,
+        "mean_delta": 0,
+        "mlp": 19232
+      },
+      "overfit_check": {
+        "examples": 4,
+        "final_balanced_mse": 0.18230780959129333,
+        "initial_balanced_mse": 0.6370869874954224,
+        "loss_decreased": true,
+        "relative_reduction": 0.7138415739615098,
+        "steps": 30
+      },
+      "parameters_within_cap": true,
+      "patch_grid": [16, 16],
+      "positive_improvement_every_crowding": true,
+      "representation": "task_autoencoder",
+      "selected_action_region_mse": 0.2518056371579102,
+      "selected_model_family_by_validation": "mlp",
+      "true_beats_change_intensity_rate": 0.875,
+      "true_beats_change_width_rate": 0.5833333333333334,
+      "true_beats_shift_position_rate": 0.9583333333333334,
+      "would_meet_action_usable_thresholds_on_smoke_only": false
+    },
+    "vit_mae": {
+      "all_encoded_counterfactuals_unique": true,
+      "all_metrics_finite": true,
+      "all_model_seeds_beat_identity": true,
+      "classification": "development_diagnostic_only",
+      "counterfactual_top1_accuracy": 0.07291666666666667,
+      "counterfactual_top1_seed_std": 0.009021097956087904,
+      "crowding_0_improvement": 0.29497755086539146,
+      "crowding_15_improvement": 0.20972177977074968,
+      "crowding_5_improvement": 0.22531629371299866,
+      "decision_making": false,
+      "elapsed_seconds": 48.42829666659236,
+      "exact_target_oracle": {
+        "maximum_candidate_zero_difference": 0.0,
+        "passed": true,
+        "top1_accuracy": 1.0
+      },
+      "feature_dim": 768,
+      "identity_action_region_mse": 0.0006794867776989122,
+      "implementation_integrity_passed": true,
+      "improvement_vs_identity": 0.23971296808822506,
+      "improvement_vs_mean_delta": 0.20832160329783067,
+      "mean_delta_action_region_mse": 0.0006525439971483138,
+      "model_parameter_counts": {
+        "identity": 0,
+        "linear": 598272,
+        "mean_delta": 0,
+        "mlp": 396800
+      },
+      "overfit_check": {
+        "examples": 4,
+        "final_balanced_mse": 0.0005247890949249268,
+        "initial_balanced_mse": 0.034804172813892365,
+        "loss_decreased": true,
+        "relative_reduction": 0.9849216616142231,
+        "steps": 30
+      },
+      "parameters_within_cap": true,
+      "patch_grid": [14, 14],
+      "positive_improvement_every_crowding": true,
+      "representation": "vit_mae",
+      "selected_action_region_mse": 0.000516604985440002,
+      "selected_model_family_by_validation": "linear",
+      "true_beats_change_intensity_rate": 0.296875,
+      "true_beats_change_width_rate": 0.21875,
+      "true_beats_shift_position_rate": 0.7916666666666666,
+      "would_meet_action_usable_thresholds_on_smoke_only": false
+    }
+  },
+  "status": "development_smoke_complete"
+}

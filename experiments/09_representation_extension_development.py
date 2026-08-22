@@ -34,6 +34,7 @@ from latent_stroke_dynamics.extension_training import (
     model_state_sha256,
     run_patch_overfit_check,
     save_autoencoder_checkpoint,
+    total_parameter_count,
     train_patch_predictor,
     train_stroke_autoencoder,
 )
@@ -328,7 +329,7 @@ def train_and_select_autoencoder(
         "checkpoint_reload_maximum_difference": reload_maximum_difference,
         "checkpoint_reload_passed": reload_passed,
         "state_dict_sha256": model_state_sha256(loaded),
-        "parameter_count": parameter_count(loaded),
+        "parameter_count": total_parameter_count(loaded),
         "all_losses_finite": finite_losses,
         "implementation_integrity_passed": implementation_integrity,
         "test_rows_used_for_training_or_selection": False,

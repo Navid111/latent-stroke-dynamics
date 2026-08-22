@@ -12,6 +12,7 @@ from latent_stroke_dynamics.extension_training import (
     mean_image_baseline_mse,
     model_state_sha256,
     save_autoencoder_checkpoint,
+    total_parameter_count,
 )
 from latent_stroke_dynamics.gate2 import build_transition_split
 from latent_stroke_dynamics.representation_extension import (
@@ -153,6 +154,7 @@ def test_autoencoder_checkpoint_round_trip_is_exact(tmp_path: Path) -> None:
     assert metadata["test_rows_used_for_selection"] is False
     assert torch.equal(actual, expected)
     assert model_state_sha256(loaded) == model_state_sha256(model)
+    assert total_parameter_count(loaded) == 49_569
 
 
 def test_patch_payload_oracle_retrieves_true_candidate() -> None:
