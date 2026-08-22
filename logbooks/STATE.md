@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
-**Current stage:** Package the successful Stage 3 painter and run qualitative demos  
-**Status:** Controlled Stage 3 succeeded; result frozen and archived
+**Current stage:** Validate the user-facing painter, then freeze the representation extension  
+**Status:** Painter implementation committed; local test validation pending
 
 ## Completed experimental chain
 
@@ -30,32 +30,41 @@ Do not rerun, retune, relabel, or replace these results.
 - mean one-step regret: `0.0003867`;
 - deterministic replay: passed.
 
-All four frozen criteria passed. The completed output directory must be preserved and the controlled comparison must not be run again.
+The completed controlled output must be preserved and the comparison must not be run again.
 
-## Interpretation
+## User-facing painter
 
-The learned model need not select the one-step exact candidate every time. Its average regret remained small enough to build target-aligned paintings and stay close to exact greedy over 100 replanning steps. Target 5 finished better under learned planning than exact greedy because exact is only a one-step oracle and different trajectories induce different future proposal sets.
+Committed files:
 
-## Frozen artifacts
+- `paint.py`;
+- `src/latent_stroke_dynamics/painting_cli.py`;
+- `tests/test_painting_cli.py`;
+- `docs/paint-command.md`.
 
-- local controlled outputs: `outputs/stage3-controlled-2026-08-22`;
-- archived raw summaries: `results/stage3-controlled-2026-08-22`;
-- result review: `docs/stage-3-controlled-results.md`;
-- checkpoint digest: `e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472`.
+The command supports random, exact, and learned planning and saves the processed target, final painting, metrics, ordered strokes, frames, GIF, progress plot, and fixed-scale comparison. It verifies the frozen checkpoint, refuses output overwrite, preserves incomplete work, and labels all user images qualitative.
 
-## Next action
+## Immediate next action
 
-Build the user-facing arbitrary-image command around the frozen learned planner. It must save:
+```bash
+git pull --ff-only
+source .venv/bin/activate
+pytest
+```
 
-- processed target image;
-- final painting;
-- ordered stroke JSON;
-- per-step metrics CSV;
-- progress plot;
-- frames and GIF;
-- run configuration and checkpoint digest.
+Expected total after the three new painter tests: `36 passed`.
 
-Then run a small, fixed qualitative set containing both easy and difficult images. Do not use qualitative outcomes to alter the controlled result or retrain the checkpoint.
+Do not run a user image until the full suite passes. After validation, use a 20-stroke/32-candidate learned smoke before a full 100-stroke/128-candidate demonstration.
+
+## Authorized later extension
+
+After the painter is secure, freeze a new post-core protocol comparing:
+
+1. existing DINOv2 latent result;
+2. one reconstruction-oriented frozen encoder;
+3. one small task-trained spatial latent encoder;
+4. existing raw-pixel control.
+
+This must use new untouched data seeds and cannot modify earlier gates.
 
 ## Boundaries
 

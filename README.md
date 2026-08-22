@@ -11,17 +11,29 @@ Bachelor's thesis project on action-conditioned canvas dynamics and sequential s
 
 These results establish the experimental core while preserving the distinction between the failed latent formulation and the successful pixel-space pivot.
 
+## User-facing painter
+
+After installing the project and restoring the validated local checkpoint, paint an arbitrary image with:
+
+```bash
+python paint.py \
+  --target path/to/image.jpg \
+  --method learned \
+  --strokes 100 \
+  --candidates 128 \
+  --output-dir outputs/my-painting
+```
+
+The command center-crops the target to 64×64 grayscale and saves the final painting, ordered stroke JSON, metrics, progress figure, individual frames, comparison figure, and GIF. User images are qualitative demonstrations and do not alter the controlled result.
+
+See [`docs/paint-command.md`](docs/paint-command.md) for validation and smoke instructions.
+
 ## Current stage
 
-Package the frozen learned planner as a command-line painter that accepts an arbitrary image and constructs a 64×64 grayscale approximation line by line. Then run a small qualitative demonstration set and integrate the controlled evidence into the thesis.
-
-Stage 3 methods:
-
-1. random candidate selection;
-2. exact-renderer greedy pixel planning;
-3. learned pixel-predictor planning with exact stroke execution.
-
-The completed controlled comparison used six synthetic targets, 100 strokes, and 128 candidates per step. Arbitrary user images remain qualitative demonstrations.
+1. Validate the user-facing painter locally.
+2. Run a small fixed qualitative demonstration set.
+3. Freeze a compact post-core representation extension comparing the existing DINOv2 result with one reconstruction-oriented frozen encoder and one task-trained latent encoder.
+4. Integrate the complete evidence into the thesis.
 
 See:
 
@@ -43,4 +55,4 @@ pip install -e ".[dev]"
 pytest
 ```
 
-Do not rerun or retune the completed controlled experiments. Keep the final artifact grayscale, 64×64, straight-line, and one-step greedy until the qualitative demonstrations and thesis are complete.
+Do not rerun or retune the completed controlled experiments. Keep the final artifact grayscale, 64×64, straight-line, and one-step greedy. Any representation extension must receive a new protocol and must not rewrite the existing formal decisions.

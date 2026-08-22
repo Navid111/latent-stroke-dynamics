@@ -14,7 +14,7 @@ Before changing code or proposing work, read:
 2. `docs/thesis-plan.md`;
 3. `docs/gate-2-protocol.md` and `docs/gate-2-results.md`;
 4. `docs/pixel-space-control-protocol.md` and `docs/pixel-control-results.md`;
-5. `docs/stage-3-pixel-planner-protocol.md`;
+5. `docs/stage-3-pixel-planner-protocol.md` and `docs/stage-3-controlled-results.md`;
 6. relevant source files and tests.
 
 ## Frozen completed results
@@ -22,39 +22,42 @@ Before changing code or proposing work, read:
 - Gate 1 passed.
 - Latent Gate 2 formally failed at 27.7% retrieval.
 - Paired pixel control succeeded at 100% retrieval across all three seeds.
+- Controlled Stage 3 succeeded across six targets: learned final MSE was 61.51% below random and 18.93% above exact greedy.
 
 Do not rerun, retune, relabel, or replace these results.
 
 ## Active scope
 
-The user explicitly reopened Stage 3 to build the requested final image-to-strokes artifact before 24 September.
+The current priority is to validate and use the final 64×64 grayscale image-to-strokes command, preserve representative qualitative successes and failures, and finish the thesis.
 
 Authorized:
 
-- 64×64 grayscale target preprocessing;
-- straight-line candidate strokes;
-- random selection;
-- exact-renderer greedy pixel planning;
-- learned pixel-predictor planning with exact execution;
-- a separately trained and saved demonstration pixel checkpoint using train/validation data only;
-- fixed controlled synthetic targets and qualitative user images;
-- one-step greedy replanning;
-- final PNG, stroke JSON, progress curves, and animation artifacts.
+- deterministic arbitrary-image preprocessing;
+- straight-line random, exact, and learned pixel planning;
+- the frozen demonstration checkpoint with exact execution;
+- qualitative user-image runs;
+- final PNG, stroke JSON, progress curves, frames, and GIF artifacts;
+- a compact post-core representation study only after the painter is validated and only after its own protocol is frozen;
+- one reconstruction-oriented frozen encoder and one small task-trained spatial latent encoder in that extension;
+- matched one-step prediction and retrieval diagnostics that preserve all previous decisions.
 
-Not authorized before the core artifact and thesis are complete:
+Not authorized before the core artifact and thesis are secure:
 
-- rerunning completed paired experiments;
-- a learned latent planner;
+- rerunning completed formal or controlled comparisons;
+- treating qualitative images as a new formal test set;
+- changing the frozen pixel checkpoint from qualitative outcomes;
+- an open-ended pretrained-encoder sweep;
 - reinforcement learning;
 - multi-step rollout/search;
 - color or textured brushes;
-- changing controlled criteria after results are visible.
+- changing any completed criterion after results are visible.
 
 ## Interpretation boundaries
 
 - The final painter is a scoped grayscale straight-stroke demonstration, not a general artistic agent.
 - The pixel result localizes the latent failure to the tested formulation, not DINOv2 alone.
-- If learned planning fails, preserve the result and deliver the exact-greedy artifact rather than tuning on controlled targets.
+- The existing Gate 2 claim is DINOv2-specific and must not be generalized to all latent representations.
+- A later task-trained latent study is a new post-core experiment, not a correction or replacement of Gate 2.
 
 ## Environment
 
