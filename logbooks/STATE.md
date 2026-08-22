@@ -2,32 +2,39 @@
 
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
-**Current stage:** Ranking-aware formal-runner implementation  
-**Status:** Development adjudicated and selected setting frozen; formal data unauthorized
+**Current stage:** Ranking-aware formal-runner validation  
+**Status:** Formal runner implemented; formal data unauthorized
 
-## Validated development outcome
+## Frozen development selection
 
-- tests: 69 passed;
-- written-protocol integrity: passed;
 - ranking weight: `1.0`;
 - temperature: `0.05`;
 - validation retrieval: 70.83%;
 - diagnostic retrieval: 76.04%;
-- diagnostic gain over matched MSE: 48.96 points;
-- formal data generated: false.
+- diagnostic gain over MSE-only: 48.96 points;
+- development integrity: passed after no-rerun adjudication.
 
-The raw structural-NaN reporting failure remains archived unchanged. Method-applicable history values were all finite.
+## Formal runner
 
-## Frozen formal inputs
+Implemented:
 
-- task-autoencoder state SHA-256: `95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900`;
-- latent-statistics SHA-256: `c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903`;
-- selected lambda/temperature: `1.0` / `0.05`;
-- model seeds: `11`, `22`, `33`;
-- formal seeds: `20261104`–`20261110`.
+- frozen prerequisite/hash checks;
+- formal/development fingerprint separation;
+- matched MSE-only and ranking-aware training across seeds 11/22/33;
+- validation-only early stopping;
+- one primary test evaluation;
+- four secondary stress slices;
+- exact conjunctive decision rule;
+- method-aware finite history checks;
+- oracle, candidate, parameter, overfit, atomic-output, and overwrite guards.
 
 ## Next action
 
-Implement formal validation-only mode, matched MSE/ranking training, primary decision, stress evaluation, atomic outputs, and tests. Ask Navid to validate before a separate formal authorization commit.
+```bash
+git pull --ff-only
+source .venv/bin/activate
+pytest
+python experiments/14_ranking_aware_latent_formal.py --validate-only
+```
 
-Do not generate formal data yet.
+Expected: 73 tests and status `ranking_latent_formal_runner_valid_unauthorized`. Do not run formal comparison yet.

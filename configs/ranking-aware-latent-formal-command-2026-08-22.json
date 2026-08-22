@@ -1,0 +1,18 @@
+{
+  "status": "implemented_before_formal_authorization",
+  "authorized": false,
+  "script": "experiments/14_ranking_aware_latent_formal.py",
+  "validation_command": "python experiments/14_ranking_aware_latent_formal.py --validate-only",
+  "run_command": "python experiments/14_ranking_aware_latent_formal.py --run-formal-comparison",
+  "scientific_config": "configs/ranking-aware-latent-2026-08-22.json",
+  "selected_setting": "configs/ranking-aware-latent-selected-setting-2026-08-22.json",
+  "development_adjudication": "results/ranking-aware-latent/development-protocol-adjudication.json",
+  "development_split_metadata": "outputs/ranking-aware-latent-development-2026-08-22/split_metadata.csv",
+  "formal_output_dir": "outputs/ranking-aware-latent-formal-2026-08-22",
+  "formal_seeds": [20261104, 20261105, 20261106, 20261107, 20261108, 20261109, 20261110],
+  "encoding_batch_size": 32,
+  "atomic_incomplete_output": true,
+  "overwrite_allowed": false,
+  "single_formal_run": true,
+  "historical_decisions_unchanged": true
+}
