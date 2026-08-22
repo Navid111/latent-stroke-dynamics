@@ -39,9 +39,9 @@ def example_tensors() -> tuple[torch.Tensor, ...]:
     return current, true_delta, true_next, candidates, masks
 
 
-def test_frozen_ranking_config_is_valid_and_formal_is_unauthorized() -> None:
+def test_frozen_ranking_config_authorizes_development_not_formal() -> None:
     config = load_ranking_config(CONFIG)
-    assert config["development"]["authorized"] is False
+    assert config["development"]["authorized"] is True
     assert config["formal_reserved"]["authorized"] is False
     assert config["frozen_representation"]["latent_statistics_sha256"] == (
         STATISTICS_SHA256

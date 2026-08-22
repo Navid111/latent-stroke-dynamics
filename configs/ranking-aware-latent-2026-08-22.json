@@ -32,7 +32,7 @@
     ]
   },
   "development": {
-    "authorized": false,
+    "authorized": true,
     "decision_making_scope": "ranking_lambda_and_temperature_only",
     "train": {"samples": 128, "seed": 20261101},
     "validation": {"samples": 64, "seed": 20261102},

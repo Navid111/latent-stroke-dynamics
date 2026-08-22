@@ -1,6 +1,6 @@
 {
-  "status": "implemented_before_development_authorization",
-  "authorized": false,
+  "status": "authorized_after_local_validation",
+  "authorized": true,
   "script": "experiments/12_ranking_aware_latent_followup.py",
   "validation_command": "python experiments/12_ranking_aware_latent_followup.py --validate-only",
   "run_command": "python experiments/12_ranking_aware_latent_followup.py --run-development-grid",

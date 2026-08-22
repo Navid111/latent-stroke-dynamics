@@ -1,41 +1,42 @@
-# Ranking-aware latent follow-up — development-runner validation handoff
+# Ranking-aware latent follow-up — authorized development handoff
 
-## Frozen inputs
+Navid validated `66 passed in 6.74s` and status `ranking_latent_development_runner_valid_unauthorized`. Both frozen hashes, parameter counts, synthetic objective gradient, seed reservations, and output-path guards matched. No follow-up data were generated.
 
-- task-autoencoder state SHA-256: `95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900`;
-- latent-statistics file SHA-256: `c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903`;
-- predictor: 19,232-parameter MLP;
-- development seeds: `20261101`–`20261103`;
-- formal seeds: `20261104`–`20261110`, reserved and unauthorized.
+Exactly one development-grid execution is now authorized. Formal data remain unauthorized.
 
-## Implemented development grid
-
-The guarded runner now contains:
-
-- one matched MSE-only baseline across seeds 11/22/33;
-- six ranking settings from three weights × two temperatures, each across the same seeds;
-- validation-only hyperparameter selection under the frozen tie-break order;
-- diagnostic-test evaluation only after setting selection;
-- protocol oracle, uniqueness, finite-value, parameter-count, and tiny-overfit checks;
-- atomic `.incomplete` output handling and overwrite refusal.
-
-## Validate now without data generation
+## Run
 
 ```bash
 git pull --ff-only
 source .venv/bin/activate
 pytest
 python experiments/12_ranking_aware_latent_followup.py --validate-only
+python experiments/12_ranking_aware_latent_followup.py --run-development-grid
 ```
 
-Expected test total: `66 passed`.
-
-Expected status:
+After pulling, validation-only status must be:
 
 ```text
-ranking_latent_development_runner_valid_unauthorized
+ranking_latent_development_runner_valid_authorized
 ```
 
-Both development authorization fields must be false, both development output paths must be available, the formal output path must be available, and `followup_data_generated`/`models_trained` must remain false.
+The development grid trains the matched MSE-only baseline plus six ranking settings, all across seeds 11/22/33. It may take several minutes on the base M1. Keep the machine awake and connected to power.
 
-Send the complete pytest summary and printed JSON. Do not use `--run-development-grid` yet. Development authorization will be committed separately only after this validation is reviewed.
+## Success artifact
+
+Send:
+
+```text
+outputs/ranking-aware-latent-development-2026-08-22/development_summary.json
+```
+
+## Failure handling
+
+If an exception occurs or the process is interrupted:
+
+1. do not rerun;
+2. preserve the complete traceback;
+3. preserve `outputs/ranking-aware-latent-development-2026-08-22.incomplete/`;
+4. send both before changing anything.
+
+Do not generate formal seeds. Development results may select only lambda and temperature under the frozen validation-only rule.

@@ -1,0 +1,18 @@
+{
+  "status": "authorized_after_local_validation",
+  "authorized_on": "2026-08-22",
+  "validated_tests": 66,
+  "validated_test_status": "passed",
+  "validation_status": "ranking_latent_development_runner_valid_unauthorized",
+  "checkpoint_state_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900",
+  "latent_statistics_file_sha256": "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903",
+  "development_output_available_at_authorization": true,
+  "development_incomplete_output_available_at_authorization": true,
+  "formal_output_available_at_authorization": true,
+  "followup_data_generated_at_authorization": false,
+  "models_trained_at_authorization": false,
+  "single_development_grid_authorized": true,
+  "formal_run_authorized": false,
+  "rerun_or_retuning_allowed": false,
+  "historical_decisions_unchanged": true
+}

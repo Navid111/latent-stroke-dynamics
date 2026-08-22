@@ -115,9 +115,9 @@ def test_ranking_setting_prioritizes_retrieval_before_mse() -> None:
     assert selected["model"] == "better_retrieval"
 
 
-def test_development_command_is_frozen_but_unauthorized() -> None:
+def test_development_command_is_authorized_but_formal_is_not() -> None:
     command = json.loads(COMMAND.read_text(encoding="utf-8"))
-    assert command["status"] == "implemented_before_development_authorization"
-    assert command["authorized"] is False
+    assert command["status"] == "authorized_after_local_validation"
+    assert command["authorized"] is True
     assert command["formal_data_generation_allowed"] is False
     assert command["development_seeds"] == [20261101, 20261102, 20261103]
