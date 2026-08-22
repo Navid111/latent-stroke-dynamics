@@ -15,7 +15,7 @@
     "checkpoint_path": "outputs/representation-extension-2026-08-22/task_autoencoder/checkpoints/task_autoencoder.pt",
     "checkpoint_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900",
     "latent_statistics_path": "outputs/representation-extension-2026-08-22/task_autoencoder/latent_channel_statistics.json",
-    "latent_statistics_sha256": null,
+    "latent_statistics_sha256": "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903",
     "latent_statistics_hash_must_be_frozen_before_development": true,
     "encoder_frozen": true
   },

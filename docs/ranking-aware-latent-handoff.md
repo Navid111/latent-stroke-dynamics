@@ -1,36 +1,11 @@
-# Ranking-aware latent follow-up — validation handoff
+# Ranking-aware latent follow-up — hash-freeze handoff
 
-The protocol and config were committed before implementation and before any follow-up data generation. The foundation contains only strict configuration/hash validation and synthetic ranking-loss tests.
-
-## Run now
-
-```bash
-git pull --ff-only
-source .venv/bin/activate
-pytest
-python experiments/12_ranking_aware_latent_followup.py --validate-only
-```
-
-Expected test total: `62 passed` if every new test is collected. If pytest reports a different passing total, send the complete summary rather than assuming failure.
-
-Validation-only mode may load the already-completed frozen checkpoint and saved latent-statistics JSON. It does not generate a transition, encode follow-up data, train a model, or create an output directory.
-
-## Send back
-
-Send the complete pytest result and printed validation JSON. The important new field is:
+Navid validated 62 tests and the no-data foundation. The completed full-run latent-statistics file is now frozen at:
 
 ```text
-latent_statistics_file_sha256
+c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903
 ```
 
-Expected validation status before that hash is committed:
+The task-autoencoder state hash, architecture, parameter count, selected seed/epoch, and mean channel standard deviation also matched the completed extension.
 
-```text
-ranking_latent_foundation_valid_hash_freeze_required
-```
-
-Development must remain unauthorized and both output directories must remain available.
-
-## Stop boundary
-
-Do not generate development data yet. After reviewing the validation output, the exact saved statistics hash will be frozen in a separate commit. Only then can the development runner be implemented and authorized.
+No follow-up data were generated and both development/formal output directories remained available. Development and formal execution remain unauthorized while the development runner is implemented and validated.

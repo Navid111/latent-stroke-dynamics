@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
-**Current stage:** Ranking-aware latent validation foundation  
-**Status:** Awaiting local tests and validation-only statistics hash
+**Current stage:** Ranking-aware latent development-runner implementation  
+**Status:** Checkpoint and latent-statistics hashes frozen; no follow-up data authorized
 
 ## Frozen evidence
 
@@ -13,29 +13,18 @@ All prior Gate 1, Gate 2, pixel-control, Stage 3, qualitative, and representatio
 
 Can explicit counterfactual ranking supervision raise frozen task-autoencoder latent retrieval from the prior 37.89% result to at least 50% while retaining strong average prediction?
 
-## Committed foundation
+## Validated frozen inputs
 
-- frozen protocol and config precede implementation;
-- task-autoencoder checkpoint state hash is fixed;
-- latent-statistics path is fixed but its file hash is intentionally pending local validation;
-- config guard rejects scientific drift and formal authorization;
-- ranking cross-entropy and combined objective are implemented separately from completed code;
-- synthetic gradient and ranking-order tests are included;
-- validation-only mode generates no data and trains no model.
+- task-autoencoder state SHA-256: `95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900`;
+- latent-statistics file SHA-256: `c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903`;
+- autoencoder parameters: 49,569, all frozen;
+- predictor parameters: 19,232;
+- latent channels: 32;
+- mean channel standard deviation: 0.9708443880;
+- tests: 62 passed.
 
-## Next action
+No follow-up data were generated and both output directories were available at validation.
 
-Navid should run:
+## Next engineering action
 
-```bash
-git pull --ff-only
-source .venv/bin/activate
-pytest
-python experiments/12_ranking_aware_latent_followup.py --validate-only
-```
-
-Then send the complete pytest result and validation JSON. Do not run development yet.
-
-## Following step
-
-Freeze the reported latent-statistics SHA-256 in a separate commit. Only afterward implement and authorize the one development grid run. Formal seeds `20261104`–`20261110` remain untouched.
+Implement the atomic development-grid runner and additional tests. Then ask Navid to validate it without data generation. Development authorization must be a later separate commit. Formal seeds `20261104`–`20261110` remain untouched.

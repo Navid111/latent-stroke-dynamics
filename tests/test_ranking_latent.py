@@ -18,6 +18,7 @@ from latent_stroke_dynamics.ranking_latent import (
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "ranking-aware-latent-2026-08-22.json"
+STATISTICS_SHA256 = "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903"
 
 
 def example_tensors() -> tuple[torch.Tensor, ...]:
@@ -42,7 +43,9 @@ def test_frozen_ranking_config_is_valid_and_formal_is_unauthorized() -> None:
     config = load_ranking_config(CONFIG)
     assert config["development"]["authorized"] is False
     assert config["formal_reserved"]["authorized"] is False
-    assert config["frozen_representation"]["latent_statistics_sha256"] is None
+    assert config["frozen_representation"]["latent_statistics_sha256"] == (
+        STATISTICS_SHA256
+    )
     assert config["ranking_grid"]["lambda"] == [0.1, 0.3, 1.0]
     assert config["ranking_grid"]["temperature"] == [0.05, 0.1]
 
@@ -50,6 +53,7 @@ def test_frozen_ranking_config_is_valid_and_formal_is_unauthorized() -> None:
 def test_config_rejects_development_authorization_without_statistics_hash() -> None:
     config = load_ranking_config(CONFIG)
     broken = deepcopy(config)
+    broken["frozen_representation"]["latent_statistics_sha256"] = None
     broken["development"]["authorized"] = True
     with pytest.raises(ValueError, match="statistics hash"):
         validate_ranking_config(broken)
