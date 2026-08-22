@@ -1,0 +1,66 @@
+{
+  "source": "single authorized frozen run extension_summary.json",
+  "status": "full_extension_completed_with_failed_integrity_checks",
+  "elapsed_seconds": 2353.7873814161867,
+  "do_not_rerun_or_retune": true,
+  "raw_global_implementation_integrity_passed": false,
+  "autoencoder": {
+    "selected_seed": 101,
+    "best_epoch": 50,
+    "best_validation_reconstruction_mse": 0.002307594968006015,
+    "validation_mean_image_baseline_mse": 0.050927601754665375,
+    "validation_improvement_vs_mean_image": 0.9546887171494459,
+    "test_reconstruction_mse": 0.0026609853375703096,
+    "test_reconstruction_mae": 0.015580546110868454,
+    "mean_train_latent_channel_std": 0.9708443880081177,
+    "checkpoint_reload_maximum_difference": 0.0,
+    "state_dict_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900",
+    "total_parameter_count": 49569,
+    "protocol_eligibility_passed": true
+  },
+  "task_autoencoder": {
+    "raw_classification": "not_predictively_usable",
+    "selected_model_family_by_validation": "mlp",
+    "improvement_vs_identity": 0.7064636428064269,
+    "improvement_vs_mean_delta": 0.6861990231587045,
+    "counterfactual_top1_accuracy": 0.3788888888888889,
+    "counterfactual_top1_seed_std": 0.02795499027868693,
+    "true_beats_shift_position_rate": 0.9911111111111112,
+    "true_beats_change_width_rate": 0.6888888888888888,
+    "true_beats_change_intensity_rate": 0.52,
+    "all_encoded_counterfactuals_unique": true,
+    "oracle_top1_accuracy": 1.0,
+    "oracle_maximum_candidate_zero_difference": 0.000017404556274414062,
+    "raw_oracle_passed": false,
+    "positive_improvement_every_primary_crowding": true,
+    "stress_improvements": {
+      "unseen_width_5": 0.7678057570714121,
+      "unseen_intensities": 0.704742899651197,
+      "crowding_30": 0.5849178973257854,
+      "crowding_60": 0.4886966235263076
+    }
+  },
+  "vit_mae": {
+    "raw_classification": "average_predictable_but_not_action_usable",
+    "selected_model_family_by_validation": "mlp",
+    "improvement_vs_identity": 0.33082615123122383,
+    "improvement_vs_mean_delta": 0.30626819483033796,
+    "counterfactual_top1_accuracy": 0.07111111111111111,
+    "counterfactual_top1_seed_std": 0.001924500897298749,
+    "true_beats_shift_position_rate": 0.8700000000000001,
+    "true_beats_change_width_rate": 0.25,
+    "true_beats_change_intensity_rate": 0.3622222222222222,
+    "all_encoded_counterfactuals_unique": true,
+    "oracle_top1_accuracy": 1.0,
+    "oracle_maximum_candidate_zero_difference": 0.0,
+    "raw_oracle_passed": true,
+    "positive_improvement_every_primary_crowding": true,
+    "stress_improvements": {
+      "unseen_width_5": 0.43089729369003105,
+      "unseen_intensities": 0.2803107612347192,
+      "crowding_30": 0.15460544058681336,
+      "crowding_60": -0.13689454764527587
+    }
+  },
+  "historical_decisions_unchanged": true
+}

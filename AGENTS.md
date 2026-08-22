@@ -4,73 +4,59 @@ This file is the operating contract for coding and research agents working in th
 
 ## Project purpose
 
-This is a bachelor’s thesis project on action-conditioned canvas dynamics and sequential stroke-based rendering, due 2026-09-24.
+Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-based rendering, due 2026-09-24.
 
 ## Required reading order
 
-Before changing code or proposing work, read:
-
 1. `logbooks/STATE.md`;
 2. `docs/thesis-plan.md`;
-3. `docs/gate-2-protocol.md` and `docs/gate-2-results.md`;
-4. `docs/pixel-space-control-protocol.md` and `docs/pixel-control-results.md`;
-5. `docs/stage-3-pixel-planner-protocol.md` and `docs/stage-3-controlled-results.md`;
-6. `docs/representation-extension-protocol.md` and current extension handoff;
-7. relevant source files and tests.
+3. frozen Gate 2, pixel-control, and Stage 3 protocols/results;
+4. `docs/representation-extension-protocol.md`;
+5. `docs/representation-extension-full-results.md`;
+6. relevant source files and tests.
 
-## Frozen completed results
+## Frozen completed evidence
 
 - Gate 1 passed.
-- Latent Gate 2 formally failed at 27.7% retrieval.
+- DINOv2 Gate 2 formally failed at 27.7% retrieval.
 - Paired pixel control succeeded at 100% retrieval.
 - Controlled Stage 3 succeeded across six targets.
-- Qualitative MNIST documented learned long-horizon degradation.
-- Representation development smoke completed with integrity and no primary/stress data.
+- MNIST qualitative work documented learned long-horizon degradation.
+- The single full representation extension completed on untouched seeds.
 
 Do not rerun, retune, relabel, or replace these results.
 
-## Active scope
+## Active task
 
-The full representation-extension command passed 51 tests and validation-only review. Exactly one full run is authorized using:
-
-```bash
-python experiments/10_representation_extension_full.py --run-frozen-extension
-```
-
-No flags or concurrent process are authorized.
-
-## Run boundaries
-
-- Execute the frozen command once.
-- Do not edit code, config, architecture, seeds, thresholds, epochs, or output paths before or during the run.
-- On success, never rerun or retune; preserve all results.
-- On error/interruption, preserve the traceback and `.incomplete` directory and request review before any retry.
-- No additional encoders, fine-tuning, joint training, latent planning, or prior-result reruns.
-
-## Interpretation boundaries
-
-- The task autoencoder is reconstruction-trained, not JEPA.
-- ViT-MAE and the task autoencoder are two formulations, not an exhaustive benchmark.
-- Historical DINOv2 and pixels remain descriptive anchors.
-- No extension outcome changes a prior frozen decision.
-
-## Environment
+Validate the pure saved-summary adjudicator:
 
 ```bash
-python -m venv .venv
+git pull --ff-only
 source .venv/bin/activate
-pip install -e ".[dev]"
 pytest
+python experiments/11_representation_extension_adjudication.py
 ```
 
-## Code and experiment standards
+This is not an experiment rerun. It reads the completed JSON only and saves a derived protocol interpretation.
 
+## Extension interpretation boundary
+
+- Preserve the raw summary unchanged.
+- The written protocol requires 100% exact-target oracle retrieval and unique encoded candidates; it did not require bit equality between separately batched candidate-zero encodings.
+- The written at-or-below-35% retrieval rule takes precedence over the average-error category.
+- Pending local validation, task autoencoder is average-predictable but not action-usable; ViT-MAE is not predictively usable.
+- Historical decisions remain unchanged.
+
+## Prohibitions
+
+- Never run experiment 10 again.
+- No scientific setting changes, retraining, metric recomputation, or test tuning.
+- No additional encoders, fine-tuning, joint training, latent planning, or prior-result reruns before thesis integration.
+- Preserve all negative outcomes and limitations.
+
+## Code standards
+
+- Use fixed seeds and saved configs.
 - Keep data, representation, dynamics, retrieval, and evaluation separate.
-- Use fixed seeds, matched budgets, saved configs, and no silent overwrite.
 - Never silently catch experiment-invalidating errors.
-- Do not commit credentials, model weights, caches, generated datasets, or raw outputs.
-- Preserve negative outcomes and limitations.
-
-## Handoff protocol
-
-After meaningful work, test, update state/logbook, and archive compact results without rewriting prior evidence.
+- Do not commit credentials, model weights, caches, generated datasets, or raw uncompressed outputs.

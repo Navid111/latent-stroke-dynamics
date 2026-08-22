@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
-**Current stage:** Frozen post-core representation extension  
-**Status:** Single full run authorized after successful validation
+**Current stage:** Full representation extension complete  
+**Status:** Raw result archived; pure written-protocol adjudication pending local validation
 
 ## Frozen completed evidence
 
@@ -12,44 +12,39 @@
 - Paired pixel control succeeded at 100% retrieval.
 - Controlled Stage 3 learned planning succeeded across six synthetic targets.
 - MNIST qualitative exact greedy outperformed long-horizon learned pixel planning.
-- Representation development smoke completed with integrity and no primary/stress data.
+- The single full representation extension completed in 2,353.79 seconds.
 
-No completed result may be rerun, retuned, or relabeled.
+No completed result may be rerun, retuned, or relabeled without preserving the raw record.
 
-## Full-command validation
+## Full-extension result
 
-Navid reported:
+The task autoencoder passed reconstruction eligibility with 95.47% validation improvement over the train-mean image baseline. Its selected MLP improved action-region error by 70.65% versus identity and 68.62% versus mean delta, but retrieval was 37.89%.
 
-- `51 passed in 6.09s`;
-- status `full_command_valid`;
-- autoencoder total parameters `49,569`;
-- frozen dynamics parameter counts matched;
-- output directory available;
-- primary/stress data not generated;
-- authorized run not started;
-- development metrics changed no setting;
-- historical decisions unchanged.
+ViT-MAE's selected MLP improved average action-region error by 33.08% and 30.63%, but retrieval was only 7.11% and crowding-60 stress performance was 13.69% worse than identity.
 
-## Authorized next action
+## Raw-run integrity status
+
+The raw runner marked global integrity false because the task exact-target oracle required both 100% top-1 and exact zero difference between separately batched candidate-zero encodings. Top-1 was 100%, all candidates were unique, and the maximum difference was `1.7404556274414062e-05`. Bit equality was not a frozen written-protocol requirement.
+
+The raw runner also failed to prioritize the written protocol's at-or-below-35% not-usable rule for ViT-MAE. Both raw labels remain archived unchanged.
+
+## Next action
 
 ```bash
 git pull --ff-only
 source .venv/bin/activate
-python experiments/10_representation_extension_full.py --run-frozen-extension
+pytest
+python experiments/11_representation_extension_adjudication.py
 ```
 
-Run exactly once with no additional flags or concurrent process. Keep the machine awake and connected to power.
+Expected: 54 tests. Send `outputs/representation-extension-2026-08-22/protocol_adjudication.json`.
 
-On success, send:
+This command reads only the completed summary. It performs no data generation, model load, training, evaluation, or metric recomputation.
 
-```text
-outputs/representation-extension-2026-08-22/extension_summary.json
-```
+## Expected written-protocol result pending validation
 
-On failure, do not rerun. Preserve the traceback and `outputs/representation-extension-2026-08-22.incomplete/` for review.
-
-## Boundaries
-
-- No scientific setting may change.
-- No additional encoder or latent planner before the extension is archived.
-- The full result cannot alter prior Gate 2, pixel-control, or Stage 3 decisions.
+- global integrity: pass;
+- task autoencoder: average-predictable but not action-usable;
+- ViT-MAE: not predictively usable;
+- raw pixels remain the strongest action representation;
+- all historical decisions remain unchanged.
