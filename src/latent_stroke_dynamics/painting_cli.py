@@ -188,6 +188,25 @@ def _method_name(run: RunLike) -> str:
     return "learned" if isinstance(run, LearnedPlanningRun) else run.method
 
 
+def _mse_trajectory(run: RunLike) -> np.ndarray:
+    values = np.asarray(
+        [pixel_mse(run.initial_canvas, run.target)]
+        + [record.mse_after for record in run.steps],
+        dtype=np.float64,
+    )
+    if values.shape != (len(run.steps) + 1,) or not bool(np.isfinite(values).all()):
+        raise RuntimeError("Painting trajectory contains invalid MSE values.")
+    return values
+
+
+def _best_step_and_canvas(run: RunLike) -> tuple[int, Image.Image, float]:
+    if len(run.frames) != len(run.steps) + 1:
+        raise RuntimeError("Best-painting selection requires one frame per trajectory state.")
+    values = _mse_trajectory(run)
+    best_step = int(np.argmin(values))
+    return best_step, run.frames[best_step], float(values[best_step])
+
+
 def _step_rows(run: RunLike) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for record in run.steps:
@@ -206,6 +225,7 @@ def _summary(run: RunLike, elapsed_seconds: float) -> dict[str, Any]:
     final_mse = pixel_mse(run.final_canvas, run.target)
     if initial_mse <= 1e-12:
         raise ValueError("The processed target is effectively blank white; no painting is needed.")
+    best_step, best_canvas, best_mse = _best_step_and_canvas(run)
     result: dict[str, Any] = {
         "method": _method_name(run),
         "strokes": len(run.steps),
@@ -215,6 +235,13 @@ def _summary(run: RunLike, elapsed_seconds: float) -> dict[str, Any]:
         "final_mae": pixel_mae(run.final_canvas, run.target),
         "relative_mse_improvement": (initial_mse - final_mse) / initial_mse,
         "improved_steps": sum(int(record.improved) for record in run.steps),
+        "best_step": best_step,
+        "best_mse": best_mse,
+        "best_mae": pixel_mae(best_canvas, run.target),
+        "best_relative_mse_improvement": (initial_mse - best_mse) / initial_mse,
+        "best_is_requested_final": best_step == len(run.steps),
+        "final_mse_increase_from_best": final_mse - best_mse,
+        "final_mse_ratio_to_best": final_mse / max(best_mse, 1e-12),
         "elapsed_seconds": float(elapsed_seconds),
         "exact_top1_rate": None,
         "exact_top5_rate": None,
@@ -281,9 +308,7 @@ def _save_gif(
 
 
 def _save_progress_plot(run: RunLike, output_path: Path) -> None:
-    values = [pixel_mse(run.initial_canvas, run.target)] + [
-        record.mse_after for record in run.steps
-    ]
+    values = _mse_trajectory(run)
     best_step = int(np.argmin(values))
     figure, axis = plt.subplots(figsize=(7.5, 4.5))
     axis.plot(range(len(values)), values, color="tab:green", linewidth=2)
@@ -306,18 +331,26 @@ def _save_progress_plot(run: RunLike, output_path: Path) -> None:
 
 
 def _save_comparison_plot(run: RunLike, output_path: Path) -> None:
+    best_step, best_canvas, best_mse = _best_step_and_canvas(run)
     target_values = np.asarray(run.target, dtype=np.int16)
+    best_values = np.asarray(best_canvas, dtype=np.int16)
     final_values = np.asarray(run.final_canvas, dtype=np.int16)
-    absolute_error = np.abs(final_values - target_values)
-    figure, axes = plt.subplots(1, 3, figsize=(10.5, 3.8))
+    best_error = np.abs(best_values - target_values)
+    final_error = np.abs(final_values - target_values)
+    figure, axes = plt.subplots(1, 5, figsize=(17.5, 3.8))
     axes[0].imshow(target_values, cmap="gray", vmin=0, vmax=255)
     axes[0].set_title("Normalized target")
-    axes[1].imshow(final_values, cmap="gray", vmin=0, vmax=255)
-    axes[1].set_title(
-        f"Final painting\nMSE {pixel_mse(run.final_canvas, run.target):.5f}"
+    axes[1].imshow(best_values, cmap="gray", vmin=0, vmax=255)
+    axes[1].set_title(f"Best painting: step {best_step}\nMSE {best_mse:.5f}")
+    axes[2].imshow(best_error, cmap="magma", vmin=0, vmax=255)
+    axes[2].set_title("Best absolute error")
+    axes[3].imshow(final_values, cmap="gray", vmin=0, vmax=255)
+    axes[3].set_title(
+        f"Requested final: step {len(run.steps)}\n"
+        f"MSE {pixel_mse(run.final_canvas, run.target):.5f}"
     )
-    axes[2].imshow(absolute_error, cmap="magma", vmin=0, vmax=255)
-    axes[2].set_title("Absolute error (fixed 0–255)")
+    axes[4].imshow(final_error, cmap="magma", vmin=0, vmax=255)
+    axes[4].set_title("Final absolute error")
     for axis in axes:
         axis.axis("off")
     figure.tight_layout()
@@ -333,9 +366,11 @@ def _save_artifacts(
     config: dict[str, Any],
     gif_scale: int,
 ) -> None:
+    _, best_canvas, _ = _best_step_and_canvas(run)
     pre_polarity_target.save(output_dir / "processed_target_before_polarity.png")
     run.target.save(output_dir / "processed_target.png")
     run.initial_canvas.save(output_dir / "initial_canvas.png")
+    best_canvas.save(output_dir / "best_painting.png")
     run.final_canvas.save(output_dir / "final_painting.png")
 
     rows = _step_rows(run)

@@ -67,6 +67,7 @@ def test_exact_qualitative_command_saves_complete_artifact_set(tmp_path) -> None
         "processed_target_before_polarity.png",
         "processed_target.png",
         "initial_canvas.png",
+        "best_painting.png",
         "final_painting.png",
         "progress.csv",
         "summary.csv",
@@ -94,6 +95,9 @@ def test_exact_qualitative_command_saves_complete_artifact_set(tmp_path) -> None
     assert summary["method"] == "exact"
     assert summary["strokes"] == 2
     assert summary["target_polarity_inverted"] is False
+    assert 0 <= summary["best_step"] <= 2
+    assert summary["best_mse"] <= summary["final_mse"] + 1e-12
+    assert summary["final_mse_ratio_to_best"] >= 1.0 - 1e-12
 
 
 def test_painter_refuses_to_overwrite_complete_output(tmp_path) -> None:
