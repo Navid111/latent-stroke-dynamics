@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
 **Current stage:** Stage 3 pixel-space target-guided painter  
-**Status:** Planner foundation implemented; awaiting local test validation
+**Status:** Foundation passed; random/exact engineering smoke ready
 
 ## Frozen completed foundation
 
@@ -14,41 +14,50 @@
 
 Do not rerun, retune, relabel, or replace these results.
 
-## Stage 3 implementation
+## Stage 3 validation
 
-Added `src/latent_stroke_dynamics/planning.py` with:
+The full local suite passed on the base M1 MacBook Air:
 
-- target preprocessing and loading;
-- normalized pixel metrics;
-- deterministic error-guided candidate proposals;
-- target-matched stroke values;
-- duplicate/no-change rejection;
-- random and exact-greedy selection;
-- multi-step planning records and optional frame capture.
+```text
+30 passed in 2.57s
+```
 
-Added six tests in `tests/test_planning.py`.
+This validates preprocessing, deterministic candidate generation, random/exact planning, prior gates, renderer behavior, and pixel-control utilities together.
 
-## Required local check
+## Smoke implementation
+
+Added `experiments/04_pixel_planner_smoke.py` with:
+
+- one fixed 20-stroke synthetic target;
+- random and exact-greedy planning;
+- 20 selected strokes and 32 candidates per step;
+- deterministic exact replay;
+- finite-metric validation;
+- progress CSVs and stroke JSON;
+- final PNGs, fixed-scale error comparison, progress curves, and GIFs;
+- diagnostic-only run configuration.
+
+## Required local run
 
 ```bash
 git pull
 source .venv/bin/activate
-pytest
+python experiments/04_pixel_planner_smoke.py
 ```
 
-Expected collection after this commit: 30 tests. Do not begin checkpoint or learned-planner work until this test run passes or any failure is repaired.
+Send the complete terminal output, `summary.csv`, `run_config.json`, `final_comparison.png`, and `progress_curves.png` for review.
 
 ## Next actions
 
-1. Validate all tests locally.
-2. Run a tiny random/exact smoke and inspect output behavior.
+1. Review the random/exact smoke numerically and visually.
+2. Repair engineering issues only if the smoke exposes one.
 3. Add a saved demonstration MLP checkpoint from train/validation data only.
 4. Implement learned candidate ranking with exact execution.
 5. Run a tiny all-method smoke before the controlled comparison.
 
 ## Boundaries
 
+- The smoke is diagnostic only.
 - Do not rerun completed paired experiments.
 - Do not use paired test rows to select a demonstration checkpoint.
-- Do not implement a learned latent planner.
 - Keep Stage 3 grayscale, 64×64, straight-line, and one-step greedy.
