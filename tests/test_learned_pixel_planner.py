@@ -96,6 +96,6 @@ def test_oracle_learned_loop_matches_exact_candidate_ranking() -> None:
     )
     assert len(run.steps) == 2
     assert len(run.frames) == 3
-    assert all(record.exact_rank == 1 for record in run.steps)
+    assert all(record.exact_selected_rank == 1 for record in run.steps)
     assert all(record.exact_top1 for record in run.steps)
     assert all(record.exact_regret <= 1e-12 for record in run.steps)
