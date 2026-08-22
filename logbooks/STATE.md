@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
-**Current stage:** Full representation extension complete  
-**Status:** Raw result archived; pure written-protocol adjudication pending local validation
+**Current stage:** Thesis integration  
+**Status:** Experimental evidence frozen; full representation extension complete and archived
 
 ## Frozen completed evidence
 
@@ -13,38 +13,40 @@
 - Controlled Stage 3 learned planning succeeded across six synthetic targets.
 - MNIST qualitative exact greedy outperformed long-horizon learned pixel planning.
 - The single full representation extension completed in 2,353.79 seconds.
+- The no-rerun adjudicator passed all 54 tests and written-protocol global integrity passed.
 
-No completed result may be rerun, retuned, or relabeled without preserving the raw record.
+No completed result may be rerun, retuned, or replaced.
 
-## Full-extension result
+## Final representation ladder
 
-The task autoencoder passed reconstruction eligibility with 95.47% validation improvement over the train-mean image baseline. Its selected MLP improved action-region error by 70.65% versus identity and 68.62% versus mean delta, but retrieval was 37.89%.
+| Representation | Four-way retrieval | Interpretation |
+|---|---:|---|
+| Raw pixels | 100.00% | Full-resolution action identity recoverable |
+| Task autoencoder | 37.89% | Average-predictable, not action-usable |
+| Frozen DINOv2-small | 27.67% | Historical latent Gate 2 fail |
+| Frozen ViT-MAE | 7.11% | Not predictively usable |
 
-ViT-MAE's selected MLP improved average action-region error by 33.08% and 30.63%, but retrieval was only 7.11% and crowding-60 stress performance was 13.69% worse than identity.
+Historical anchors use earlier paired seeds and are descriptive.
 
-## Raw-run integrity status
+## Final extension findings
 
-The raw runner marked global integrity false because the task exact-target oracle required both 100% top-1 and exact zero difference between separately batched candidate-zero encodings. Top-1 was 100%, all candidates were unique, and the maximum difference was `1.7404556274414062e-05`. Bit equality was not a frozen written-protocol requirement.
+The selected 49,569-parameter task autoencoder improved validation reconstruction by 95.47% over the train-mean-image baseline. Its MLP dynamics improved action-region error by 70.65% versus identity and 68.62% versus mean delta. Retrieval was 37.89%, below the frozen 50% threshold.
 
-The raw runner also failed to prioritize the written protocol's at-or-below-35% not-usable rule for ViT-MAE. Both raw labels remain archived unchanged.
+ViT-MAE MLP dynamics improved average error by 33.08% and 30.63%, but retrieval was 7.11% and crowding-60 stress performance was 13.69% worse than identity.
 
-## Next action
+The raw summary and protocol adjudication are both archived. The adjudication recomputed no metric and changed no historical decision.
 
-```bash
-git pull --ff-only
-source .venv/bin/activate
-pytest
-python experiments/11_representation_extension_adjudication.py
-```
+## Active work
 
-Expected: 54 tests. Send `outputs/representation-extension-2026-08-22/protocol_adjudication.json`.
+1. Update the thesis Results draft with controlled Stage 3, MNIST qualitative limitations, and the final representation ladder.
+2. Draft Methods and Discussion around the frozen protocols.
+3. Select final tables and figures.
+4. Verify literature citations against original PDFs.
+5. Prepare a concise defence narrative and reproducibility checklist.
 
-This command reads only the completed summary. It performs no data generation, model load, training, evaluation, or metric recomputation.
+## Boundaries
 
-## Expected written-protocol result pending validation
-
-- global integrity: pass;
-- task autoencoder: average-predictable but not action-usable;
-- ViT-MAE: not predictively usable;
-- raw pixels remain the strongest action representation;
-- all historical decisions remain unchanged.
+- Do not run experiment 10 again.
+- Preserve all controlled outputs, checkpoint hashes, qualitative failures, raw summaries, and adjudication artifacts.
+- Keep the user-facing painter pixel-based.
+- New experiments are lower priority than thesis integration and require a separately frozen protocol.

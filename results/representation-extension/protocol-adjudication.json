@@ -1,0 +1,87 @@
+{
+  "autoencoder_protocol_eligibility_passed": true,
+  "corrections": [
+    {
+      "adjudication": "The task oracle retrieved the true candidate for all examples and all candidates were unique, so the written oracle and integrity requirements passed. The 1.7404556274414062e-05 re-encoding difference remains reported as numerical drift.",
+      "issue": "task_autoencoder_oracle_bit_equality_guard",
+      "raw_behavior": "The runner required bit-identical separately batched candidate-zero encodings in addition to 100% oracle retrieval.",
+      "written_protocol": "Section 7 requires exact-target oracle retrieval of 100%; Section 11 separately requires unique encoded candidates."
+    },
+    {
+      "adjudication": "The written at-or-below-35% rule takes precedence.",
+      "issue": "classification_precedence_at_35_percent_retrieval",
+      "raw_behavior": "The runner assigned the average-predictable label whenever average error passed, even below 35% retrieval.",
+      "written_protocol": "Section 9 says retrieval at or below 35% is not predictively usable."
+    }
+  ],
+  "data_generated": false,
+  "do_not_rerun_or_retune": true,
+  "historical_decisions_unchanged": true,
+  "models_loaded": false,
+  "raw_runner_global_integrity_passed": false,
+  "raw_summary_preserved_unchanged": true,
+  "representations": {
+    "task_autoencoder": {
+      "adjudicated_classification": "average_predictable_but_not_action_usable",
+      "average_error_conditions_passed": true,
+      "candidate_zero_bit_equality_was_frozen_protocol_requirement": false,
+      "classification_reasons": [
+        "four_way_retrieval_below_50_percent"
+      ],
+      "counterfactual_top1_accuracy": 0.3788888888888889,
+      "improvement_vs_identity": 0.7064636428064269,
+      "improvement_vs_mean_delta": 0.6861990231587045,
+      "maximum_candidate_zero_difference": 1.7404556274414062e-05,
+      "oracle_top1_accuracy": 1.0,
+      "positive_improvement_every_primary_crowding": true,
+      "protocol_integrity_checks": {
+        "all_metrics_are_finite": true,
+        "all_model_seeds_beat_identity": true,
+        "encoded_candidates_are_unique": true,
+        "oracle_retrieval_is_100_percent": true,
+        "parameters_within_cap": true,
+        "representation_eligible": true,
+        "tiny_overfit_loss_decreased": true
+      },
+      "protocol_integrity_passed": true,
+      "representation": "task_autoencoder",
+      "runner_reported_classification": "not_predictively_usable",
+      "runner_reported_oracle_passed": false,
+      "written_oracle_requirement": "exact-target top-1 retrieval equals 100%"
+    },
+    "vit_mae": {
+      "adjudicated_classification": "not_predictively_usable",
+      "average_error_conditions_passed": true,
+      "candidate_zero_bit_equality_was_frozen_protocol_requirement": false,
+      "classification_reasons": [
+        "four_way_retrieval_at_or_below_35_percent"
+      ],
+      "counterfactual_top1_accuracy": 0.07111111111111111,
+      "improvement_vs_identity": 0.33082615123122383,
+      "improvement_vs_mean_delta": 0.30626819483033796,
+      "maximum_candidate_zero_difference": 0.0,
+      "oracle_top1_accuracy": 1.0,
+      "positive_improvement_every_primary_crowding": true,
+      "protocol_integrity_checks": {
+        "all_metrics_are_finite": true,
+        "all_model_seeds_beat_identity": true,
+        "encoded_candidates_are_unique": true,
+        "oracle_retrieval_is_100_percent": true,
+        "parameters_within_cap": true,
+        "representation_eligible": true,
+        "tiny_overfit_loss_decreased": true
+      },
+      "protocol_integrity_passed": true,
+      "representation": "vit_mae",
+      "runner_reported_classification": "average_predictable_but_not_action_usable",
+      "runner_reported_oracle_passed": true,
+      "written_oracle_requirement": "exact-target top-1 retrieval equals 100%"
+    }
+  },
+  "scientific_metrics_recomputed": false,
+  "source_summary": "outputs/representation-extension-2026-08-22/extension_summary.json",
+  "source_summary_sha256": "d5e53f277befc45ae55abb144f0391684885b343fb1eb6615b1ebe92d86c9c2b",
+  "status": "full_extension_protocol_adjudicated_without_rerun",
+  "training_performed": false,
+  "written_protocol_global_integrity_passed": true
+}
