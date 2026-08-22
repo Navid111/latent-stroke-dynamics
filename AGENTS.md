@@ -9,32 +9,24 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 ## Required reading order
 
 1. `logbooks/STATE.md`;
-2. frozen core and representation-extension results;
-3. `docs/ranking-aware-latent-protocol.md`;
-4. `docs/ranking-aware-latent-development-results.md`;
-5. `docs/ranking-aware-latent-formal-handoff.md`;
-6. relevant source files and tests.
+2. `docs/ranking-aware-latent-formal-results.md`;
+3. prior frozen results and protocols;
+4. relevant source files and tests.
 
 ## Frozen evidence
 
-All prior experiments and the ranking-aware development grid are complete and immutable.
+The single formal ranking-aware comparison succeeded and is immutable. Do not rerun, retune, regenerate, or overwrite it.
+
+Primary formal result: MSE-only retrieval 31.44%; ranking-aware retrieval 74.44%; gain 43.00 points; all preregistered criteria and integrity checks passed.
 
 ## Active task
 
-One formal ranking-aware comparison is authorized after successful local validation:
-
-```bash
-pytest
-python experiments/14_ranking_aware_latent_formal.py --validate-only
-python experiments/14_ranking_aware_latent_formal.py --run-formal-comparison
-```
+Design and freeze a separate latent-space candidate-selection painter protocol before implementation. It may use the saved formal ranking-aware checkpoints but must not retrain or reinterpret the formal experiment.
 
 ## Hard boundaries
 
-- Run the formal comparison exactly once.
-- If it fails, preserve `.incomplete` and report the traceback; do not retry.
-- If it succeeds, do not rerun or retune it.
-- Never rerun development or experiment 10.
-- Do not change lambda `1.0`, temperature `0.05`, encoder, canvas, renderer, strokes, architecture, thresholds, split sizes, or seeds.
-- Test/stress rows cannot affect training, early stopping, or selection.
-- Preserve all raw and adjudicated artifacts.
+- Never rerun formal experiment 14, development experiment 12, or representation experiment 10.
+- Preserve the completed formal output and every raw/adjudicated artifact.
+- Do not use formal test or stress performance to select a deployment checkpoint.
+- No encoder/predictor retraining for the first latent-planner study.
+- Do not call this a canonical JEPA.
