@@ -2,47 +2,40 @@
 
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
-**Current stage:** Ranking-aware latent follow-up foundation  
-**Status:** Protocol/config frozen before implementation and before follow-up data
+**Current stage:** Ranking-aware latent validation foundation  
+**Status:** Awaiting local tests and validation-only statistics hash
 
-## Frozen completed evidence
+## Frozen evidence
 
-- Gate 1 passed.
-- DINOv2 Gate 2 formally failed at 27.7% retrieval.
-- Paired pixel control succeeded at 100% retrieval.
-- Controlled Stage 3 learned planning succeeded across six synthetic targets.
-- MNIST qualitative work documented learned long-horizon degradation.
-- Full representation extension completed and final adjudication passed.
+All prior Gate 1, Gate 2, pixel-control, Stage 3, qualitative, and representation-extension evidence is frozen. The new follow-up cannot revise it.
 
-No completed result may be rerun, retuned, or replaced.
+## Follow-up question
 
-## New research question
+Can explicit counterfactual ranking supervision raise frozen task-autoencoder latent retrieval from the prior 37.89% result to at least 50% while retaining strong average prediction?
 
-Can an explicit counterfactual ranking objective raise task-autoencoder latent retrieval above the frozen 50% action-usable threshold while retaining strong average next-latent prediction?
+## Committed foundation
 
-## Frozen follow-up design
+- frozen protocol and config precede implementation;
+- task-autoencoder checkpoint state hash is fixed;
+- latent-statistics path is fixed but its file hash is intentionally pending local validation;
+- config guard rejects scientific drift and formal authorization;
+- ranking cross-entropy and combined objective are implemented separately from completed code;
+- synthetic gradient and ranking-order tests are included;
+- validation-only mode generates no data and trains no model.
 
-- representation: completed task-autoencoder checkpoint, frozen;
-- checkpoint SHA-256: `95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900`;
-- canvas/renderer/action/candidates: unchanged;
-- predictor: existing 19,232-parameter MLP;
-- comparison: balanced-MSE baseline versus balanced-MSE plus counterfactual cross-entropy;
-- ranking grid: lambda `{0.1, 0.3, 1.0}` × temperature `{0.05, 0.1}`;
-- development may select only lambda and temperature;
-- formal seeds `20261104`–`20261110` are reserved and unauthorized.
+## Next action
 
-## Current authorization boundary
+Navid should run:
 
-No follow-up data may be generated yet. First implement and validate:
+```bash
+git pull --ff-only
+source .venv/bin/activate
+pytest
+python experiments/12_ranking_aware_latent_followup.py --validate-only
+```
 
-1. strict config guard;
-2. checkpoint SHA guard;
-3. saved latent-statistics hash report;
-4. ranking loss and tests;
-5. validation-only command that generates no data.
+Then send the complete pytest result and validation JSON. Do not run development yet.
 
-After Navid reports test and validation-only output, freeze the latent-statistics hash in a separate commit before authorizing development.
+## Following step
 
-## Thesis consequence
-
-The existing thesis remains valid regardless of this follow-up. The new study is optional upside and cannot revise previous decisions.
+Freeze the reported latent-statistics SHA-256 in a separate commit. Only afterward implement and authorize the one development grid run. Formal seeds `20261104`–`20261110` remain untouched.
