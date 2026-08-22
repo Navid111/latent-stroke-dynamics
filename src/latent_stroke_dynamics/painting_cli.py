@@ -15,7 +15,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PIL import Image
+from PIL import Image, ImageOps
 
 from .learned_pixel_planner import (
     LearnedPlanningRun,
@@ -35,18 +35,20 @@ from .planning import (
 
 
 PaintingMethod = Literal["random", "exact", "learned"]
+TargetPolarity = Literal["auto", "preserve", "invert"]
 RunLike = PlanningRun | LearnedPlanningRun
 DEFAULT_CHECKPOINT = Path("checkpoints/stage3-pixel-mlp-seed11.pt")
 FROZEN_CHECKPOINT_SHA256 = (
     "e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472"
 )
+POLARITY_THRESHOLD = 127.5
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Paint a center-cropped 64x64 grayscale approximation of an input "
-            "image with sequential straight-line strokes."
+            "image with sequential dark straight-line strokes on white."
         )
     )
     parser.add_argument("--target", type=Path, required=True)
@@ -61,6 +63,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--prediction-batch-size", type=int, default=32)
     parser.add_argument("--gif-scale", type=int, default=6)
     parser.add_argument("--checkpoint", type=Path, default=DEFAULT_CHECKPOINT)
+    parser.add_argument(
+        "--polarity",
+        choices=("auto", "preserve", "invert"),
+        default="auto",
+        help=(
+            "The renderer paints dark strokes on white. 'auto' inverts targets "
+            "with a dark border; use 'preserve' or 'invert' to override."
+        ),
+    )
     parser.add_argument("--output-dir", type=Path, required=True)
     return parser
 
@@ -69,10 +80,39 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     return build_parser().parse_args(argv)
 
 
+def normalize_target_polarity(
+    image: Image.Image,
+    polarity: TargetPolarity = "auto",
+) -> tuple[Image.Image, bool, float]:
+    """Map qualitative targets to the renderer's dark-on-white convention."""
+
+    if polarity not in ("auto", "preserve", "invert"):
+        raise ValueError("polarity must be 'auto', 'preserve', or 'invert'.")
+    if image.mode != "L" or image.width != image.height:
+        raise ValueError("Polarity normalization expects a square grayscale image.")
+    values = np.asarray(image, dtype=np.uint8)
+    border_width = max(1, int(round(image.width * 0.10)))
+    border_values = np.concatenate(
+        [
+            values[:border_width, :].ravel(),
+            values[-border_width:, :].ravel(),
+            values[:, :border_width].ravel(),
+            values[:, -border_width:].ravel(),
+        ]
+    )
+    border_median = float(np.median(border_values))
+    should_invert = polarity == "invert" or (
+        polarity == "auto" and border_median < POLARITY_THRESHOLD
+    )
+    normalized = ImageOps.invert(image) if should_invert else image.copy()
+    return normalized, should_invert, border_median
+
+
 def _validate_request(
     target_path: Path,
     output_dir: Path,
     method: str,
+    polarity: str,
     strokes: int,
     candidates: int,
     seed: int,
@@ -82,6 +122,8 @@ def _validate_request(
 ) -> Path:
     if method not in ("random", "exact", "learned"):
         raise ValueError("method must be 'random', 'exact', or 'learned'.")
+    if polarity not in ("auto", "preserve", "invert"):
+        raise ValueError("polarity must be 'auto', 'preserve', or 'invert'.")
     if not target_path.is_file():
         raise FileNotFoundError(f"Target image does not exist: {target_path}")
     if strokes < 1:
@@ -269,7 +311,7 @@ def _save_comparison_plot(run: RunLike, output_path: Path) -> None:
     absolute_error = np.abs(final_values - target_values)
     figure, axes = plt.subplots(1, 3, figsize=(10.5, 3.8))
     axes[0].imshow(target_values, cmap="gray", vmin=0, vmax=255)
-    axes[0].set_title("Processed target")
+    axes[0].set_title("Normalized target")
     axes[1].imshow(final_values, cmap="gray", vmin=0, vmax=255)
     axes[1].set_title(
         f"Final painting\nMSE {pixel_mse(run.final_canvas, run.target):.5f}"
@@ -285,11 +327,13 @@ def _save_comparison_plot(run: RunLike, output_path: Path) -> None:
 
 def _save_artifacts(
     run: RunLike,
+    pre_polarity_target: Image.Image,
     output_dir: Path,
     summary: dict[str, Any],
     config: dict[str, Any],
     gif_scale: int,
 ) -> None:
+    pre_polarity_target.save(output_dir / "processed_target_before_polarity.png")
     run.target.save(output_dir / "processed_target.png")
     run.initial_canvas.save(output_dir / "initial_canvas.png")
     run.final_canvas.save(output_dir / "final_painting.png")
@@ -340,6 +384,7 @@ def paint_target(
     prediction_batch_size: int = 32,
     gif_scale: int = 6,
     checkpoint: str | Path = DEFAULT_CHECKPOINT,
+    polarity: TargetPolarity = "auto",
 ) -> tuple[Path, dict[str, Any]]:
     """Run one qualitative painting and atomically publish all artifacts."""
 
@@ -350,6 +395,7 @@ def paint_target(
         target_path=target_path,
         output_dir=output_dir,
         method=method,
+        polarity=polarity,
         strokes=strokes,
         candidates=candidates,
         seed=seed,
@@ -358,10 +404,14 @@ def paint_target(
         checkpoint=checkpoint,
     )
 
-    target = load_target(target_path, size=64)
+    pre_polarity_target = load_target(target_path, size=64)
+    target, polarity_inverted, border_median = normalize_target_polarity(
+        pre_polarity_target,
+        polarity=polarity,
+    )
     initial_target_mse = pixel_mse(Image.new("L", target.size, color=255), target)
     if initial_target_mse <= 1e-12:
-        raise ValueError("The processed target is effectively blank white; no painting is needed.")
+        raise ValueError("The normalized target is effectively blank white; no painting is needed.")
 
     model = None
     metadata: PixelCheckpointMetadata | None = None
@@ -399,6 +449,13 @@ def paint_target(
         )
     elapsed_seconds = time.perf_counter() - started
     summary = _summary(run, elapsed_seconds)
+    summary.update(
+        {
+            "target_polarity_requested": polarity,
+            "target_polarity_inverted": polarity_inverted,
+            "target_border_median_before_polarity": border_median,
+        }
+    )
     config: dict[str, Any] = {
         "qualitative_demo": True,
         "controlled_stage3_result_unchanged": True,
@@ -411,6 +468,11 @@ def paint_target(
             "grayscale": True,
             "canvas_size": 64,
             "resize": "Pillow LANCZOS",
+            "polarity_requested": polarity,
+            "border_median_before_polarity": border_median,
+            "auto_invert_threshold": POLARITY_THRESHOLD,
+            "polarity_inverted": polarity_inverted,
+            "renderer_convention": "dark strokes on white",
         },
         "method": method,
         "strokes": strokes,
@@ -425,6 +487,7 @@ def paint_target(
     }
     _save_artifacts(
         run,
+        pre_polarity_target=pre_polarity_target,
         output_dir=incomplete_dir,
         summary=summary,
         config=config,
@@ -446,6 +509,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         prediction_batch_size=args.prediction_batch_size,
         gif_scale=args.gif_scale,
         checkpoint=args.checkpoint,
+        polarity=args.polarity,
     )
     print("\nImage-to-strokes painting complete\n")
     print(json.dumps(summary, indent=2))
