@@ -2,60 +2,51 @@
 
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
-**Current stage:** Validate best-painting output, then freeze the representation extension  
-**Status:** MNIST learned-versus-exact qualitative diagnostic complete
+**Current stage:** Frozen post-core representation extension  
+**Status:** Protocol/config committed before implementation and data generation
 
-## Frozen experimental chain
+## Frozen completed evidence
 
 - Gate 1 passed.
-- Latent DINOv2 Gate 2 formally failed at 27.7% retrieval.
+- DINOv2 Gate 2 formally failed at 27.7% retrieval.
 - Paired pixel control succeeded at 100% retrieval.
 - Controlled Stage 3 learned planning succeeded across six synthetic targets.
+- MNIST qualitative exact greedy reached MSE `0.022196`; learned reached `0.040860` and degraded after step 33.
+- User-facing painter and best-painting output passed all 38 tests.
 
-Do not rerun, retune, relabel, or replace these results.
+No completed result may be rerun, retuned, or relabeled.
 
-## Controlled Stage 3
+## Active extension
 
-- learned mean final MSE: `0.060032`;
-- random mean final MSE: `0.155971`;
-- exact mean final MSE: `0.050479`;
-- learned reduction versus random: `61.51%`;
-- learned/exact ratio: `1.18925`;
-- integrity and deterministic replay passed.
+Frozen files:
 
-## Qualitative MNIST result
+- `docs/representation-extension-protocol.md`;
+- `configs/representation-extension-2026-08-22.json`.
 
-Auto polarity normalization repaired the initial light-on-dark mismatch. At 100 strokes and 128 candidates:
+New representations:
 
-| Metric | Learned | Exact |
-|---|---:|---:|
-| Final MSE | `0.040860` | `0.022196` |
-| Improvement | `71.70%` | `84.62%` |
-| Improving steps | `42` | `88` |
-| Best step | `33` | `99` |
+1. frozen deterministic unmasked final spatial tokens from `facebook/vit-mae-base`;
+2. a small reconstruction-trained 32×16×16 convolutional autoencoder latent.
 
-Learned top-1/top-5 exact agreement was 23%/37%, mean exact rank was 9.23 of 128, and mean regret was `0.000410`. Exact continued improving almost to the budget while learned deteriorated after step 33. This localizes the main late-stage problem to learned ranking under long, crowded qualitative trajectories rather than candidate availability alone.
+Historical DINOv2 and pixel outcomes are anchors only and will not be rerun. The extension uses untouched seeds `20261024`–`20261030`; development smoke uses `20261020`–`20261022`.
 
-The exact method is currently the strongest arbitrary-image artifact. The learned method remains a controlled success with a documented natural-target/long-horizon limitation.
-
-## Painter update
-
-The command now saves `best_painting.png` separately from the requested-budget `final_painting.png`. Summary metadata records best step, best MSE/MAE, best improvement, and final-versus-best degradation. The comparison figure shows both states.
+Each new representation is classified independently by average residual error, crowding behavior, four-way action retrieval, and integrity checks. The required action-usable retrieval threshold remains 50%.
 
 ## Immediate next action
 
-```bash
-git pull --ff-only
-source .venv/bin/activate
-pytest
-```
+Implement, without generating extension data:
 
-Expected: `38 passed`. No MNIST rerun is required; its step-33 canvas already exists at `outputs/qualitative-demo-mnist-3-learned/frames/frame_0033.png`.
+1. deterministic unmasked ViT-MAE wrapper and repeatability test;
+2. convolutional autoencoder and reconstruction tests;
+3. latent standardization and checkpoint-integrity helpers;
+4. shared extension configuration validation;
+5. smoke/full-run guards.
 
-After validation, freeze the post-core representation-extension protocol before generating new data.
+Then run the complete repository tests before any development smoke.
 
 ## Boundaries
 
-- Preserve all failed and successful qualitative outputs.
-- Do not use qualitative images to retrain the pixel checkpoint.
-- No RL, color, textured brushes, or multi-step rollout before thesis completion.
+- No new extension data have been generated.
+- No test split may enter fitting, normalization, or selection.
+- Do not substitute a different pretrained encoder if ViT-MAE deterministic unmasked extraction fails.
+- No additional encoder, joint training, contrastive loss, or latent planner before both frozen representations are archived.

@@ -1,0 +1,120 @@
+{
+  "experiment_id": "representation-extension-2026-08-22",
+  "status": "frozen_before_implementation",
+  "evidential_role": "post_core_explanatory_extension",
+  "historical_decisions_unchanged": true,
+  "canvas_size": 64,
+  "device": "cpu",
+  "historical_anchors": {
+    "dinov2": {
+      "rerun": false,
+      "model_id": "facebook/dinov2-small",
+      "formal_top1_retrieval": 0.27666666666666667
+    },
+    "pixels": {
+      "rerun": false,
+      "formal_top1_retrieval": 1.0
+    }
+  },
+  "new_representations": {
+    "vit_mae": {
+      "model_id": "facebook/vit-mae-base",
+      "frozen": true,
+      "input_size": 224,
+      "patch_size": 16,
+      "patch_grid": [14, 14],
+      "feature_dim": 768,
+      "mask_ratio": 0.0,
+      "spatial_layer": "final_unmasked_encoder_tokens",
+      "token_normalization": "l2",
+      "encoding_batch_size": 8,
+      "determinism_atol": 1e-7
+    },
+    "task_autoencoder": {
+      "latent_grid": [16, 16],
+      "latent_dim": 32,
+      "encoder_channels": [1, 16, 32, 32],
+      "decoder_channels": [32, 32, 16, 1],
+      "model_seeds": [101, 202, 303],
+      "learning_rate": 0.001,
+      "weight_decay": 0.00001,
+      "batch_size": 32,
+      "max_epochs": 50,
+      "patience": 8,
+      "selection_metric": "validation_reconstruction_mse",
+      "latent_standardization": "train_channel_mean_std",
+      "validation_improvement_vs_mean_image_minimum": 0.3,
+      "minimum_mean_channel_std": 0.0001,
+      "reload_atol": 1e-7
+    }
+  },
+  "development_smoke": {
+    "train_samples": 128,
+    "validation_samples": 32,
+    "test_samples": 64,
+    "train_seed": 20261020,
+    "validation_seed": 20261021,
+    "test_seed": 20261022,
+    "decision_making": false
+  },
+  "primary_splits": {
+    "train": {"samples": 1000, "seed": 20261024},
+    "validation": {"samples": 200, "seed": 20261025},
+    "test": {"samples": 300, "seed": 20261026}
+  },
+  "stress_splits": {
+    "unseen_width_5": {"samples": 100, "seed": 20261027},
+    "unseen_intensities": {
+      "samples": 100,
+      "seed": 20261028,
+      "values": [16, 80, 176]
+    },
+    "crowding_30": {"samples": 100, "seed": 20261029},
+    "crowding_60": {"samples": 100, "seed": 20261030}
+  },
+  "transition_distribution": {
+    "primary_crowding": [0, 5, 15],
+    "widths": [1, 2, 3, 4],
+    "values": [0, 32, 64, 96, 128],
+    "minimum_length": 0.2,
+    "counterfactual_order": [
+      "true",
+      "shift_position",
+      "change_width",
+      "change_intensity"
+    ]
+  },
+  "dynamics": {
+    "families": ["linear", "mlp"],
+    "model_seeds": [11, 22, 33],
+    "hidden_dim": 256,
+    "maximum_parameters": 1000000,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 16,
+    "max_epochs": 30,
+    "patience": 6,
+    "objective": "balanced_patch_residual_mse",
+    "inside_weight": 0.5,
+    "outside_weight": 0.5,
+    "selection_metric": "mean_validation_action_region_mse"
+  },
+  "classification": {
+    "minimum_improvement_vs_identity": 0.3,
+    "minimum_improvement_vs_mean_delta": 0.3,
+    "minimum_retrieval": 0.5,
+    "minimum_crowding_improvement": 0.0,
+    "required_oracle_retrieval": 1.0,
+    "chance_retrieval": 0.25
+  },
+  "output_dir": "outputs/representation-extension-2026-08-22",
+  "forbidden": [
+    "test_tuning",
+    "encoder_finetuning",
+    "additional_pretrained_encoders",
+    "joint_encoder_dynamics_training",
+    "contrastive_loss_search",
+    "latent_planning_before_extension_archive",
+    "revision_of_historical_decisions"
+  ]
+}
