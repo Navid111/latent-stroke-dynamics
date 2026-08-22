@@ -10,11 +10,10 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 
 1. `logbooks/STATE.md`;
 2. `docs/thesis-plan.md`;
-3. frozen Gate 2, pixel-control, and Stage 3 protocols/results;
-4. `docs/representation-extension-protocol.md`;
-5. `docs/representation-extension-full-results.md`;
-6. `docs/representation-extension-final-decision.md`;
-7. relevant source files and tests.
+3. frozen Gate 2, pixel-control, Stage 3, and representation-extension results;
+4. `docs/representation-extension-final-decision.md`;
+5. `docs/ranking-aware-latent-protocol.md`;
+6. relevant source files and tests.
 
 ## Frozen completed evidence
 
@@ -23,32 +22,35 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 - Paired pixel control succeeded at 100% retrieval.
 - Controlled Stage 3 succeeded across six targets.
 - MNIST qualitative work documented learned long-horizon degradation.
-- The single full representation extension completed and its written-protocol adjudication passed all 54 tests.
+- The full representation extension and written-protocol adjudication are complete.
 
-Do not rerun, retune, relabel, or replace these results.
+Never rerun, retune, relabel, or replace completed results.
 
-## Current phase
+## Active study
 
-Experimental work is frozen. The active phase is thesis integration:
+A post-core ranking-aware latent follow-up is frozen before implementation and before data generation. It holds the successful task-autoencoder representation fixed and compares the same MLP under MSE-only and MSE-plus-counterfactual-ranking objectives.
 
-- update Methods, Results, Discussion, and Limitations;
-- select final tables and figures;
-- verify literature citations against original PDFs;
-- prepare the reproducibility instructions and defence narrative.
+Current next steps:
 
-Small reporting, documentation, and packaging fixes are allowed. New scientific runs require an explicit new protocol and must not replace existing evidence.
+1. implement config validation, checkpoint/statistics validation-only mode, ranking loss, and unit tests;
+2. record the existing latent-statistics SHA-256;
+3. freeze that hash and authorize development only after validation;
+4. keep all formal seeds untouched.
 
-## Final extension outcomes
+## Hard boundaries
 
-- task autoencoder: average-predictable but not action-usable, 37.89% retrieval;
-- frozen ViT-MAE: not predictively usable, 7.11% retrieval;
-- raw pixels remain the strongest tested action representation, 100% retrieval;
-- historical decisions remain unchanged.
+- Do not generate follow-up development data yet.
+- Do not generate reserved formal seeds `20261104`–`20261110`.
+- Do not run experiment 10 again.
+- Do not retrain or fine-tune the frozen task autoencoder.
+- Do not change canvas size, renderer, stroke family, architecture, ranking grid, thresholds, or formal sizes.
+- Do not use diagnostic-test or formal-test results for selection.
+- Additional encoders, 128×128 canvases, new brushes, and true JEPA-inspired joint training require separate later protocols.
 
-## Prohibitions
+## Code standards
 
-- Never run experiment 10 again.
-- Never overwrite the raw extension summary or final adjudication.
-- No post-test tuning, result substitution, or hidden negative outcomes.
-- No extra encoder, fine-tuning, joint training, latent planning, RL, color, or textured-brush scope before thesis integration is complete.
-- Do not commit credentials, model weights, caches, generated datasets, or raw uncompressed outputs.
+- Keep new follow-up code in separate modules/scripts so completed experiment code stays unchanged.
+- Validate hashes and output paths before any data generation.
+- Use atomic `.incomplete` output handling and refuse overwrite.
+- Preserve negative outcomes and implementation failures.
+- Do not commit credentials, model weights, caches, generated datasets, or raw outputs.

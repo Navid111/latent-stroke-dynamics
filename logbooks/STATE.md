@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
-**Current stage:** Thesis integration  
-**Status:** Experimental evidence frozen; full representation extension complete and archived
+**Current stage:** Ranking-aware latent follow-up foundation  
+**Status:** Protocol/config frozen before implementation and before follow-up data
 
 ## Frozen completed evidence
 
@@ -11,42 +11,38 @@
 - DINOv2 Gate 2 formally failed at 27.7% retrieval.
 - Paired pixel control succeeded at 100% retrieval.
 - Controlled Stage 3 learned planning succeeded across six synthetic targets.
-- MNIST qualitative exact greedy outperformed long-horizon learned pixel planning.
-- The single full representation extension completed in 2,353.79 seconds.
-- The no-rerun adjudicator passed all 54 tests and written-protocol global integrity passed.
+- MNIST qualitative work documented learned long-horizon degradation.
+- Full representation extension completed and final adjudication passed.
 
 No completed result may be rerun, retuned, or replaced.
 
-## Final representation ladder
+## New research question
 
-| Representation | Four-way retrieval | Interpretation |
-|---|---:|---|
-| Raw pixels | 100.00% | Full-resolution action identity recoverable |
-| Task autoencoder | 37.89% | Average-predictable, not action-usable |
-| Frozen DINOv2-small | 27.67% | Historical latent Gate 2 fail |
-| Frozen ViT-MAE | 7.11% | Not predictively usable |
+Can an explicit counterfactual ranking objective raise task-autoencoder latent retrieval above the frozen 50% action-usable threshold while retaining strong average next-latent prediction?
 
-Historical anchors use earlier paired seeds and are descriptive.
+## Frozen follow-up design
 
-## Final extension findings
+- representation: completed task-autoencoder checkpoint, frozen;
+- checkpoint SHA-256: `95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900`;
+- canvas/renderer/action/candidates: unchanged;
+- predictor: existing 19,232-parameter MLP;
+- comparison: balanced-MSE baseline versus balanced-MSE plus counterfactual cross-entropy;
+- ranking grid: lambda `{0.1, 0.3, 1.0}` × temperature `{0.05, 0.1}`;
+- development may select only lambda and temperature;
+- formal seeds `20261104`–`20261110` are reserved and unauthorized.
 
-The selected 49,569-parameter task autoencoder improved validation reconstruction by 95.47% over the train-mean-image baseline. Its MLP dynamics improved action-region error by 70.65% versus identity and 68.62% versus mean delta. Retrieval was 37.89%, below the frozen 50% threshold.
+## Current authorization boundary
 
-ViT-MAE MLP dynamics improved average error by 33.08% and 30.63%, but retrieval was 7.11% and crowding-60 stress performance was 13.69% worse than identity.
+No follow-up data may be generated yet. First implement and validate:
 
-The raw summary and protocol adjudication are both archived. The adjudication recomputed no metric and changed no historical decision.
+1. strict config guard;
+2. checkpoint SHA guard;
+3. saved latent-statistics hash report;
+4. ranking loss and tests;
+5. validation-only command that generates no data.
 
-## Active work
+After Navid reports test and validation-only output, freeze the latent-statistics hash in a separate commit before authorizing development.
 
-1. Update the thesis Results draft with controlled Stage 3, MNIST qualitative limitations, and the final representation ladder.
-2. Draft Methods and Discussion around the frozen protocols.
-3. Select final tables and figures.
-4. Verify literature citations against original PDFs.
-5. Prepare a concise defence narrative and reproducibility checklist.
+## Thesis consequence
 
-## Boundaries
-
-- Do not run experiment 10 again.
-- Preserve all controlled outputs, checkpoint hashes, qualitative failures, raw summaries, and adjudication artifacts.
-- Keep the user-facing painter pixel-based.
-- New experiments are lower priority than thesis integration and require a separately frozen protocol.
+The existing thesis remains valid regardless of this follow-up. The new study is optional upside and cannot revise previous decisions.

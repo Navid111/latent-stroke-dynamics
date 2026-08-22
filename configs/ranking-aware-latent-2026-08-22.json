@@ -1,0 +1,104 @@
+{
+  "experiment_id": "ranking-aware-latent-followup-2026-08-22",
+  "status": "frozen_before_implementation_and_data",
+  "evidential_role": "post_core_exploratory_latent_rescue",
+  "historical_decisions_unchanged": true,
+  "canvas_size": 64,
+  "device": "cpu",
+  "frozen_representation": {
+    "architecture": "StrokeAutoencoder",
+    "latent_grid": [16, 16],
+    "feature_dim": 32,
+    "total_parameter_count": 49569,
+    "selected_seed": 101,
+    "selected_epoch": 50,
+    "checkpoint_path": "outputs/representation-extension-2026-08-22/task_autoencoder/checkpoints/task_autoencoder.pt",
+    "checkpoint_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900",
+    "latent_statistics_path": "outputs/representation-extension-2026-08-22/task_autoencoder/latent_channel_statistics.json",
+    "latent_statistics_sha256": null,
+    "latent_statistics_hash_must_be_frozen_before_development": true,
+    "encoder_frozen": true
+  },
+  "transition_distribution": {
+    "primary_crowding": [0, 5, 15],
+    "widths": [1, 2, 3, 4],
+    "values": [0, 32, 64, 96, 128],
+    "minimum_length": 0.2,
+    "counterfactual_order": [
+      "true",
+      "shift_position",
+      "change_width",
+      "change_intensity"
+    ]
+  },
+  "development": {
+    "authorized": false,
+    "decision_making_scope": "ranking_lambda_and_temperature_only",
+    "train": {"samples": 128, "seed": 20261101},
+    "validation": {"samples": 64, "seed": 20261102},
+    "diagnostic_test": {"samples": 64, "seed": 20261103},
+    "output_dir": "outputs/ranking-aware-latent-development-2026-08-22"
+  },
+  "formal_reserved": {
+    "authorized": false,
+    "train": {"samples": 1000, "seed": 20261104},
+    "validation": {"samples": 200, "seed": 20261105},
+    "test": {"samples": 300, "seed": 20261106},
+    "unseen_width_5": {"samples": 100, "seed": 20261107},
+    "unseen_intensities": {
+      "samples": 100,
+      "seed": 20261108,
+      "values": [16, 80, 176]
+    },
+    "crowding_30": {"samples": 100, "seed": 20261109},
+    "crowding_60": {"samples": 100, "seed": 20261110}
+  },
+  "predictor": {
+    "family": "mlp",
+    "hidden_dim": 256,
+    "parameter_count": 19232,
+    "model_seeds": [11, 22, 33],
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 16,
+    "max_epochs": 30,
+    "patience": 6,
+    "baseline_objective": "balanced_patch_residual_mse",
+    "ranking_objective": "balanced_patch_residual_mse_plus_counterfactual_cross_entropy"
+  },
+  "ranking_grid": {
+    "lambda": [0.1, 0.3, 1.0],
+    "temperature": [0.05, 0.1],
+    "selection_order": [
+      "highest_mean_validation_top1",
+      "highest_mean_validation_true_margin",
+      "lowest_mean_validation_action_region_mse",
+      "lower_lambda",
+      "higher_temperature"
+    ]
+  },
+  "classification": {
+    "minimum_formal_retrieval": 0.5,
+    "minimum_absolute_retrieval_gain_over_mse": 0.1,
+    "minimum_improvement_vs_identity": 0.3,
+    "minimum_improvement_vs_mean_delta": 0.3,
+    "minimum_primary_crowding_improvement": 0.0,
+    "required_oracle_retrieval": 1.0,
+    "chance_retrieval": 0.25
+  },
+  "development_output_dir": "outputs/ranking-aware-latent-development-2026-08-22",
+  "formal_output_dir": "outputs/ranking-aware-latent-formal-2026-08-22",
+  "forbidden": [
+    "encoder_retraining",
+    "encoder_finetuning",
+    "checkpoint_substitution",
+    "additional_encoders",
+    "canvas_resize",
+    "new_stroke_primitive",
+    "renderer_change",
+    "diagnostic_test_selection",
+    "formal_test_selection",
+    "revision_of_historical_decisions"
+  ]
+}
