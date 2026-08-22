@@ -1,0 +1,19 @@
+{
+  "method": "exact",
+  "strokes": 100,
+  "candidates_per_step": 128,
+  "initial_mse": 0.1443564218082778,
+  "final_mse": 0.022195833950585442,
+  "final_mae": 0.060518151872997805,
+  "relative_mse_improvement": 0.8462428364976786,
+  "improved_steps": 88,
+  "elapsed_seconds": 1.3619379997253418,
+  "exact_top1_rate": null,
+  "exact_top5_rate": null,
+  "mean_exact_rank": null,
+  "mean_exact_regret": null,
+  "max_exact_regret": null,
+  "target_polarity_requested": "auto",
+  "target_polarity_inverted": true,
+  "target_border_median_before_polarity": 0.0
+}

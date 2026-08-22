@@ -1,0 +1,19 @@
+{
+  "method": "learned",
+  "strokes": 100,
+  "candidates_per_step": 128,
+  "initial_mse": 0.1443564218082778,
+  "final_mse": 0.04085956530365742,
+  "final_mae": 0.09973671043644572,
+  "relative_mse_improvement": 0.716953601427419,
+  "improved_steps": 42,
+  "elapsed_seconds": 5.153835957869887,
+  "exact_top1_rate": 0.23,
+  "exact_top5_rate": 0.37,
+  "mean_exact_rank": 9.23,
+  "mean_exact_regret": 0.000409961175856739,
+  "max_exact_regret": 0.0011251906742746343,
+  "target_polarity_requested": "auto",
+  "target_polarity_inverted": true,
+  "target_border_median_before_polarity": 0.0
+}
