@@ -1,0 +1,18 @@
+{
+  "controlled_eligible": true,
+  "control_status": "success",
+  "implementation_integrity_passed": true,
+  "learned_improved_all_targets": true,
+  "mean_random_final_mse": 0.15597056402467988,
+  "mean_exact_final_mse": 0.05047896592092602,
+  "mean_learned_final_mse": 0.060032124131870014,
+  "learned_mean_final_mse_reduction_vs_random": 0.6151060649984514,
+  "learned_mean_final_mse_ratio_to_exact": 1.1892502755684173,
+  "learned_exact_top1_rate": 0.335,
+  "learned_exact_top5_rate": 0.5866666666666667,
+  "learned_mean_exact_rank": 7.511666666666667,
+  "learned_mean_exact_regret": 0.00038666369748319504,
+  "learned_max_exact_regret": 0.0072982183137355,
+  "criteria_frozen_before_run": true,
+  "formal_paired_control_result_unchanged": true
+}
