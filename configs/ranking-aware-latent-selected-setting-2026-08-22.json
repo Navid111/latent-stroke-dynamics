@@ -1,0 +1,22 @@
+{
+  "status": "frozen_after_validated_development_before_formal_data",
+  "source": "results/ranking-aware-latent/development-protocol-adjudication.json",
+  "selection_used_validation_only": true,
+  "diagnostic_test_used_for_selection": false,
+  "ranking_weight": 1.0,
+  "temperature": 0.05,
+  "model": "ranking_l1_t0p05",
+  "mean_validation_top1": 0.7083333333333334,
+  "mean_validation_true_margin": 0.0014645709306932986,
+  "mean_validation_action_region_mse": 0.6157332132570446,
+  "development_diagnostic_top1": 0.7604166666666666,
+  "development_diagnostic_absolute_gain_over_mse": 0.4895833333333333,
+  "source_artifact_sha256": {
+    "history": "33e52a8ed1e7aeeb82903ea624ad4ab9a56c5855d5aa4440e9715b0d19809089",
+    "metrics": "4dd5cf65402cc24a5e58875810a68d7c45323e9001aff026bf33b345f8b2ec1c",
+    "retrieval": "d69e217a538a49154ebbbda0ba57817304284d3a98e0cb24d5f6c128446b073c",
+    "summary": "abc6e4c9b3ffcedbaa9d0f6a824e05557c7e128c498cbfa783453984a25d8b1d"
+  },
+  "formal_authorized": false,
+  "historical_decisions_unchanged": true
+}

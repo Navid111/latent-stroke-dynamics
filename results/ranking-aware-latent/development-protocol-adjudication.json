@@ -1,0 +1,125 @@
+{
+  "correction": {
+    "issue": "heterogeneous_history_structural_nan_reporting",
+    "raw_behavior": "The runner concatenated MSE-only and ranking-aware history rows, then required every numeric DataFrame cell to be finite.",
+    "why_false_positive": "Ranking-only columns are intentionally blank on MSE-only rows; Pandas represents those inapplicable cells as NaN.",
+    "written_integrity_rule": "Every loss value applicable to its training method must be finite."
+  },
+  "data_generated": false,
+  "diagnostic_absolute_top1_gain": 0.4895833333333333,
+  "do_not_rerun_development": true,
+  "formal_authorized": false,
+  "formal_data_generated": false,
+  "historical_decisions_unchanged": true,
+  "history_finiteness_adjudication": {
+    "common_history_columns_finite": true,
+    "mse_only_ranking_columns_are_expected_structural_blanks": true,
+    "mse_only_rows": 90,
+    "passed": true,
+    "ranking_aware_rows": 540,
+    "ranking_specific_columns_finite": true,
+    "raw_whole_numeric_table_check_was_valid": false
+  },
+  "integrity_checks": {
+    "all_encoded_candidates_unique": true,
+    "all_predictor_parameter_counts_valid": true,
+    "all_protocol_oracles_passed": true,
+    "formal_data_untouched": true,
+    "method_applicable_history_values_finite": true,
+    "prediction_metrics_finite": true,
+    "ranking_overfit_loss_decreased": true,
+    "retrieval_metrics_finite": true,
+    "validation_only_selection": true
+  },
+  "models_loaded": false,
+  "mse_only_diagnostic_test": {
+    "action_region_mse": 0.6213238310689727,
+    "candidate_selection_counts": {
+      "change_intensity": 108,
+      "change_width": 32,
+      "shift_position": 0,
+      "true": 52
+    },
+    "mean_true_margin": -0.002854033534579988,
+    "model": "mse_only",
+    "split": "diagnostic_test",
+    "top1_accuracy": 0.2708333333333333,
+    "top1_seed_std": 0.01948779888944761,
+    "true_beats_change_intensity_rate": 0.4322916666666667,
+    "true_beats_change_width_rate": 0.6458333333333334,
+    "true_beats_shift_position_rate": 1.0
+  },
+  "mse_only_validation": {
+    "action_region_mse": 0.6141081004946803,
+    "candidate_selection_counts": {
+      "change_intensity": 92,
+      "change_width": 46,
+      "shift_position": 0,
+      "true": 54
+    },
+    "mean_true_margin": -0.0033630184146507722,
+    "model": "mse_only",
+    "split": "validation",
+    "top1_accuracy": 0.28125,
+    "top1_seed_std": 0.0,
+    "true_beats_change_intensity_rate": 0.4375,
+    "true_beats_change_width_rate": 0.5833333333333334,
+    "true_beats_shift_position_rate": 0.96875
+  },
+  "raw_runner_all_metrics_and_histories_finite": false,
+  "raw_runner_implementation_integrity_passed": false,
+  "raw_summary_preserved_unchanged": true,
+  "scientific_metrics_recomputed": false,
+  "selected_ranking_diagnostic_test": {
+    "action_region_mse": 0.623306713377436,
+    "candidate_selection_counts": {
+      "change_intensity": 20,
+      "change_width": 26,
+      "shift_position": 0,
+      "true": 146
+    },
+    "mean_true_margin": 0.0016643727649352513,
+    "model": "ranking_l1_t0p05",
+    "split": "diagnostic_test",
+    "top1_accuracy": 0.7604166666666666,
+    "top1_seed_std": 0.01473139127471974,
+    "true_beats_change_intensity_rate": 0.890625,
+    "true_beats_change_width_rate": 0.8385416666666666,
+    "true_beats_shift_position_rate": 1.0
+  },
+  "selected_ranking_setting": {
+    "mean_validation_action_region_mse": 0.6157332132570446,
+    "mean_validation_top1": 0.7083333333333334,
+    "mean_validation_true_margin": 0.0014645709306932986,
+    "model": "ranking_l1_t0p05",
+    "ranking_weight": 1.0,
+    "temperature": 0.05
+  },
+  "selected_ranking_validation": {
+    "action_region_mse": 0.6157332132570446,
+    "candidate_selection_counts": {
+      "change_intensity": 15,
+      "change_width": 41,
+      "shift_position": 0,
+      "true": 136
+    },
+    "mean_true_margin": 0.0014645709306932986,
+    "model": "ranking_l1_t0p05",
+    "split": "validation",
+    "top1_accuracy": 0.7083333333333334,
+    "top1_seed_std": 0.02946278254943948,
+    "true_beats_change_intensity_rate": 0.90625,
+    "true_beats_change_width_rate": 0.7395833333333334,
+    "true_beats_shift_position_rate": 0.96875
+  },
+  "source_artifact_sha256": {
+    "history": "33e52a8ed1e7aeeb82903ea624ad4ab9a56c5855d5aa4440e9715b0d19809089",
+    "metrics": "4dd5cf65402cc24a5e58875810a68d7c45323e9001aff026bf33b345f8b2ec1c",
+    "retrieval": "d69e217a538a49154ebbbda0ba57817304284d3a98e0cb24d5f6c128446b073c",
+    "summary": "abc6e4c9b3ffcedbaa9d0f6a824e05557c7e128c498cbfa783453984a25d8b1d"
+  },
+  "source_directory": "outputs/ranking-aware-latent-development-2026-08-22",
+  "status": "ranking_development_protocol_adjudicated_without_rerun",
+  "training_performed": false,
+  "written_protocol_implementation_integrity_passed": true
+}

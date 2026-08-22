@@ -1,13 +1,14 @@
-# Ranking-aware latent development result — raw review
+# Ranking-aware latent development result — final review
 
 **Run:** single authorized development grid  
 **Elapsed:** 86.27 seconds  
+**Adjudication:** Passed after 69 tests  
 **Formal data:** untouched and unauthorized  
 **Rerun:** forbidden
 
-## Main signal
+## Selected setting
 
-Validation-only selection chose:
+Validation-only selection froze:
 
 ```text
 ranking weight = 1.0
@@ -19,23 +20,16 @@ temperature = 0.05
 | Validation | 28.13% | 70.83% | 42.71 points |
 | Diagnostic test | 27.08% | 76.04% | 48.96 points |
 
-The diagnostic action-region MSE changed only from `0.621324` to `0.623307`, a roughly 0.32% increase, while retrieval nearly tripled. Mean true margin changed from negative (`-0.002854`) to positive (`0.001664`).
+The diagnostic action-region MSE changed only from `0.621324` to `0.623307`, a roughly 0.32% increase, while retrieval nearly tripled. Mean true margin changed from `-0.002854` to `0.001664`.
 
-On the diagnostic split, true-versus-intensity wins improved from 43.23% to 89.06%, and true-versus-width wins improved from 64.58% to 83.85%. Position remained 100%.
+On the diagnostic split, true-versus-intensity wins improved from 43.23% to 89.06%, true-versus-width wins improved from 64.58% to 83.85%, and position remained 100%.
 
-These metrics are strongly encouraging but remain development-only. They do not authorize a latent planner or support a formal claim.
+## Integrity adjudication
 
-## Raw integrity flag
+The raw false flag came from a whole-table finiteness check over heterogeneous history schemas. All 90 MSE-only history rows had finite applicable fields. All 540 ranking-aware history rows had finite common and ranking-specific fields. Ranking-only fields on MSE-only rows were expected structural blanks, not loss values.
 
-The raw summary marked integrity false only through the combined field `all_metrics_and_histories_finite`. The runner concatenated two valid but heterogeneous history schemas:
+All prediction/retrieval metrics were finite, every protocol oracle passed, all encoded candidates were unique, parameter counts matched, validation alone selected the setting, and the tiny-overfit objective decreased. Written-protocol implementation integrity passed without data/model execution or scientific metric recomputation.
 
-- MSE-only rows have balanced-MSE history fields;
-- ranking-aware rows additionally have total and ranking-cross-entropy fields.
+## Interpretation boundary
 
-Pandas filled the ranking-only columns on MSE-only rows with structural `NaN` values. The raw whole-numeric-table finite check then treated those inapplicable blanks as non-finite losses.
-
-All displayed metrics are finite, every oracle passed at 100%, candidates are unique, parameter counts match, and the ranking overfit objective decreased by 39.13%. A no-rerun adjudicator now checks common history columns on every row and ranking-specific columns only on ranking-aware rows. The raw summary remains unchanged.
-
-## Pending boundary
-
-Run and validate the JSON/CSV-only adjudicator before freezing the selected setting or implementing the formal command. Do not rerun development and do not generate formal seeds.
+This development result strongly supports the hypothesis that objective mismatch, rather than complete latent information loss, contributed to prior retrieval failure. It is not a formal claim. The frozen setting must now be tested once on untouched formal seeds.

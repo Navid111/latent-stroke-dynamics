@@ -12,31 +12,29 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 2. frozen core and representation-extension results;
 3. `docs/ranking-aware-latent-protocol.md`;
 4. `docs/ranking-aware-latent-development-results.md`;
-5. relevant source files and tests.
+5. `configs/ranking-aware-latent-selected-setting-2026-08-22.json`;
+6. relevant source files and tests.
 
 ## Frozen evidence
 
-All prior experiments are complete and immutable. The ranking-aware development grid also completed once and must not be rerun.
+All prior experiments and the ranking-aware development grid are complete and immutable. Development must never be rerun.
 
 ## Active task
 
-Validate the no-rerun development adjudicator:
+Implement a guarded formal runner using only:
 
-```bash
-pytest
-python experiments/13_ranking_development_adjudication.py
-```
+- ranking weight `1.0`;
+- temperature `0.05`;
+- untouched formal seeds `20261104`–`20261110`;
+- the frozen task autoencoder/statistics;
+- three matched MSE-only and three ranking-aware MLP seeds.
 
-It reads only saved JSON/CSV artifacts. It loads no model/data, trains nothing, generates no data, and recomputes no scientific metric.
-
-## Known reporting issue
-
-The raw integrity failure came from structural NaNs created when heterogeneous MSE-only and ranking-aware history rows were concatenated. Method-applicable loss columns must be checked separately. Preserve the raw summary unchanged.
+Formal execution is not yet authorized. Implement validation-only mode and tests first.
 
 ## Hard boundaries
 
-- Never rerun the development grid.
-- Do not generate formal seeds `20261104`–`20261110`.
-- Do not freeze the selected formal setting until adjudication validates.
-- Do not run experiment 10 again or retrain the encoder.
-- Do not change canvas, renderer, strokes, architecture, grid, or thresholds.
+- Never rerun development or experiment 10.
+- Do not generate formal data before separate validation and authorization.
+- Do not change the selected setting, encoder, canvas, renderer, strokes, architecture, thresholds, split sizes, or seeds.
+- Primary test and stress data cannot affect training, early stopping, or selection.
+- Preserve raw and adjudicated development outcomes.
