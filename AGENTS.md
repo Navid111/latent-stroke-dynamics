@@ -30,34 +30,31 @@ Do not rerun, retune, relabel, or replace these results.
 
 ## Active scope
 
-The painter and best-frame output are validated by 38 passing tests. The active task is the frozen post-core representation extension.
+The painter is validated. The representation-extension foundation passed 46 tests, and deterministic frozen ViT-MAE extraction passed with exact repeatability. The active task is one matched development-only smoke for the two frozen new representations.
 
 Authorized:
 
-- frozen deterministic unmasked `facebook/vit-mae-base` spatial features;
-- one small reconstruction-trained convolutional autoencoder;
-- new untouched synthetic transition seeds;
-- existing action-conditioned linear/MLP dynamics predictors and retrieval diagnostics;
-- development smoke followed by one frozen full extension run;
-- high-crowding one-step stress slices;
-- compact result archiving and thesis integration.
+- the frozen development seeds `20261020`–`20261022`;
+- three frozen autoencoder seeds and validation-only selection;
+- frozen ViT-MAE features;
+- existing linear/MLP dynamics families and seeds;
+- development-only reconstruction, prediction, retrieval, and integrity artifacts;
+- implementation repairs if an explicit check fails.
 
-Not authorized before the frozen extension is complete:
+Not authorized until the development smoke is reviewed and the full command is separately frozen:
 
-- rerunning or relabeling prior formal/control/Stage 3 results;
-- using qualitative images for training or selection;
+- primary/stress seeds `20261024`–`20261030`;
+- changing architecture, losses, thresholds, or model seeds from smoke metrics;
 - additional pretrained encoders;
-- encoder fine-tuning;
-- joint encoder-dynamics training;
-- contrastive-loss or architecture searches;
+- encoder fine-tuning or joint training;
 - latent planning;
-- reinforcement learning, color, textured brushes, or multi-step rollout;
-- changing extension thresholds after outputs are visible.
+- any prior-result rerun or revision.
 
 ## Interpretation boundaries
 
+- Development smoke metrics are diagnostic only and cannot classify a representation.
 - The existing Gate 2 claim is DINOv2-specific.
-- ViT-MAE and the task autoencoder are two additional tested formulations, not an exhaustive encoder benchmark.
+- ViT-MAE and the task autoencoder are two additional formulations, not an exhaustive benchmark.
 - The task autoencoder is reconstruction-trained and must not be called JEPA.
 - Historical DINOv2 and pixel values are descriptive anchors because the extension uses new seeds.
 - No extension outcome changes any prior frozen decision.
@@ -73,9 +70,8 @@ pytest
 
 ## Code and experiment standards
 
-- Prefer the smallest deterministic implementation that answers the active question.
 - Keep data, representation, dynamics, retrieval, and evaluation separate.
-- Use fixed seeds, matched budgets, type hints, tests, and saved configs.
+- Use fixed seeds, matched budgets, type hints, tests, saved configs, and no silent overwrite.
 - Never silently catch experiment-invalidating errors.
 - Do not commit credentials, model weights, caches, generated datasets, or raw outputs.
 - Preserve negative outcomes and scope limitations.

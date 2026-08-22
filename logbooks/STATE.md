@@ -3,7 +3,7 @@
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
 **Current stage:** Frozen post-core representation extension  
-**Status:** Foundation implemented; local validation pending
+**Status:** Matched development-smoke runner implemented; local validation pending
 
 ## Frozen completed evidence
 
@@ -16,23 +16,31 @@
 
 No completed result may be rerun, retuned, or relabeled.
 
-## Active extension
+## Extension validation complete
 
-Frozen before implementation:
+Navid reported:
 
-- `docs/representation-extension-protocol.md`;
-- `configs/representation-extension-2026-08-22.json`.
+- all 46 foundation tests passed;
+- configuration/architecture validation passed;
+- deterministic ViT-MAE wrapper produced `[2, 196, 768]` features;
+- repeated ViT-MAE encoding had maximum difference `0.0`;
+- the fixed stroke produced positive feature change;
+- no extension split was generated.
 
-Implemented without extension-data generation:
+## Development runner
 
-- deterministic unmasked raster-ordered ViT-MAE wrapper;
-- fixed MAE noise and restoration helpers;
-- frozen 32×16×16 convolutional autoencoder architecture;
-- train-only latent channel standardization;
-- reconstruction and freeze helpers;
-- configuration-drift and seed-overlap guards;
-- eight unit tests;
-- validation-only and two-image MAE smoke commands.
+Implemented:
+
+- three-seed autoencoder training and validation-only selection;
+- train-only latent channel statistics;
+- checkpoint hashing and exact reload verification;
+- reconstruction baseline and held-out diagnostics;
+- matched task-autoencoder and ViT-MAE transition encoding;
+- linear/MLP dynamics training for seeds `11`, `22`, and `33`;
+- identity/mean-delta baselines, tiny-overfit checks, crowding metrics;
+- four-way retrieval, factor-wise diagnostics, encoded-uniqueness and exact-target oracle checks;
+- atomic output publication and actual saved JSON/CSV artifacts;
+- four additional unit tests.
 
 ## Immediate next action
 
@@ -40,16 +48,22 @@ Implemented without extension-data generation:
 git pull --ff-only
 source .venv/bin/activate
 pytest
-python experiments/08_representation_extension.py --validate-only
-python experiments/08_representation_extension.py --mae-smoke
+python experiments/09_representation_extension_development.py
 ```
 
-Expected: `46 passed`, then `foundation_valid`, then `mae_encoder_smoke_passed`. The MAE smoke may download model weights but generates no extension split.
+Expected tests: `50 passed`.
+
+On successful smoke, send:
+
+```text
+outputs/representation-extension-development-smoke/smoke_summary.json
+```
+
+If execution fails, preserve the `.incomplete` directory and send the traceback. Do not rerun without an implementation review.
 
 ## Boundaries
 
-- Do not run any full extension command yet.
-- No extension split has been generated.
-- No test split may enter fitting, normalization, or selection.
-- Do not substitute another pretrained encoder if the deterministic MAE smoke fails.
+- Development metrics are non-decision-making.
+- Do not generate primary or stress seeds yet.
+- Do not change architecture or thresholds from smoke outcomes.
 - No additional encoder, joint training, contrastive loss, or latent planner before both frozen representations are archived.
