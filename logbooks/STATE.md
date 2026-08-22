@@ -1,57 +1,54 @@
 # Current State
 
-**Last updated:** 2026-08-21  
+**Last updated:** 2026-08-22  
 **Branch:** `main`  
 **Current stage:** Stage 3 pixel-space target-guided painter  
-**Status:** Scope explicitly reopened; protocol frozen before implementation
+**Status:** Planner foundation implemented; awaiting local test validation
 
-## Completed experimental foundation
+## Frozen completed foundation
 
-- Gate 1 passed: frozen DINOv2-small patch features preserve localized strokes.
-- Latent Gate 2 formally failed: 27.7% exact-action retrieval despite strong average prediction.
-- Paired pixel control succeeded: 100% exact-action retrieval across all three seeds.
-- Final latent and pixel figures were reviewed.
-- Results and comparison drafts were started.
+- Gate 1 passed.
+- Latent Gate 2 formally failed at 27.7% retrieval.
+- Paired pixel control succeeded at 100% retrieval across all three seeds.
+- Stage 3 protocol was frozen before implementation.
 
-These results are frozen and must not be rerun or rewritten.
+Do not rerun, retune, relabel, or replace these results.
 
-## Active goal
+## Stage 3 implementation
 
-Build the requested final artifact: input an image, preprocess it to a 64×64 grayscale target, and construct an approximation line by line using sequentially selected straight strokes.
+Added `src/latent_stroke_dynamics/planning.py` with:
 
-## Required planning methods
+- target preprocessing and loading;
+- normalized pixel metrics;
+- deterministic error-guided candidate proposals;
+- target-matched stroke values;
+- duplicate/no-change rejection;
+- random and exact-greedy selection;
+- multi-step planning records and optional frame capture.
 
-1. random candidate selection;
-2. exact-renderer greedy pixel selection;
-3. learned pixel-predictor selection followed by exact execution.
+Added six tests in `tests/test_planning.py`.
 
-The learned latent predictor remains excluded because it failed exact action retrieval.
+## Required local check
 
-## Frozen Stage 3 settings
+```bash
+git pull
+source .venv/bin/activate
+pytest
+```
 
-- six controlled 20-stroke synthetic targets;
-- 100 selected strokes per painting;
-- 128 candidates per step;
-- error-guided plus uniform candidate proposal;
-- pixel MSE target objective;
-- shared deterministic budgets and seeds;
-- exact execution after every selection;
-- final MSE, MAE, error curves, ranking agreement, regret, runtime, PNG, JSON, and animation artifacts.
-
-See `docs/stage-3-pixel-planner-protocol.md`.
+Expected collection after this commit: 30 tests. Do not begin checkpoint or learned-planner work until this test run passes or any failure is repaired.
 
 ## Next actions
 
-1. Implement target preprocessing and deterministic candidate generation.
-2. Implement random and exact-greedy planning with tests.
-3. Add a saved demonstration MLP checkpoint using train/validation data only.
-4. Implement learned candidate ranking.
+1. Validate all tests locally.
+2. Run a tiny random/exact smoke and inspect output behavior.
+3. Add a saved demonstration MLP checkpoint from train/validation data only.
+4. Implement learned candidate ranking with exact execution.
 5. Run a tiny all-method smoke before the controlled comparison.
 
 ## Boundaries
 
-- Do not rerun or retune the completed latent or paired pixel experiments.
-- Do not use paired test rows to select the demonstration checkpoint.
+- Do not rerun completed paired experiments.
+- Do not use paired test rows to select a demonstration checkpoint.
 - Do not implement a learned latent planner.
 - Keep Stage 3 grayscale, 64×64, straight-line, and one-step greedy.
-- No reinforcement learning, color, textured brushes, or multi-step planning before submission.
