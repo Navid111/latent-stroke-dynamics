@@ -2,40 +2,35 @@
 
 **Last updated:** 2026-08-22  
 **Branch:** `main`  
-**Current stage:** Ranking-aware latent development grid  
-**Status:** Single development execution authorized; formal data unauthorized
+**Current stage:** Ranking-aware development no-rerun adjudication  
+**Status:** Development completed; raw false integrity traced to heterogeneous-history structural NaNs
 
-## Frozen inputs
+## Development outcome
 
-- task-autoencoder state SHA-256: `95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900`;
-- latent-statistics SHA-256: `c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903`;
-- frozen 16×16×32 task latent;
-- 19,232-parameter MLP;
-- development grid: lambda `{0.1, 0.3, 1.0}` × temperature `{0.05, 0.1}` × seeds `{11, 22, 33}`.
+Validation selected ranking weight `1.0` and temperature `0.05` without diagnostic-test input.
 
-## Validation record
+| Split | MSE-only retrieval | Ranking-aware retrieval | Gain |
+|---|---:|---:|---:|
+| Validation | 28.13% | 70.83% | +42.71 points |
+| Diagnostic test | 27.08% | 76.04% | +48.96 points |
 
-Navid reported:
+Diagnostic action-region MSE changed from `0.621324` to `0.623307`. True-versus-intensity improved from 43.23% to 89.06%; true-versus-width improved from 64.58% to 83.85%; position remained 100%.
 
-- `66 passed in 6.74s`;
-- status `ranking_latent_development_runner_valid_unauthorized`;
-- both frozen hashes and parameter counts matched;
-- ranking gradient finite;
-- development and formal outputs absent;
-- no follow-up data generated or models trained.
+## Raw integrity issue
 
-## Authorized action
+The runner's whole-table numeric finiteness check treated method-inapplicable ranking columns on MSE-only history rows as non-finite because Pandas represented the structural blanks as NaN. This is a reporting false positive, not evidence of a non-finite loss.
+
+Every protocol oracle passed, candidates were unique, parameter counts were valid, and tiny-overfit loss decreased. The raw summary is archived unchanged.
+
+## Next action
 
 ```bash
 git pull --ff-only
 source .venv/bin/activate
 pytest
-python experiments/12_ranking_aware_latent_followup.py --validate-only
-python experiments/12_ranking_aware_latent_followup.py --run-development-grid
+python experiments/13_ranking_development_adjudication.py
 ```
 
-The post-pull validation status must be `ranking_latent_development_runner_valid_authorized`.
+Expected: 69 tests. Send `outputs/ranking-aware-latent-development-2026-08-22/development_protocol_adjudication.json`.
 
-On completion, send `outputs/ranking-aware-latent-development-2026-08-22/development_summary.json`. On failure, do not rerun; preserve the traceback and `.incomplete` directory.
-
-Formal seeds `20261104`–`20261110` remain untouched and unauthorized.
+Do not rerun development. Formal seeds remain untouched and unauthorized. After adjudication, freeze the selected setting and implement the guarded formal command.
