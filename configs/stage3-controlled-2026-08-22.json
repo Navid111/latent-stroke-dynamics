@@ -1,0 +1,30 @@
+{
+  "status": "frozen",
+  "frozen_on": "2026-08-22",
+  "analysis_type": "stage3_controlled_pixel_planner",
+  "canvas_size": 64,
+  "target_strokes": 20,
+  "target_seeds": [20260901, 20260902, 20260903, 20260904, 20260905, 20260906],
+  "planner_seeds": [20260920, 20260921, 20260922, 20260923, 20260924, 20260925],
+  "methods": ["random", "exact", "learned"],
+  "steps": 100,
+  "candidates_per_step": 128,
+  "prediction_batch_size": 32,
+  "gif_scale": 4,
+  "checkpoint_path": "checkpoints/stage3-pixel-mlp-seed11.pt",
+  "checkpoint_state_dict_sha256": "e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472",
+  "proposal": {
+    "error_guided_fraction": 0.8,
+    "min_length": 0.1,
+    "max_length": 0.6,
+    "width_choices": [1, 2, 3, 4],
+    "value_choices": [0, 32, 64, 96, 128]
+  },
+  "success_criteria": {
+    "learned_improves_all_targets": true,
+    "minimum_mean_final_mse_reduction_vs_random": 0.2,
+    "maximum_mean_final_mse_ratio_to_exact": 1.25,
+    "implementation_integrity_required": true
+  },
+  "output_dir": "outputs/stage3-controlled-2026-08-22"
+}
