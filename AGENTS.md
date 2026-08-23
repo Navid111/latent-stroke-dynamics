@@ -17,9 +17,11 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 
 The single formal ranking-aware comparison succeeded and is immutable: 74.44% retrieval versus 31.44% for MSE-only, +43.00 points, with every criterion passed.
 
+The latent-planner foundation passed with 79 tests. Six formal latent predictor state hashes are frozen in the planner config. No planner data were generated and no model was trained or fine-tuned.
+
 ## Active task
 
-Implement validation-only latent-planner foundations. The validator may load the existing autoencoder, statistics, three MSE-only formal predictors, three ranking-aware formal predictors, and the frozen pixel checkpoint. It must compute predictor hashes and run only in-memory shape/determinism checks.
+Implement and validate a guarded all-five-method latent-planner smoke runner. Validation must exercise only the unauthorized path and must not generate the reserved target or create output directories. A separate authorization commit is required before the one smoke execution.
 
 ## Hard boundaries
 

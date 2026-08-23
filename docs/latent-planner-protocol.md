@@ -35,7 +35,16 @@ No model may be trained or fine-tuned.
 - formal ranking-aware latent checkpoints for seeds 11, 22, and 33;
 - frozen Stage 3 learned-pixel checkpoint for comparison.
 
-Checkpoint file hashes must be measured in validation-only mode and committed before any planner smoke or controlled target is generated.
+Checkpoint state hashes were measured in validation-only mode and committed before any planner smoke or controlled target was generated.
+
+| Predictor | Seed | State SHA-256 |
+|---|---:|---|
+| MSE-only | 11 | `5023e63d268ea37c17bf328a8fc4ef5f66219ed7e1127e0d4bf109330f833431` |
+| MSE-only | 22 | `8a8ea0e7e6dbfc9c5f64ae5212a48a5fc12ee5bb5ff1f23c0394c8891b5a89dc` |
+| MSE-only | 33 | `3a58be00b601a08cf9faa55e1643bf24adfd08c0a0648cbe851e9f9e49388c5e` |
+| Ranking-aware | 11 | `1833f9a4f68aa402587f2842e3143ee018423ff12c36afdbc61f64c0120d9588` |
+| Ranking-aware | 22 | `cbd1aae6c83fe7d06a1226ea58cc5953e3745f81912ad93b9a1328ffdf267ac2` |
+| Ranking-aware | 33 | `f4543610be2dab8adf7a14ca4bf9b862bacde49c3a3c048fb6e46d3f50097675` |
 
 ## Methods
 
@@ -66,7 +75,9 @@ No single latent seed is selected using formal test or stress performance. The t
 
 May load existing checkpoints and run in-memory synthetic shape/determinism checks. It must not generate smoke or controlled planner targets and must not train any model.
 
-### Implementation smoke — unauthorized until hash freeze
+Foundation validation passed with 79 tests, exact repeated encoding, finite deterministic ensemble scoring, all seven loaded models frozen, no planner data, and no model training or fine-tuning. The six latent predictor state hashes are now frozen.
+
+### Implementation smoke — unauthorized until separate authorization
 
 - one synthetic target;
 - target seed `20261201`;

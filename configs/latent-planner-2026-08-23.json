@@ -1,6 +1,6 @@
 {
   "experiment_id": "latent-space-planner-2026-08-23",
-  "status": "frozen_before_implementation_and_planner_data",
+  "status": "hashes_frozen_before_smoke",
   "evidential_role": "post_formal_deployment_study",
   "historical_results_unchanged": true,
   "device": "cpu",
@@ -20,14 +20,14 @@
     "model_seeds": [11, 22, 33],
     "score_aggregation": "mean_across_three_seed_scores",
     "mse_only": [
-      {"seed": 11, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed11.pt", "state_sha256": null},
-      {"seed": 22, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed22.pt", "state_sha256": null},
-      {"seed": 33, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed33.pt", "state_sha256": null}
+      {"seed": 11, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed11.pt", "state_sha256": "5023e63d268ea37c17bf328a8fc4ef5f66219ed7e1127e0d4bf109330f833431"},
+      {"seed": 22, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed22.pt", "state_sha256": "8a8ea0e7e6dbfc9c5f64ae5212a48a5fc12ee5bb5ff1f23c0394c8891b5a89dc"},
+      {"seed": 33, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed33.pt", "state_sha256": "3a58be00b601a08cf9faa55e1643bf24adfd08c0a0648cbe851e9f9e49388c5e"}
     ],
     "ranking_aware": [
-      {"seed": 11, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/ranking_aware_seed11.pt", "state_sha256": null},
-      {"seed": 22, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/ranking_aware_seed22.pt", "state_sha256": null},
-      {"seed": 33, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/ranking_aware_seed33.pt", "state_sha256": null}
+      {"seed": 11, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/ranking_aware_seed11.pt", "state_sha256": "1833f9a4f68aa402587f2842e3143ee018423ff12c36afdbc61f64c0120d9588"},
+      {"seed": 22, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/ranking_aware_seed22.pt", "state_sha256": "cbd1aae6c83fe7d06a1226ea58cc5953e3745f81912ad93b9a1328ffdf267ac2"},
+      {"seed": 33, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/ranking_aware_seed33.pt", "state_sha256": "f4543610be2dab8adf7a14ca4bf9b862bacde49c3a3c048fb6e46d3f50097675"}
     ],
     "ranking_weight": 1.0,
     "temperature": 0.05,

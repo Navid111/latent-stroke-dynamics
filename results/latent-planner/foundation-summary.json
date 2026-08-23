@@ -1,0 +1,58 @@
+{
+  "test_suite": {
+    "passed": 79
+  },
+  "all_latent_predictors_frozen": true,
+  "autoencoder_all_parameters_frozen": true,
+  "autoencoder_state_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900",
+  "config_status_at_validation": "frozen_before_implementation_and_planner_data",
+  "controlled_authorized": false,
+  "controlled_incomplete_dir_available": true,
+  "controlled_output_dir_available": true,
+  "encoding_maximum_repeat_difference": 0.0,
+  "encoding_shape": [2, 256, 32],
+  "historical_results_unchanged": true,
+  "latent_predictor_ensemble_sizes": {
+    "mse_only": 3,
+    "ranking_aware": 3
+  },
+  "latent_predictor_state_sha256": {
+    "mse_only": {
+      "11": "5023e63d268ea37c17bf328a8fc4ef5f66219ed7e1127e0d4bf109330f833431",
+      "22": "8a8ea0e7e6dbfc9c5f64ae5212a48a5fc12ee5bb5ff1f23c0394c8891b5a89dc",
+      "33": "3a58be00b601a08cf9faa55e1643bf24adfd08c0a0648cbe851e9f9e49388c5e"
+    },
+    "ranking_aware": {
+      "11": "1833f9a4f68aa402587f2842e3143ee018423ff12c36afdbc61f64c0120d9588",
+      "22": "cbd1aae6c83fe7d06a1226ea58cc5953e3745f81912ad93b9a1328ffdf267ac2",
+      "33": "f4543610be2dab8adf7a14ca4bf9b862bacde49c3a3c048fb6e46d3f50097675"
+    }
+  },
+  "latent_statistics_sha256": "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903",
+  "models_trained_or_finetuned": false,
+  "pixel_predictor_model_seed": 11,
+  "pixel_predictor_state_sha256": "e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472",
+  "planner_data_generated": false,
+  "smoke_authorized": false,
+  "smoke_incomplete_dir_available": true,
+  "smoke_output_dir_available": true,
+  "foundation_status": "latent_planner_foundation_valid_hash_freeze_required",
+  "synthetic_scoring_checks": {
+    "mse_only": {
+      "aggregate_shape": [3],
+      "all_scores_finite": true,
+      "maximum_repeat_difference": 0.0,
+      "per_model_shape": [3, 3],
+      "score_range": 0.01737106591463089,
+      "selected_index": 0
+    },
+    "ranking_aware": {
+      "aggregate_shape": [3],
+      "all_scores_finite": true,
+      "maximum_repeat_difference": 0.0,
+      "per_model_shape": [3, 3],
+      "score_range": 0.009829910472035408,
+      "selected_index": 2
+    }
+  }
+}

@@ -17,6 +17,18 @@ from latent_stroke_dynamics.renderer import Stroke
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "latent-planner-2026-08-23.json"
+EXPECTED_LATENT_HASHES = {
+    "mse_only": {
+        11: "5023e63d268ea37c17bf328a8fc4ef5f66219ed7e1127e0d4bf109330f833431",
+        22: "8a8ea0e7e6dbfc9c5f64ae5212a48a5fc12ee5bb5ff1f23c0394c8891b5a89dc",
+        33: "3a58be00b601a08cf9faa55e1643bf24adfd08c0a0648cbe851e9f9e49388c5e",
+    },
+    "ranking_aware": {
+        11: "1833f9a4f68aa402587f2842e3143ee018423ff12c36afdbc61f64c0120d9588",
+        22: "cbd1aae6c83fe7d06a1226ea58cc5953e3745f81912ad93b9a1328ffdf267ac2",
+        33: "f4543610be2dab8adf7a14ca4bf9b862bacde49c3a3c048fb6e46d3f50097675",
+    },
+}
 
 
 def freeze(model: torch.nn.Module) -> torch.nn.Module:
@@ -26,17 +38,20 @@ def freeze(model: torch.nn.Module) -> torch.nn.Module:
     return model
 
 
-def test_latent_planner_config_is_frozen_and_unauthorized() -> None:
+def test_latent_planner_hashes_are_frozen_and_runs_unauthorized() -> None:
     config = load_latent_planner_config(CONFIG)
-    assert config["status"] == "frozen_before_implementation_and_planner_data"
+    assert config["status"] == "hashes_frozen_before_smoke"
     assert config["smoke"]["authorized"] is False
     assert config["controlled"]["authorized"] is False
     assert config["latent_predictors"]["model_seeds"] == [11, 22, 33]
-    assert all(
-        entry["state_sha256"] is None
+    observed = {
+        method: {
+            int(entry["seed"]): entry["state_sha256"]
+            for entry in config["latent_predictors"][method]
+        }
         for method in ("mse_only", "ranking_aware")
-        for entry in config["latent_predictors"][method]
-    )
+    }
+    assert observed == EXPECTED_LATENT_HASHES
 
 
 def test_latent_planner_config_rejects_scoring_drift() -> None:
@@ -47,11 +62,11 @@ def test_latent_planner_config_rejects_scoring_drift() -> None:
         validate_latent_planner_config(broken)
 
 
-def test_latent_planner_config_rejects_early_hash_population() -> None:
+def test_latent_planner_config_rejects_missing_frozen_hash() -> None:
     config = load_latent_planner_config(CONFIG)
     broken = deepcopy(config)
-    broken["latent_predictors"]["mse_only"][0]["state_sha256"] = "a" * 64
-    with pytest.raises(ValueError, match="before hash freeze"):
+    broken["latent_predictors"]["mse_only"][0]["state_sha256"] = None
+    with pytest.raises(ValueError, match="must be frozen"):
         validate_latent_planner_config(broken)
 
 
