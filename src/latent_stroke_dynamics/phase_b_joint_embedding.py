@@ -547,7 +547,7 @@ class MultiScaleActionJointEmbeddingModel(nn.Module):
             self.online_encoder.parameters(),
             strict=True,
         ):
-            target.mul_(momentum).add_(online, alpha=1.0 - momentum)
+            target.copy_(momentum * target + (1.0 - momentum) * online)
         for target, online in zip(
             self.target_encoder.buffers(),
             self.online_encoder.buffers(),
