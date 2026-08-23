@@ -12,6 +12,7 @@ from .phase_b_joint_embedding import validate_phase_b_config
 
 
 DEFAULT_PHASE_B_CONFIG = Path("configs/phase-b-saliency-latent-2026-08-23.json")
+AUTHORIZATION_FILENAME = "phase-b0-development-authorization-2026-08-23.json"
 INITIAL_STATUS = "frozen_before_implementation_and_data"
 AUTHORIZED_STATUS = "development_authorized_once"
 VALIDATION_MANIFEST = Path("docs/phase-b0-implementation-manifest.md")
@@ -24,6 +25,23 @@ LONG_HORIZON_METHODS = (
     "joint_prediction_progress_forced",
     "joint_prediction_progress_no_op",
 )
+EXPECTED_DEVELOPMENT_AUTHORIZATION = {
+    "experiment_id": "phase-b0-action-conditioned-joint-embedding-2026-08-23",
+    "status": AUTHORIZED_STATUS,
+    "authorized_phase": "development",
+    "authorized": True,
+    "authorization_date": "2026-08-23",
+    "validated_test_count": 116,
+    "validated_runner_status": "phase_b0_development_runner_valid_unauthorized",
+    "core_development_commit": "0aa58cad24b7a8ccc1e91c5855581883c2ae5d01",
+    "validated_runner_commit": "323df8328e99c26a63fc05194edc43a4ca781efe",
+    "runner_instructions_commit": "797fb2d3fe59fb0f9325384b0e0404870a93a925",
+    "maximum_completed_executions": 1,
+    "authorization_consumed": False,
+    "formal_authorized": False,
+    "phase_b1_authorized": False,
+    "phase_b2_authorized": False,
+}
 
 
 @dataclass(frozen=True)
@@ -47,13 +65,36 @@ def _static_protocol_copy(config: Mapping[str, Any]) -> dict[str, Any]:
     return normalized
 
 
+def _load_json(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+    if not isinstance(payload, dict):
+        raise ValueError(f"Expected a JSON object in {path}.")
+    return payload
+
+
 def load_phase_b_development_config(
     path: str | Path = DEFAULT_PHASE_B_CONFIG,
 ) -> dict[str, Any]:
-    """Validate static protocol fields while allowing one lifecycle transition."""
+    """Load the immutable protocol and apply the separately committed authorization."""
 
-    with Path(path).open("r", encoding="utf-8") as handle:
-        config = json.load(handle)
+    config_path = Path(path)
+    config = _load_json(config_path)
+    authorization_path = config_path.with_name(AUTHORIZATION_FILENAME)
+    if authorization_path.exists():
+        authorization = _load_json(authorization_path)
+        if authorization != EXPECTED_DEVELOPMENT_AUTHORIZATION:
+            raise ValueError("Phase B0 development authorization record changed.")
+        development = _mapping(config.get("development"), "development")
+        if config.get("status") != INITIAL_STATUS or development.get("authorized") is not False:
+            raise ValueError("Authorization must overlay the immutable initial protocol.")
+        config["protocol_status"] = config["status"]
+        config["status"] = AUTHORIZED_STATUS
+        updated_development = dict(development)
+        updated_development["authorized"] = True
+        config["development"] = updated_development
+        config["development_authorization"] = authorization
+
     status = config.get("status")
     if status not in {INITIAL_STATUS, AUTHORIZED_STATUS}:
         raise ValueError("Unexpected Phase B0 development lifecycle status.")
@@ -61,6 +102,13 @@ def load_phase_b_development_config(
     development = _mapping(config.get("development"), "development")
     if (status == AUTHORIZED_STATUS) != (development.get("authorized") is True):
         raise ValueError("Phase B0 status and development authorization disagree.")
+    if status == AUTHORIZED_STATUS:
+        if dict(_mapping(config.get("development_authorization"), "authorization")) != (
+            EXPECTED_DEVELOPMENT_AUTHORIZATION
+        ):
+            raise ValueError("Authorized Phase B0 config lacks the validated one-time record.")
+    elif config.get("development_authorization") is not None:
+        raise ValueError("Unauthorized Phase B0 config cannot carry an authorization record.")
     for name in ("formal_reserved", "region_scheduler_reserved", "rgb_high_resolution_reserved"):
         if _mapping(config.get(name), name).get("authorized") is not False:
             raise ValueError(f"{name} must remain unauthorized.")
@@ -72,7 +120,10 @@ def phase_b_output_paths(config: Mapping[str, Any]) -> PhaseBOutputPaths:
     final = Path(str(development.get("output_dir", "")))
     if not final.name:
         raise ValueError("Phase B0 development output directory is invalid.")
-    return PhaseBOutputPaths(final=final, incomplete=final.with_name(final.name + ".incomplete"))
+    return PhaseBOutputPaths(
+        final=final,
+        incomplete=final.with_name(final.name + ".incomplete"),
+    )
 
 
 def require_phase_b_outputs_absent(paths: PhaseBOutputPaths) -> None:
@@ -141,7 +192,16 @@ def require_phase_b_development_authorized(config: Mapping[str, Any]) -> None:
     """Fail before loading checkpoints, generating data, or creating outputs."""
 
     development = _mapping(config.get("development"), "development")
-    if config.get("status") != AUTHORIZED_STATUS or development.get("authorized") is not True:
+    authorization = _mapping(
+        config.get("development_authorization"), "development_authorization"
+    )
+    if (
+        config.get("status") != AUTHORIZED_STATUS
+        or development.get("authorized") is not True
+        or dict(authorization) != EXPECTED_DEVELOPMENT_AUTHORIZATION
+        or authorization.get("authorization_consumed") is not False
+        or authorization.get("maximum_completed_executions") != 1
+    ):
         raise PermissionError(
             "Phase B0 development is not authorized. No model was loaded, no renderer data were generated, and no output directory was created."
         )

@@ -12,7 +12,10 @@ from latent_stroke_dynamics.phase_b_data import (
     TransitionTensorPayload,
 )
 from latent_stroke_dynamics.phase_b_development import (
+    AUTHORIZATION_FILENAME,
     AUTHORIZED_STATUS,
+    EXPECTED_DEVELOPMENT_AUTHORIZATION,
+    INITIAL_STATUS,
     LONG_HORIZON_METHODS,
     PhaseBOutputPaths,
     load_phase_b_development_config,
@@ -26,54 +29,53 @@ from latent_stroke_dynamics.phase_b_training import train_phase_b_variant
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "phase-b-saliency-latent-2026-08-23.json"
+AUTHORIZATION = ROOT / "configs" / AUTHORIZATION_FILENAME
 
 
-def test_phase_b_development_runner_is_valid_and_unauthorized() -> None:
+def test_phase_b_development_is_authorized_once_without_side_effects() -> None:
     config = load_phase_b_development_config(CONFIG)
     paths = phase_b_output_paths(config)
-    assert not paths.final.exists()
-    assert not paths.incomplete.exists()
-    result = validate_phase_b_development_runner_request(config)
-    assert result["status"] == "phase_b0_development_runner_valid_unauthorized"
-    assert result["variants"] == ["joint_prediction_only", "joint_prediction_progress"]
-    assert result["transition_samples"] == {
-        "train": 2048,
-        "validation": 512,
-        "diagnostic_test": 512,
-    }
-    assert result["planner_training_candidate_sets"] == 64
-    assert result["planner_validation_candidate_sets"] == 32
-    assert tuple(result["long_horizon_methods"]) == LONG_HORIZON_METHODS
-    assert result["historical_models_loaded"] is False
-    assert result["renderer_transitions_generated"] is False
-    assert result["output_directories_created"] is False
+    assert config["protocol_status"] == INITIAL_STATUS
+    assert config["status"] == AUTHORIZED_STATUS
+    assert config["development"]["authorized"] is True
+    assert config["development_authorization"] == EXPECTED_DEVELOPMENT_AUTHORIZATION
+    assert tuple(config["development"]["long_horizon"]["methods"]) == LONG_HORIZON_METHODS
+    require_phase_b_development_authorized(config)
+    with pytest.raises(ValueError, match="initial unauthorized"):
+        validate_phase_b_development_runner_request(config)
     assert not paths.final.exists()
     assert not paths.incomplete.exists()
 
 
-def test_phase_b_development_guard_stops_before_any_side_effect() -> None:
+def test_phase_b_unauthorized_copy_stops_before_any_side_effect(tmp_path: Path) -> None:
     config = load_phase_b_development_config(CONFIG)
-    paths = phase_b_output_paths(config)
-    with pytest.raises(PermissionError, match="not authorized"):
-        require_phase_b_development_authorized(config)
-    assert not paths.final.exists()
-    assert not paths.incomplete.exists()
-
-
-def test_phase_b_authorized_lifecycle_copy_preserves_static_protocol(tmp_path: Path) -> None:
-    config = load_phase_b_development_config(CONFIG)
-    authorized = deepcopy(config)
-    authorized["status"] = AUTHORIZED_STATUS
-    authorized["development"]["authorized"] = True
-    path = tmp_path / "authorized.json"
-    path.write_text(json.dumps(authorized), encoding="utf-8")
+    unauthorized = deepcopy(config)
+    unauthorized.pop("protocol_status")
+    unauthorized.pop("development_authorization")
+    unauthorized["status"] = INITIAL_STATUS
+    unauthorized["development"]["authorized"] = False
+    path = tmp_path / "protocol.json"
+    path.write_text(json.dumps(unauthorized), encoding="utf-8")
     loaded = load_phase_b_development_config(path)
-    assert loaded["status"] == AUTHORIZED_STATUS
-    assert loaded["development"]["authorized"] is True
-    broken = deepcopy(authorized)
-    broken["development"]["authorized"] = False
+    paths = phase_b_output_paths(loaded)
+    with pytest.raises(ValueError, match="development_authorization"):
+        require_phase_b_development_authorized(loaded)
+    assert not paths.final.exists()
+    assert not paths.incomplete.exists()
+
+
+def test_phase_b_authorization_record_is_exact_and_unconsumed(tmp_path: Path) -> None:
+    payload = json.loads(AUTHORIZATION.read_text(encoding="utf-8"))
+    assert payload == EXPECTED_DEVELOPMENT_AUTHORIZATION
+    assert payload["maximum_completed_executions"] == 1
+    assert payload["authorization_consumed"] is False
+    config = load_phase_b_development_config(CONFIG)
+    broken = deepcopy(config)
+    broken.pop("protocol_status")
+    broken["development_authorization"]["authorization_consumed"] = True
+    path = tmp_path / "authorized.json"
     path.write_text(json.dumps(broken), encoding="utf-8")
-    with pytest.raises(ValueError, match="disagree"):
+    with pytest.raises(ValueError, match="one-time record"):
         load_phase_b_development_config(path)
 
 

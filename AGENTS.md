@@ -28,7 +28,7 @@ The Stage A score audit selected MSE-only plus normalized-latent L1. In long-hor
 
 ## Active task
 
-Phase B0 has a frozen protocol on branch `phase-b/saliency-latent`. Its architecture and dummy-only objectives passed 111 local tests, and the implementation manifest is archived. The complete development runner now exists behind an authorization guard. Validate the full suite and `experiments/21_phase_b_development.py --validate-only`; do not generate data or train yet.
+Phase B0 has a frozen protocol on branch `phase-b/saliency-latent`. Its architecture gate passed, and the complete guarded runner passed 116 local tests plus unauthorized side-effect validation. The separate authorization record now permits exactly one execution of `experiments/21_phase_b_development.py --development`.
 
 ## Phase B0 scientific purpose
 
@@ -40,9 +40,11 @@ Test a multi-scale action-conditioned joint-embedding model with rendered spatia
 - Do not train or fine-tune against any completed target.
 - Do not change or overwrite any completed result.
 - Do not tune the Stage A no-op margin or run its reserved confirmatory phase.
-- Do not generate any Phase B renderer transition, target, state bank, candidate set, checkpoint, or output before a separate authorization commit.
-- Runner validation may use deterministic random dummy tensors only and may not load historical checkpoints.
-- Do not run `experiments/21_phase_b_development.py --development` while authorization is false.
-- Do not alter the frozen Phase B0 architecture, objectives, seeds, thresholds, or compute cap.
+- Phase B0 development is authorized for one execution only.
+- Run only `caffeinate -dimsu python experiments/21_phase_b_development.py --development` after the authorization-phase tests pass.
+- Do not start a second development execution.
+- Preserve any `.incomplete` output after an interruption or failure; never delete it to force a retry.
+- Formal Phase B0, saliency scheduling B1, and RGB/high-resolution B2 remain unauthorized.
+- Do not alter the frozen architecture, objectives, seeds, thresholds, or compute cap.
 - Preserve positive and negative outcomes.
 - Do not call the approach a canonical JEPA.

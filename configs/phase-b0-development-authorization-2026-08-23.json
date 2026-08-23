@@ -1,0 +1,17 @@
+{
+  "experiment_id": "phase-b0-action-conditioned-joint-embedding-2026-08-23",
+  "status": "development_authorized_once",
+  "authorized_phase": "development",
+  "authorized": true,
+  "authorization_date": "2026-08-23",
+  "validated_test_count": 116,
+  "validated_runner_status": "phase_b0_development_runner_valid_unauthorized",
+  "core_development_commit": "0aa58cad24b7a8ccc1e91c5855581883c2ae5d01",
+  "validated_runner_commit": "323df8328e99c26a63fc05194edc43a4ca781efe",
+  "runner_instructions_commit": "797fb2d3fe59fb0f9325384b0e0404870a93a925",
+  "maximum_completed_executions": 1,
+  "authorization_consumed": false,
+  "formal_authorized": false,
+  "phase_b1_authorized": false,
+  "phase_b2_authorized": false
+}
