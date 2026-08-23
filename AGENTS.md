@@ -9,24 +9,23 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 ## Required reading order
 
 1. `logbooks/STATE.md`;
-2. `docs/ranking-aware-latent-formal-results.md`;
-3. prior frozen results and protocols;
-4. relevant source files and tests.
+2. `docs/latent-planner-protocol.md`;
+3. `docs/ranking-aware-latent-formal-results.md`;
+4. relevant planning, encoding, checkpoint, and test code.
 
 ## Frozen evidence
 
-The single formal ranking-aware comparison succeeded and is immutable. Do not rerun, retune, regenerate, or overwrite it.
-
-Primary formal result: MSE-only retrieval 31.44%; ranking-aware retrieval 74.44%; gain 43.00 points; all preregistered criteria and integrity checks passed.
+The single formal ranking-aware comparison succeeded and is immutable: 74.44% retrieval versus 31.44% for MSE-only, +43.00 points, with every criterion passed.
 
 ## Active task
 
-Design and freeze a separate latent-space candidate-selection painter protocol before implementation. It may use the saved formal ranking-aware checkpoints but must not retrain or reinterpret the formal experiment.
+Implement validation-only latent-planner foundations. The validator may load the existing autoencoder, statistics, three MSE-only formal predictors, three ranking-aware formal predictors, and the frozen pixel checkpoint. It must compute predictor hashes and run only in-memory shape/determinism checks.
 
 ## Hard boundaries
 
-- Never rerun formal experiment 14, development experiment 12, or representation experiment 10.
-- Preserve the completed formal output and every raw/adjudicated artifact.
-- Do not use formal test or stress performance to select a deployment checkpoint.
-- No encoder/predictor retraining for the first latent-planner study.
-- Do not call this a canonical JEPA.
+- Do not generate latent-planner smoke or controlled targets yet.
+- Do not train or fine-tune any model.
+- Do not rerun formal experiment 14, development experiment 12, or representation experiment 10.
+- Do not change scoring, ensemble, proposal, target, step, candidate, threshold, or seed settings.
+- Do not use formal test/stress results for deployment checkpoint selection.
+- Preserve all completed raw and adjudicated artifacts.

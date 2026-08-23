@@ -1,0 +1,88 @@
+{
+  "experiment_id": "latent-space-planner-2026-08-23",
+  "status": "frozen_before_implementation_and_planner_data",
+  "evidential_role": "post_formal_deployment_study",
+  "historical_results_unchanged": true,
+  "device": "cpu",
+  "canvas_size": 64,
+  "representation": {
+    "autoencoder_checkpoint": "outputs/representation-extension-2026-08-22/task_autoencoder/checkpoints/task_autoencoder.pt",
+    "autoencoder_state_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900",
+    "latent_statistics": "outputs/representation-extension-2026-08-22/task_autoencoder/latent_channel_statistics.json",
+    "latent_statistics_sha256": "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903",
+    "latent_grid": [16, 16],
+    "feature_dim": 32,
+    "encoder_frozen": true
+  },
+  "latent_predictors": {
+    "architecture": "MLPPatchDeltaPredictor",
+    "parameter_count": 19232,
+    "model_seeds": [11, 22, 33],
+    "score_aggregation": "mean_across_three_seed_scores",
+    "mse_only": [
+      {"seed": 11, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed11.pt", "state_sha256": null},
+      {"seed": 22, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed22.pt", "state_sha256": null},
+      {"seed": 33, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed33.pt", "state_sha256": null}
+    ],
+    "ranking_aware": [
+      {"seed": 11, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/ranking_aware_seed11.pt", "state_sha256": null},
+      {"seed": 22, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/ranking_aware_seed22.pt", "state_sha256": null},
+      {"seed": 33, "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/ranking_aware_seed33.pt", "state_sha256": null}
+    ],
+    "ranking_weight": 1.0,
+    "temperature": 0.05,
+    "all_predictors_frozen": true
+  },
+  "pixel_predictor": {
+    "path": "checkpoints/stage3-pixel-mlp-seed11.pt",
+    "state_sha256": "e32f3612f7a184e4e9f58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472"
+  },
+  "planner": {
+    "methods": ["random", "exact_pixel", "learned_pixel", "latent_mse", "latent_ranking"],
+    "target_strokes": 20,
+    "steps": 100,
+    "candidates_per_step": 128,
+    "prediction_batch_size": 32,
+    "latent_score": "mean_full_grid_mse_of_l2_normalized_patch_features_to_target",
+    "execute_with_exact_renderer": true,
+    "reencode_observed_canvas_each_step": true,
+    "use_predicted_latent_as_next_state": false,
+    "preserve_best_and_final_frames": true,
+    "proposal": {
+      "error_guided_fraction": 0.8,
+      "min_length": 0.1,
+      "max_length": 0.6,
+      "width_choices": [1, 2, 3, 4],
+      "value_choices": [0, 32, 64, 96, 128]
+    }
+  },
+  "smoke": {
+    "authorized": false,
+    "target_seed": 20261201,
+    "planner_seed": 20261202,
+    "steps": 20,
+    "candidates_per_step": 32,
+    "output_dir": "outputs/latent-planner-smoke-2026-08-23"
+  },
+  "controlled": {
+    "authorized": false,
+    "target_seeds": [20261211, 20261212, 20261213, 20261214, 20261215, 20261216],
+    "planner_seeds": [20261221, 20261222, 20261223, 20261224, 20261225, 20261226],
+    "output_dir": "outputs/latent-planner-controlled-2026-08-23",
+    "single_run": true
+  },
+  "success_criteria": {
+    "latent_ranking_improves_every_target_from_initial": true,
+    "minimum_mean_final_mse_reduction_vs_random": 0.2,
+    "maximum_mean_final_mse_ratio_to_exact_pixel": 1.5,
+    "implementation_integrity_required": true,
+    "outperform_learned_pixel_required": false
+  },
+  "foundation_validation": {
+    "may_load_existing_models": true,
+    "may_run_in_memory_synthetic_checks": true,
+    "may_generate_smoke_or_controlled_targets": false,
+    "may_train_models": false,
+    "latent_checkpoint_hash_freeze_required_before_smoke": true
+  }
+}

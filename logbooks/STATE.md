@@ -1,33 +1,24 @@
 # Current State
 
-**Last updated:** 2026-08-22  
+**Last updated:** 2026-08-23  
 **Branch:** `main`  
-**Current stage:** Post-formal latent planner design  
-**Status:** Formal ranking rescue succeeded; formal run permanently closed
+**Current stage:** Latent-space planner foundation  
+**Status:** Protocol frozen before implementation and planner data
 
-## Formal result
+## Formal result carried forward
 
-- classification: `formal_ranking_rescue_success`;
 - ranking-aware retrieval: 74.44%;
 - MSE-only retrieval: 31.44%;
-- absolute gain: 43.00 percentage points;
-- ranking-aware action-region MSE: 0.491221;
-- MSE-only action-region MSE: 0.483698;
-- improvement versus identity: 70.33%;
-- improvement versus mean delta: 68.24%;
-- all primary crowding improvements positive;
-- all ranking seeds beat identity;
-- every oracle: 100%;
-- implementation integrity: passed.
+- gain: 43.00 points;
+- formal integrity: passed;
+- formal experiment: permanently closed.
 
-## Stress boundary
+## Frozen latent planner
 
-Ranking-aware retrieval was 87.33% for unseen width 5, 74.67% for unseen intensities, 57.67% at crowding 30, and 43.00% at crowding 60. Heavy crowding remains a limitation.
+The new planner will compare random, exact pixel, learned pixel, three-seed MSE-only latent, and three-seed ranking-aware latent methods. Latent candidates are scored by full-grid normalized-feature MSE to the frozen target latent, averaged across seeds 11/22/33. Every selected stroke is executed exactly and the observed canvas is re-encoded.
 
-## Scientific conclusion
-
-The tested task latent contained usable stroke-action information, but MSE-only training did not align it with counterfactual action ranking. The frozen ranking loss made that information operational without changing the representation or predictor architecture.
+No model will be retrained. Smoke and controlled phases remain unauthorized. Six formal predictor checkpoint hashes must be measured and committed before smoke.
 
 ## Next action
 
-Freeze a separately scoped latent-space planner protocol using existing formal ranking-aware checkpoints and no retraining. Then implement validation-only support before any planner evaluation.
+Implement and locally validate checkpoint loading, hash reporting, frozen-state checks, latent candidate scoring, score aggregation, determinism, and no-data guards. Then freeze the six measured hashes before authorizing implementation smoke.
