@@ -1,0 +1,21 @@
+{
+  "status": "development_score_audit_complete",
+  "selection": {
+    "predictor_family": "mse_only",
+    "score_name": "normalized_latent_l1",
+    "mean_exact_regret": 0.0010517144069821269,
+    "exact_top5_rate": 0.5138888888888888,
+    "mean_score_exact_spearman": 0.6192424342849114,
+    "selection_order": [
+      "lowest_mean_exact_regret",
+      "highest_exact_top5_rate",
+      "highest_mean_score_exact_spearman",
+      "fixed_score_simplicity_order",
+      "mse_only_before_ranking_aware"
+    ]
+  },
+  "implementation_integrity_passed": true,
+  "models_trained_or_finetuned": false,
+  "closed_targets_reused": false,
+  "historical_results_unchanged": true
+}

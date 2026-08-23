@@ -1,0 +1,45 @@
+{
+  "status": "planner_score_development_complete_integrity_passed",
+  "single_run": true,
+  "target_seeds": [20270101, 20270102, 20270103, 20270104, 20270105, 20270106, 20270107, 20270108],
+  "state_planner_seeds": [20270111, 20270112, 20270113, 20270114, 20270115, 20270116, 20270117, 20270118],
+  "candidate_seeds": [20270121, 20270122, 20270123, 20270124, 20270125, 20270126, 20270127, 20270128],
+  "states_per_target": 9,
+  "candidates_per_state": 128,
+  "predictor_families": ["mse_only", "ranking_aware"],
+  "scores": [
+    "normalized_latent_mse",
+    "normalized_latent_l1",
+    "pixel_error_weighted_normalized_latent_mse",
+    "decoded_pixel_l1",
+    "decoded_pixel_l1_plus_quarter_sobel_l1"
+  ],
+  "selected_pair": {
+    "predictor_family": "mse_only",
+    "score_name": "normalized_latent_l1",
+    "mean_exact_regret": 0.0010517144069821269,
+    "exact_top5_rate": 0.5138888888888888,
+    "mean_score_exact_spearman": 0.6192424342849114,
+    "selection_order": [
+      "lowest_mean_exact_regret",
+      "highest_exact_top5_rate",
+      "highest_mean_score_exact_spearman",
+      "fixed_score_simplicity_order",
+      "mse_only_before_ranking_aware"
+    ]
+  },
+  "frozen_resource_references": {
+    "closed_latent_planner_verified": true,
+    "closed_smoke_unauthorized": true,
+    "closed_controlled_unauthorized": true,
+    "autoencoder_hash_reference_verified": true,
+    "latent_statistics_hash_reference_verified": true,
+    "six_predictor_hash_references_verified": true
+  },
+  "all_models_frozen": true,
+  "exact_candidate_sets_unique": true,
+  "implementation_integrity_passed": true,
+  "models_trained_or_finetuned": false,
+  "closed_targets_reused": false,
+  "historical_results_unchanged": true
+}

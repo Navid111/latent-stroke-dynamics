@@ -2,25 +2,21 @@
 
 **Last updated:** 2026-08-23  
 **Branch:** `main`  
-**Current stage:** Stage A planner-score development audit  
-**Status:** One development score audit authorized; not yet executed
+**Current stage:** Stage A planner-development runner implementation  
+**Status:** Score audit closed; planner development unauthorized
 
 ## Closed evidence
 
-The single six-target, five-method controlled comparison remains closed. Mean final MSE was 0.146905 random, 0.045569 exact pixel, 0.053630 learned pixel, 0.076142 latent MSE, and 0.090934 latent ranking. Latent ranking improved every target and beat random by 38.10%, but its 1.996× exact-pixel ratio failed the frozen 1.5× maximum. Integrity passed completely.
+The controlled multi-step comparison remains closed with complete integrity and a frozen criterion failure: latent ranking mean final MSE was 1.996× exact pixel, above the 1.5× maximum.
 
-## Read-only diagnosis
+The single development score audit also completed and is closed. It evaluated 10 predictor/score pairs over 72 candidate sets without training or closed-target reuse. Implementation integrity passed.
 
-Forced continuation caused overpainting, but it was not sufficient to explain failure. Ranking's mean best MSE was 0.083470, about 1.832× exact pixel even with oracle best-frame selection. Ranking also had weaker top-1, top-5, mean-rank, regret, and Spearman diagnostics than latent MSE. The main follow-up hypothesis is planner-score misalignment; stopping is secondary.
+## Frozen Stage A selection
 
-## Stage A validation
+The selected development pair is the three-seed MSE-only ensemble with normalized-latent L1 score. Mean exact regret was 0.001052, top-5 rate was 51.39%, mean exact rank was 12.39, and mean score-to-exact Spearman was 0.619. Compared with the previous normalized-latent MSE score using the same predictors, L1 reduced mean regret by about 28.8% and improved top-5 rate by 18.06 percentage points.
 
-The protocol was committed before implementation or data. The guarded runner then passed all 96 tests. Validation reported `planner_score_audit_runner_valid_unauthorized`, all closed resource references matched, all downstream phases were unauthorized, and no model, target, trajectory, candidate set, output, training, or fine-tuning was created.
+The result supports score misalignment as a real issue but does not yet establish long-horizon improvement.
 
-## Current authorization
+## Next guarded phase
 
-Exactly one development score audit is now authorized. It uses eight new target seeds, eight new state-planner seeds, eight new candidate seeds, 72 fixed candidate sets, 128 candidates per set, two frozen predictor ensembles, and five frozen scores. No training or fine-tuning is authorized. Planner development and confirmatory evaluation remain unauthorized.
-
-## Next action
-
-Pull the authorization commit, rerun the 96-test suite, and execute `python experiments/18_planner_score_alignment.py --development-score-audit` exactly once. Preserve any `.incomplete` directory if an error or interruption occurs.
+Implement a validation-only planner-development runner for three new reserved targets. It must compare exact pixel, learned pixel, current latent-MSE forced horizon, selected latent-L1 forced horizon, and selected latent-L1 with a zero-margin no-op. It may not load models or generate targets during validation. Planner development and confirmatory evaluation remain unauthorized.

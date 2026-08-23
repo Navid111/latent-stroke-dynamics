@@ -43,16 +43,21 @@ def freeze(model: torch.nn.Module) -> torch.nn.Module:
     return model
 
 
-def test_score_alignment_config_authorizes_one_audit_and_closed_resources_match() -> None:
+def test_score_alignment_audit_is_closed_and_resources_match() -> None:
     config = load_score_alignment_config(CONFIG)
     closed = load_latent_planner_config(CLOSED_CONFIG)
-    assert config["status"] == "development_score_audit_authorized_once"
-    assert config["development_score_audit"]["authorized"] is True
+    assert config["status"] == "development_score_audit_complete_planner_unauthorized"
+    assert config["development_score_audit"]["authorized"] is False
     assert config["planner_development"]["authorized"] is False
     assert config["confirmatory_reserved"]["authorized"] is False
     assert tuple(config["development_score_audit"]["scores"]) == SCORE_NAMES
     assert tuple(config["development_score_audit"]["predictor_families"]) == PREDICTOR_FAMILIES
-    require_score_audit_authorized(config)
+    with pytest.raises(PermissionError, match="not authorized"):
+        require_score_audit_authorized(config)
+    authorized = deepcopy(config)
+    authorized["status"] = "development_score_audit_authorized_once"
+    authorized["development_score_audit"]["authorized"] = True
+    require_score_audit_authorized(authorized)
     result = validate_closed_resource_references(config, closed)
     assert all(result.values())
 

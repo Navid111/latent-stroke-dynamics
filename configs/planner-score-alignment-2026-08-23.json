@@ -1,6 +1,6 @@
 {
   "experiment_id": "planner-score-alignment-2026-08-23",
-  "status": "development_score_audit_authorized_once",
+  "status": "development_score_audit_complete_planner_unauthorized",
   "evidential_role": "post_controlled_exploratory_extension",
   "historical_results_unchanged": true,
   "closed_controlled_targets_may_be_reused": false,
@@ -38,7 +38,7 @@
     "value_choices": [0, 32, 64, 96, 128]
   },
   "development_score_audit": {
-    "authorized": true,
+    "authorized": false,
     "target_seeds": [20270101, 20270102, 20270103, 20270104, 20270105, 20270106, 20270107, 20270108],
     "state_planner_seeds": [20270111, 20270112, 20270113, 20270114, 20270115, 20270116, 20270117, 20270118],
     "candidate_seeds": [20270121, 20270122, 20270123, 20270124, 20270125, 20270126, 20270127, 20270128],
