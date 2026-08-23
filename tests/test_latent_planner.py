@@ -38,11 +38,11 @@ def freeze(model: torch.nn.Module) -> torch.nn.Module:
     return model
 
 
-def test_latent_planner_hashes_are_frozen_and_runs_are_closed() -> None:
+def test_latent_planner_hashes_are_frozen_and_only_controlled_is_authorized() -> None:
     config = load_latent_planner_config(CONFIG)
-    assert config["status"] == "smoke_complete_controlled_unauthorized"
+    assert config["status"] == "controlled_authorized_once"
     assert config["smoke"]["authorized"] is False
-    assert config["controlled"]["authorized"] is False
+    assert config["controlled"]["authorized"] is True
     assert config["latent_predictors"]["model_seeds"] == [11, 22, 33]
     observed = {
         method: {

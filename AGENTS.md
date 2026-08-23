@@ -18,17 +18,16 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 
 The formal ranking-aware comparison remains immutable: 74.44% retrieval versus 31.44% for MSE-only, +43.00 points, with every criterion passed.
 
-The latent-planner foundation passed and six predictor hashes were frozen. The one authorized five-method smoke completed with full implementation integrity. Latent MSE outperformed latent ranking on that diagnostic target; this cannot select or retune the controlled method.
+The latent-planner foundation passed and six predictor hashes were frozen. The one authorized smoke completed with full implementation integrity and is closed. The guarded controlled runner passed all 89 tests and no-data validation.
 
 ## Active task
 
-Validate the guarded six-target, five-method controlled runner without loading models or generating any controlled target. A separate authorization commit is required before the one controlled execution.
+Execute the one authorized six-target, five-method controlled comparison exactly once, preserve all outputs, and adjudicate only with the frozen criteria.
 
 ## Hard boundaries
 
 - Do not rerun the completed smoke.
-- Do not run `experiments/17_latent_planner_controlled.py --controlled-run` yet.
-- Do not generate any controlled target during validation.
+- Do not rerun the controlled comparison after a completed or `.incomplete` output appears.
 - Do not train or fine-tune any model.
 - Do not rerun any closed experiment.
 - Do not change scoring, ensemble, proposal, target, step, candidate, threshold, or seed settings.

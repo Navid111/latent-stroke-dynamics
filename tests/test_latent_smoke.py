@@ -32,6 +32,7 @@ def unauthorized_config(output_dir: Path) -> dict:
     config = deepcopy(load_latent_planner_config(CONFIG))
     config["status"] = "hashes_frozen_before_smoke"
     config["smoke"]["authorized"] = False
+    config["controlled"]["authorized"] = False
     config["smoke"]["output_dir"] = str(output_dir)
     return config
 
@@ -47,10 +48,10 @@ def test_smoke_validation_is_unauthorized_and_side_effect_free(tmp_path: Path) -
     assert not (tmp_path / "smoke.incomplete").exists()
 
 
-def test_smoke_is_closed_after_completed_execution() -> None:
+def test_smoke_stays_closed_while_controlled_is_authorized() -> None:
     config = load_latent_planner_config(CONFIG)
     assert config["smoke"]["authorized"] is False
-    assert config["controlled"]["authorized"] is False
+    assert config["controlled"]["authorized"] is True
     with pytest.raises(PermissionError, match="not authorized"):
         require_smoke_authorized(config)
 

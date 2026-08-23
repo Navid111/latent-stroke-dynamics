@@ -1,8 +1,8 @@
 # Guarded controlled latent-planner comparison
 
-**Status:** Implemented; validation-only required  
-**Controlled authorization:** False  
-**Permitted next action:** no-data validation only
+**Status:** Exactly one execution authorized  
+**Smoke:** Completed and closed  
+**Training/fine-tuning:** Not authorized
 
 ## Frozen comparison
 
@@ -15,15 +15,17 @@
 - fixed three-seed latent ensembles;
 - no training or fine-tuning.
 
-## Validation command
+## Authorization evidence
+
+The expanded suite passed 89 tests. Validation returned `latent_planner_controlled_runner_valid_unauthorized` while loading no model, generating no controlled target or planner data, and creating no output. Both atomic output paths were available and all criteria were already frozen.
+
+## Single authorized command
 
 ```bash
 git pull --ff-only
 source .venv/bin/activate
 pytest
-python experiments/17_latent_planner_controlled.py --validate-only
+python experiments/17_latent_planner_controlled.py --controlled-run
 ```
 
-Validation must not load models, generate any controlled target, create either output directory, or authorize the comparison. Expected status: `latent_planner_controlled_runner_valid_unauthorized`.
-
-Do not run `--controlled-run`. A separate authorization commit is required after successful validation.
+Exactly one execution is authorized. It may take several minutes. Keep the machine awake and do not interrupt it. Do not rerun after either a completed output or a preserved `.incomplete` output appears.

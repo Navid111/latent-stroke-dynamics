@@ -23,8 +23,10 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "latent-planner-2026-08-23.json"
 
 
-def config_with_output(path: Path) -> dict:
+def unauthorized_config(path: Path) -> dict:
     config = deepcopy(load_latent_planner_config(CONFIG))
+    config["status"] = "smoke_complete_controlled_unauthorized"
+    config["controlled"]["authorized"] = False
     config["controlled"]["output_dir"] = str(path)
     return config
 
@@ -76,7 +78,7 @@ def synthetic_summary(config: dict, *, ranking_final: float = 0.11) -> pd.DataFr
 
 def test_controlled_validation_is_unauthorized_and_side_effect_free(tmp_path: Path) -> None:
     output = tmp_path / "controlled"
-    result = validate_controlled_runner_request(config_with_output(output))
+    result = validate_controlled_runner_request(unauthorized_config(output))
     assert result["status"] == "latent_planner_controlled_runner_valid_unauthorized"
     assert result["target_count"] == 6
     assert result["controlled_authorized"] is False
@@ -87,14 +89,17 @@ def test_controlled_validation_is_unauthorized_and_side_effect_free(tmp_path: Pa
     assert not (tmp_path / "controlled.incomplete").exists()
 
 
-def test_controlled_run_is_not_authorized() -> None:
+def test_only_controlled_run_is_authorized() -> None:
     config = load_latent_planner_config(CONFIG)
+    require_controlled_authorized(config)
+    assert config["controlled"]["authorized"] is True
+    assert config["smoke"]["authorized"] is False
     with pytest.raises(PermissionError, match="not authorized"):
-        require_controlled_authorized(config)
+        require_controlled_authorized(unauthorized_config(Path("unused")))
 
 
 def test_controlled_output_guard_preserves_incomplete_evidence(tmp_path: Path) -> None:
-    config = config_with_output(tmp_path / "controlled")
+    config = unauthorized_config(tmp_path / "controlled")
     paths = controlled_output_paths(config)
     paths.incomplete.mkdir()
     marker = paths.incomplete / "preserve.txt"

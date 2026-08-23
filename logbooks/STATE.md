@@ -2,21 +2,21 @@
 
 **Last updated:** 2026-08-23  
 **Branch:** `main`  
-**Current stage:** Controlled latent-planner runner validation  
-**Status:** Runner implemented; controlled comparison unauthorized
+**Current stage:** Controlled latent-planner execution  
+**Status:** Exactly one controlled run authorized
 
 ## Evidence carried forward
 
 The formal ranking-aware comparison remains closed at 74.44% retrieval versus 31.44% for MSE-only. The one-target planner smoke passed implementation integrity and is permanently closed. It found latent MSE better than latent ranking on that diagnostic target, without changing the frozen controlled protocol.
 
-## Guarded controlled runner
+## Controlled validation
 
-The runner covers six reserved target/planner seed pairs, five methods, 100 steps, and 128 candidates. It loads frozen models only after authorization, generates targets only inside an atomic `.incomplete` output, preserves best/final states and step diagnostics, repeats learned trajectories for deterministic replay, validates method-aware metrics, aggregates without model selection, and applies only the criteria frozen before data.
+The expanded suite passed all 89 tests. No-data validation returned `latent_planner_controlled_runner_valid_unauthorized`: no models were loaded, no controlled target or planner data was generated, both atomic output paths were free, criteria were frozen, and historical evidence remained unchanged.
 
 ## Authorization boundary
 
-Controlled authorization remains false. Validation-only must load no model, generate no target, and create no output. The completed smoke remains unauthorized and cannot be rerun. No training or fine-tuning is authorized.
+Exactly one execution is authorized for the six frozen target/planner seed pairs, five methods, 100 steps, and 128 candidates. No model training, fine-tuning, smoke rerun, protocol change, or second controlled execution is authorized.
 
 ## Next action
 
-Pull the runner commit, run the expanded test suite, then execute `python experiments/17_latent_planner_controlled.py --validate-only`. Preserve the complete output. Do not run `--controlled-run`.
+Pull the authorization commit, rerun the 89-test suite, and execute `python experiments/17_latent_planner_controlled.py --controlled-run` exactly once. Keep the machine awake. Preserve and report the complete terminal output, `aggregate_summary.csv`, `decision.json`, and `run_config.json`.

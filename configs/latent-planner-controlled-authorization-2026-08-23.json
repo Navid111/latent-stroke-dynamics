@@ -1,0 +1,18 @@
+{
+  "authorization_type": "single_controlled_latent_planner_comparison",
+  "authorized": true,
+  "authorized_on": "2026-08-23",
+  "validated_runner_commit": "5d5a2c193eb437d69843e804218920f4cbc74a7e",
+  "validation_status": "latent_planner_controlled_runner_valid_unauthorized",
+  "test_suite_passed": 89,
+  "target_seeds": [20261211, 20261212, 20261213, 20261214, 20261215, 20261216],
+  "planner_seeds": [20261221, 20261222, 20261223, 20261224, 20261225, 20261226],
+  "steps_per_target": 100,
+  "candidates_per_step": 128,
+  "methods": ["random", "exact_pixel", "learned_pixel", "latent_mse", "latent_ranking"],
+  "output_dir": "outputs/latent-planner-controlled-2026-08-23",
+  "authorized_executions": 1,
+  "model_training_or_finetuning_authorized": false,
+  "smoke_rerun_authorized": false,
+  "protocol_changes_authorized": false
+}

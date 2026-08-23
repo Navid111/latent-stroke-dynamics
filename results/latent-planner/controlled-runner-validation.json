@@ -1,0 +1,44 @@
+{
+  "test_suite": {
+    "passed": 89
+  },
+  "status": "latent_planner_controlled_runner_valid_unauthorized",
+  "candidates_per_step": 128,
+  "config_status": "smoke_complete_controlled_unauthorized",
+  "controlled_authorized": false,
+  "controlled_incomplete_dir_available": true,
+  "controlled_output_dir_available": true,
+  "controlled_planner_data_generated": false,
+  "controlled_targets_generated": false,
+  "criteria_frozen_before_controlled_data": true,
+  "historical_results_unchanged": true,
+  "methods": [
+    "random",
+    "exact_pixel",
+    "learned_pixel",
+    "latent_mse",
+    "latent_ranking"
+  ],
+  "models_loaded": false,
+  "models_trained_or_finetuned": false,
+  "planner_seeds_reserved": [
+    20261221,
+    20261222,
+    20261223,
+    20261224,
+    20261225,
+    20261226
+  ],
+  "smoke_authorized": false,
+  "smoke_completed_and_closed": true,
+  "steps_per_target": 100,
+  "target_count": 6,
+  "target_seeds_reserved": [
+    20261211,
+    20261212,
+    20261213,
+    20261214,
+    20261215,
+    20261216
+  ]
+}

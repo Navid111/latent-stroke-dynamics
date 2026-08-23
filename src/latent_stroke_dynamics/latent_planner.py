@@ -37,6 +37,7 @@ VALID_CONFIG_STATUSES = {
     "hashes_frozen_before_smoke",
     "smoke_authorized_once",
     "smoke_complete_controlled_unauthorized",
+    "controlled_authorized_once",
 }
 
 
@@ -207,8 +208,9 @@ def validate_latent_planner_config(config: Mapping[str, Any]) -> None:
     }:
         raise ValueError("Smoke settings or authorization changed.")
     controlled = _mapping(config.get("controlled"), "controlled")
+    expected_controlled_authorization = status == "controlled_authorized_once"
     if dict(controlled) != {
-        "authorized": False,
+        "authorized": expected_controlled_authorization,
         "target_seeds": [
             20261211,
             20261212,
