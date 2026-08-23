@@ -12,8 +12,10 @@ from latent_stroke_dynamics.phase_b_data import (
     TransitionTensorPayload,
 )
 from latent_stroke_dynamics.phase_b_development import (
+    ABORTED_STATUS,
     AUTHORIZATION_FILENAME,
     AUTHORIZED_STATUS,
+    EXPECTED_ABORTED_AUTHORIZATION,
     EXPECTED_DEVELOPMENT_AUTHORIZATION,
     INITIAL_STATUS,
     LONG_HORIZON_METHODS,
@@ -22,7 +24,6 @@ from latent_stroke_dynamics.phase_b_development import (
     phase_b_output_paths,
     require_phase_b_development_authorized,
     require_phase_b_outputs_absent,
-    validate_phase_b_development_runner_request,
 )
 from latent_stroke_dynamics.phase_b_training import train_phase_b_variant
 
@@ -32,51 +33,41 @@ CONFIG = ROOT / "configs" / "phase-b-saliency-latent-2026-08-23.json"
 AUTHORIZATION = ROOT / "configs" / AUTHORIZATION_FILENAME
 
 
-def test_phase_b_development_is_authorized_once_without_side_effects() -> None:
+def test_phase_b_aborted_attempt_is_archived_and_recovery_is_locked() -> None:
     config = load_phase_b_development_config(CONFIG)
     paths = phase_b_output_paths(config)
     assert config["protocol_status"] == INITIAL_STATUS
-    assert config["status"] == AUTHORIZED_STATUS
-    assert config["development"]["authorized"] is True
-    assert config["development_authorization"] == EXPECTED_DEVELOPMENT_AUTHORIZATION
+    assert config["status"] == ABORTED_STATUS
+    assert config["development"]["authorized"] is False
+    assert config["development_authorization"] == EXPECTED_ABORTED_AUTHORIZATION
     assert tuple(config["development"]["long_horizon"]["methods"]) == LONG_HORIZON_METHODS
-    require_phase_b_development_authorized(config)
-    with pytest.raises(ValueError, match="initial unauthorized"):
-        validate_phase_b_development_runner_request(config)
+    with pytest.raises(PermissionError, match="recovery remains locked"):
+        require_phase_b_development_authorized(config)
     assert not paths.final.exists()
-    assert not paths.incomplete.exists()
 
 
-def test_phase_b_unauthorized_copy_stops_before_any_side_effect(tmp_path: Path) -> None:
-    config = load_phase_b_development_config(CONFIG)
-    unauthorized = deepcopy(config)
-    unauthorized.pop("protocol_status")
-    unauthorized.pop("development_authorization")
-    unauthorized["status"] = INITIAL_STATUS
-    unauthorized["development"]["authorized"] = False
-    path = tmp_path / "protocol.json"
-    path.write_text(json.dumps(unauthorized), encoding="utf-8")
-    loaded = load_phase_b_development_config(path)
-    paths = phase_b_output_paths(loaded)
-    with pytest.raises(ValueError, match="development_authorization"):
-        require_phase_b_development_authorized(loaded)
-    assert not paths.final.exists()
-    assert not paths.incomplete.exists()
-
-
-def test_phase_b_authorization_record_is_exact_and_unconsumed(tmp_path: Path) -> None:
-    payload = json.loads(AUTHORIZATION.read_text(encoding="utf-8"))
-    assert payload == EXPECTED_DEVELOPMENT_AUTHORIZATION
-    assert payload["maximum_completed_executions"] == 1
-    assert payload["authorization_consumed"] is False
-    config = load_phase_b_development_config(CONFIG)
-    broken = deepcopy(config)
-    broken.pop("protocol_status")
-    broken["development_authorization"]["authorization_consumed"] = True
+def test_phase_b_previous_authorization_shape_remains_valid_but_is_not_active(
+    tmp_path: Path,
+) -> None:
+    base = json.loads(CONFIG.read_text(encoding="utf-8"))
+    authorized = deepcopy(base)
+    authorized["status"] = AUTHORIZED_STATUS
+    authorized["development"]["authorized"] = True
+    authorized["development_authorization"] = EXPECTED_DEVELOPMENT_AUTHORIZATION
     path = tmp_path / "authorized.json"
-    path.write_text(json.dumps(broken), encoding="utf-8")
-    with pytest.raises(ValueError, match="one-time record"):
-        load_phase_b_development_config(path)
+    path.write_text(json.dumps(authorized), encoding="utf-8")
+    loaded = load_phase_b_development_config(path)
+    assert loaded["status"] == AUTHORIZED_STATUS
+    assert loaded["development"]["authorized"] is True
+
+
+def test_phase_b_aborted_authorization_record_is_exact_and_completed_zero_runs() -> None:
+    payload = json.loads(AUTHORIZATION.read_text(encoding="utf-8"))
+    assert payload == EXPECTED_ABORTED_AUTHORIZATION
+    assert payload["attempts_started"] == 1
+    assert payload["completed_executions"] == 0
+    assert payload["authorization_consumed"] is True
+    assert payload["authorized"] is False
 
 
 def test_phase_b_output_guard_preserves_completed_and_incomplete_runs(tmp_path: Path) -> None:

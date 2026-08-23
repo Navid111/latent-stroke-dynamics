@@ -11,12 +11,13 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 1. `logbooks/STATE.md`;
 2. `docs/phase-b-saliency-latent-protocol.md`;
 3. `docs/phase-b0-implementation-manifest.md`;
-4. `docs/phase-b0-development-command.md`;
-5. `docs/planner-score-development-results.md`;
-6. `docs/planner-score-audit-results.md`;
-7. `docs/planner-score-alignment-protocol.md`;
-8. `docs/latent-planner-controlled-results.md`;
-9. relevant result artifacts and code.
+4. `configs/phase-b0-aborted-local-attempt-2026-08-23.json`;
+5. `docs/phase-b0-development-command.md`;
+6. `docs/planner-score-development-results.md`;
+7. `docs/planner-score-audit-results.md`;
+8. `docs/planner-score-alignment-protocol.md`;
+9. `docs/latent-planner-controlled-results.md`;
+10. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -28,7 +29,7 @@ The Stage A score audit selected MSE-only plus normalized-latent L1. In long-hor
 
 ## Active task
 
-Phase B0 has a frozen protocol on branch `phase-b/saliency-latent`. Its architecture gate passed, and the complete guarded runner passed 116 local tests plus unauthorized side-effect validation. The separate authorization record now permits exactly one execution of `experiments/21_phase_b_development.py --development`.
+The initial Phase B0 local development attempt was interrupted during the first model variant. Its only four persisted JSON manifests are archived by hash; no variant, checkpoint, long-horizon evaluation, or scientific decision completed. The original authorization is consumed. Prepare and validate a random-dummy-tensor Google Colab CUDA preflight while recovery remains unauthorized.
 
 ## Phase B0 scientific purpose
 
@@ -40,10 +41,10 @@ Test a multi-scale action-conditioned joint-embedding model with rendered spatia
 - Do not train or fine-tune against any completed target.
 - Do not change or overwrite any completed result.
 - Do not tune the Stage A no-op margin or run its reserved confirmatory phase.
-- Phase B0 development is authorized for one execution only.
-- Run only `caffeinate -dimsu python experiments/21_phase_b_development.py --development` after the authorization-phase tests pass.
-- Do not start a second development execution.
-- Preserve any `.incomplete` output after an interruption or failure; never delete it to force a retry.
+- Do not delete, rename, modify, or select against the preserved Phase B0 `.incomplete` directory.
+- Phase B0 recovery is unauthorized.
+- A cloud preflight may use deterministic random dummy tensors only.
+- Do not run `experiments/21_phase_b_development.py --development` locally or in the cloud.
 - Formal Phase B0, saliency scheduling B1, and RGB/high-resolution B2 remain unauthorized.
 - Do not alter the frozen architecture, objectives, seeds, thresholds, or compute cap.
 - Preserve positive and negative outcomes.

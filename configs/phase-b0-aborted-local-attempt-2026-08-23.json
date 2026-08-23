@@ -1,0 +1,67 @@
+{
+  "experiment_id": "phase-b0-action-conditioned-joint-embedding-2026-08-23",
+  "attempt": "initial_local_development_attempt",
+  "status": "aborted_by_user_keyboard_interrupt",
+  "evidential_role": "infrastructure_interruption_not_scientific_evidence",
+  "machine": "Apple Silicon MacBook Air M1",
+  "interruption_reason": "local_thermal_concern",
+  "interruption_reported_at": "2026-08-23T23:51:37+06:00",
+  "last_console_stage": "training_joint_prediction_only",
+  "process_running_after_audit": false,
+  "final_output_exists": false,
+  "incomplete_output_path": "outputs/phase-b0-joint-embedding-development-2026-08-23.incomplete",
+  "incomplete_output_display_size": "244K",
+  "completed_executions": 0,
+  "completed_variants": 0,
+  "checkpoints_saved": false,
+  "training_histories_saved": false,
+  "long_horizon_targets_generated": false,
+  "historical_models_loaded": false,
+  "scientific_decision_produced": false,
+  "partial_files": [
+    {
+      "path": "data_manifests/diagnostic_test_transitions.json",
+      "sha256": "d3101d29de97659a44932282fcbeed807405eecc1f678e71fd36e96a600d997a"
+    },
+    {
+      "path": "data_manifests/planner_supervision.json",
+      "sha256": "02bef6101b0e380651301bbf7c8c0cf5e02c7c2a39e2dbab13e44fac1a9d186a"
+    },
+    {
+      "path": "data_manifests/train_transitions.json",
+      "sha256": "7bb572b4d053649d22de75584615441b9d72c014f1a6128b435677e560c6304b"
+    },
+    {
+      "path": "data_manifests/validation_transitions.json",
+      "sha256": "234ff3b68399aea160ceb0665728d9f1d3d5971e1924ab36eef5c1537558c817"
+    }
+  ],
+  "frozen_resource_inventory": [
+    {
+      "path": "outputs/representation-extension-2026-08-22/task_autoencoder/checkpoints/task_autoencoder.pt",
+      "raw_file_sha256": "65debde397895ff25f0b3bf10d4fc8d2c47487ec13887d03be602195b328696d"
+    },
+    {
+      "path": "outputs/representation-extension-2026-08-22/task_autoencoder/latent_channel_statistics.json",
+      "raw_file_sha256": "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903"
+    },
+    {
+      "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed11.pt",
+      "raw_file_sha256": "f14ae080d7ac4a34e536eab706405d79390b17efafbcb0201177a01ea99b886d"
+    },
+    {
+      "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed22.pt",
+      "raw_file_sha256": "cf5e0c7808fb8d2a388e186d4803f17a05f81d9f8ebcf0fe54ebe37929cdb46a"
+    },
+    {
+      "path": "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed33.pt",
+      "raw_file_sha256": "f72e941c0d7157347327282311cd14cbc64c7ed0639ff8d807a0e947e80981dc"
+    },
+    {
+      "path": "checkpoints/stage3-pixel-mlp-seed11.pt",
+      "raw_file_sha256": "7b9fe1598ee50bcc79bd7f5e9762aff6eb3183cc1266adf5541627cbdbc4e4eb"
+    }
+  ],
+  "preservation_rule": "Do not delete, rename, modify, or use the incomplete artifacts for scientific selection.",
+  "recovery_authorized": false
+}
