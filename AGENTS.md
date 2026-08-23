@@ -10,9 +10,10 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 
 1. `logbooks/STATE.md`;
 2. `docs/planner-score-alignment-protocol.md`;
-3. `docs/latent-planner-controlled-results.md`;
-4. `docs/latent-planner-protocol.md`;
-5. relevant result artifacts and code.
+3. `docs/planner-score-audit-command.md`;
+4. `docs/latent-planner-controlled-results.md`;
+5. `docs/latent-planner-protocol.md`;
+6. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -22,7 +23,7 @@ The controlled multi-step latent planner completed with implementation integrity
 
 ## Active task
 
-Implement and validate the separately frozen Stage A planner-score alignment study. Stage A uses only new seeds and already-frozen models. Development score-audit data remain unauthorized until the validation-only runner passes review.
+Validate the guarded Stage A development score-audit runner. It compares five frozen target scores across both frozen latent ensembles using only new reserved seeds. Development remains unauthorized until tests and validation-only output pass review.
 
 ## Hard boundaries
 
@@ -30,5 +31,6 @@ Implement and validate the separately frozen Stage A planner-score alignment stu
 - Do not train or fine-tune against controlled targets.
 - Do not change or overwrite any completed result.
 - Do not rerun any closed experiment.
-- Do not generate Stage A development, planner-development, or confirmatory data before its matching explicit authorization.
+- Do not run `--development-score-audit` before a separate committed authorization.
+- Do not generate planner-development or confirmatory data before their matching explicit authorizations.
 - Preserve positive and negative outcomes.

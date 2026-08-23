@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-08-23  
 **Branch:** `main`  
-**Current stage:** Stage A planner-score alignment protocol  
-**Status:** Protocol frozen before implementation or new data
+**Current stage:** Stage A planner-score audit validation  
+**Status:** Guarded runner implemented; every new-data phase unauthorized
 
 ## Closed evidence
 
@@ -13,12 +13,12 @@ The single six-target, five-method controlled comparison remains closed. Mean fi
 
 Forced continuation caused overpainting, but it was not sufficient to explain failure. Ranking's mean best MSE was 0.083470, about 1.832× exact pixel even with oracle best-frame selection. Ranking also had weaker top-1, top-5, mean-rank, regret, and Spearman diagnostics than latent MSE. The main follow-up hypothesis is planner-score misalignment; stopping is secondary.
 
-## New frozen extension
+## Stage A implementation
 
-`configs/planner-score-alignment-2026-08-23.json` and `docs/planner-score-alignment-protocol.md` freeze a post-controlled Stage A study before implementation or data. It compares five reference-target scores across both existing three-seed latent ensembles on 72 new development state/candidate sets. A later planner development phase tests the selected score with and without an untuned no-op rule. Six additional targets are reserved for one separately authorized confirmatory comparison.
+The protocol was committed before implementation or data. The guarded development runner now supports five exactly frozen scores across the MSE-only and ranking-aware three-seed ensembles. It includes inverse-standardized frozen decoding, pixel-error patch weights, Sobel scoring, exact candidate labels, deterministic state-bank generation, atomic outputs, overwrite refusal, frozen lexicographic selection, and complete integrity records.
 
-No training or fine-tuning is allowed in Stage A. All new seeds are disjoint, and closed targets are prohibited.
+Validation-only mode must remain side-effect free. Development, planner-development, and confirmatory authorizations are all false. The closed targets are prohibited, and no Stage A model training or fine-tuning is allowed.
 
 ## Next action
 
-Implement the guarded validation-only score-audit runner and tests. Validation must not load models, generate targets or state trajectories, create candidate sets, train models, or create output directories.
+Pull the implementation, run the full test suite, and run only the validation command in `docs/planner-score-audit-command.md`. Do not run the development audit until its output is reviewed and a separate one-time authorization is committed.
