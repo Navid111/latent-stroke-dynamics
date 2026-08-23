@@ -10,11 +10,13 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 
 1. `logbooks/STATE.md`;
 2. `docs/phase-b-saliency-latent-protocol.md`;
-3. `docs/planner-score-development-results.md`;
-4. `docs/planner-score-audit-results.md`;
-5. `docs/planner-score-alignment-protocol.md`;
-6. `docs/latent-planner-controlled-results.md`;
-7. relevant result artifacts and code.
+3. `docs/phase-b0-implementation-manifest.md`;
+4. `docs/phase-b0-development-command.md`;
+5. `docs/planner-score-development-results.md`;
+6. `docs/planner-score-audit-results.md`;
+7. `docs/planner-score-alignment-protocol.md`;
+8. `docs/latent-planner-controlled-results.md`;
+9. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -26,7 +28,7 @@ The Stage A score audit selected MSE-only plus normalized-latent L1. In long-hor
 
 ## Active task
 
-Phase B0 has a new frozen protocol on branch `phase-b/saliency-latent`. Implement only the configuration validator, fixed architecture, objective utilities, and validation-only tests. Phase B0 development data, formal B0, saliency scheduling B1, and RGB/high-resolution B2 are all unauthorized.
+Phase B0 has a frozen protocol on branch `phase-b/saliency-latent`. Its architecture and dummy-only objectives passed 111 local tests, and the implementation manifest is archived. The complete development runner now exists behind an authorization guard. Validate the full suite and `experiments/21_phase_b_development.py --validate-only`; do not generate data or train yet.
 
 ## Phase B0 scientific purpose
 
@@ -39,7 +41,8 @@ Test a multi-scale action-conditioned joint-embedding model with rendered spatia
 - Do not change or overwrite any completed result.
 - Do not tune the Stage A no-op margin or run its reserved confirmatory phase.
 - Do not generate any Phase B renderer transition, target, state bank, candidate set, checkpoint, or output before a separate authorization commit.
-- Validation may use deterministic random dummy tensors only and may not load historical checkpoints.
-- Do not alter the frozen Phase B0 architecture, objectives, seeds, thresholds, or compute cap after implementation begins.
+- Runner validation may use deterministic random dummy tensors only and may not load historical checkpoints.
+- Do not run `experiments/21_phase_b_development.py --development` while authorization is false.
+- Do not alter the frozen Phase B0 architecture, objectives, seeds, thresholds, or compute cap.
 - Preserve positive and negative outcomes.
 - Do not call the approach a canonical JEPA.
