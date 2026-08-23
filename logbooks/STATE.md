@@ -2,25 +2,25 @@
 
 **Last updated:** 2026-08-23  
 **Branch:** `main`  
-**Current stage:** Stage A long-horizon planner development  
-**Status:** One planner-development comparison authorized; not yet executed
+**Current stage:** Stage A closed; thesis writing  
+**Status:** Planner development complete and not eligible for confirmatory evaluation
 
 ## Closed evidence
 
-The controlled multi-step comparison remains closed with complete integrity and a frozen criterion failure: latent ranking mean final MSE was 1.996× exact pixel, above the 1.5× maximum.
+The formal ranking-aware one-step comparison remains a strong positive result at 74.44% retrieval versus 31.44% for MSE-only.
 
-The single development score audit also completed and is closed. It evaluated 10 predictor/score pairs over 72 candidate sets without training or closed-target reuse. Implementation integrity passed.
+The controlled multi-step comparison remains a frozen criterion failure with implementation integrity passed: latent ranking mean final MSE was 1.996× exact pixel.
 
-## Frozen Stage A selection
+The score audit selected the MSE-only ensemble with normalized-latent L1. The single three-target planner-development comparison then completed with all deterministic replays and integrity checks passed.
 
-The selected development pair is the three-seed MSE-only ensemble with normalized-latent L1 score. Mean exact regret was 0.001052, top-5 rate was 51.39%, mean exact rank was 12.39, and mean score-to-exact Spearman was 0.619. Compared with the previous normalized-latent MSE score using the same predictors, L1 reduced mean regret by about 28.8% and improved top-5 rate by 18.06 percentage points.
+## Planner-development result
 
-## Validation and authorization
+Forced normalized-latent L1 achieved mean final MSE 0.072176 versus 0.077652 for forced normalized-latent MSE, a reduction of about 7.05%. L1 was lower on all three development targets. Its mean best MSE was 0.068289 versus 0.072546.
 
-The guarded long-horizon runner passed all 103 tests. Validation returned `planner_score_planner_development_runner_valid_unauthorized`; the archived selection, pixel checkpoint, autoencoder, statistics, and all six latent predictors were verified. No model was loaded, no target or planner data was generated, and no training or fine-tuning occurred.
+The zero-margin no-op stopped after an average of 3.33 strokes and produced mean final MSE 0.137607. It stopped before any stroke on target 2. The direct comparison between exact current-state distance and predicted candidate distance was not calibrated and caused premature stopping.
 
-Exactly one three-target planner-development comparison is now authorized. The selected L1 score, zero no-op margin, five methods, 100-step maximum, 128 candidates, seeds, and eligibility criteria remain frozen. Confirmatory evaluation is unauthorized.
+The frozen decision is `not_eligible`: implementation integrity and selected-pair matching passed, while improvement on every target and mean reduction versus the current forced latent-MSE baseline failed. Confirmatory evaluation remains unauthorized.
 
 ## Next action
 
-Pull the authorization commit, rerun the 103-test suite, and execute `python experiments/19_planner_score_development.py --planner-development` exactly once. Preserve any `.incomplete` directory after an error or interruption.
+Do not run more Stage A data. Preserve the complete local output directory and compact repository archive. Move to thesis Methodology, Results, and Discussion writing, presenting forced L1 as an exploratory positive and the no-op as a stopping-calibration failure.

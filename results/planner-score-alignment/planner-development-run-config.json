@@ -1,0 +1,63 @@
+{
+  "status": "planner_score_planner_development_complete",
+  "single_run": true,
+  "methods": [
+    "exact_pixel",
+    "learned_pixel",
+    "current_latent_mse_forced",
+    "development_selected_score_forced",
+    "development_selected_score_no_op"
+  ],
+  "target_seeds": [20270201, 20270202, 20270203],
+  "planner_seeds": [20270211, 20270212, 20270213],
+  "maximum_steps": 100,
+  "candidates_per_step": 128,
+  "prediction_batch_size": 32,
+  "selected_predictor_family": "mse_only",
+  "selected_score_name": "normalized_latent_l1",
+  "no_op_margin": 0.0,
+  "resource_checks": {
+    "closed_latent_planner_verified": true,
+    "closed_smoke_unauthorized": true,
+    "closed_controlled_unauthorized": true,
+    "autoencoder_hash_reference_verified": true,
+    "latent_statistics_hash_reference_verified": true,
+    "six_predictor_hash_references_verified": true,
+    "development_selection_verified": true,
+    "pixel_predictor_hash_reference_verified": true
+  },
+  "pixel_predictor_state_sha256": "e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472",
+  "implementation_integrity_passed": true,
+  "all_deterministic_replays_passed": true,
+  "all_models_frozen": true,
+  "models_trained_or_finetuned": false,
+  "closed_targets_reused": false,
+  "score_audit_result_unchanged": true,
+  "controlled_result_unchanged": true,
+  "historical_results_unchanged": true,
+  "decision": {
+    "status": "not_eligible",
+    "planner_development_completed": true,
+    "criteria_frozen_before_planner_development": true,
+    "criteria_passed": {
+      "implementation_integrity": true,
+      "selected_pair_matches_score_audit": true,
+      "selected_no_op_improves_every_target_from_blank": false,
+      "minimum_mean_reduction_vs_current_latent_mse_forced": false
+    },
+    "implementation_integrity_passed": true,
+    "selected_pair_matches_score_audit": true,
+    "selected_predictor_family": "mse_only",
+    "selected_score_name": "normalized_latent_l1",
+    "mean_current_latent_mse_forced_final_mse": 0.07765199235700493,
+    "mean_selected_score_forced_final_mse": 0.07217597395977766,
+    "mean_selected_score_no_op_final_mse": 0.1376065847651565,
+    "selected_no_op_mean_final_mse_reduction_vs_current_latent_mse_forced": -0.7720934207651802,
+    "selected_no_op_improved_every_target_from_blank": false,
+    "confirmatory_authorized": false,
+    "models_trained_or_finetuned": false,
+    "score_audit_result_unchanged": true,
+    "controlled_result_unchanged": true,
+    "historical_results_unchanged": true
+  }
+}

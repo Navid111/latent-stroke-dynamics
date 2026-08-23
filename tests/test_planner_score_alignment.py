@@ -46,9 +46,9 @@ def freeze(model: torch.nn.Module) -> torch.nn.Module:
 def test_score_alignment_audit_is_closed_and_resources_match() -> None:
     config = load_score_alignment_config(CONFIG)
     closed = load_latent_planner_config(CLOSED_CONFIG)
-    assert config["status"] == "planner_development_authorized_once"
+    assert config["status"] == "planner_development_complete_confirmatory_unauthorized"
     assert config["development_score_audit"]["authorized"] is False
-    assert config["planner_development"]["authorized"] is True
+    assert config["planner_development"]["authorized"] is False
     assert config["confirmatory_reserved"]["authorized"] is False
     assert tuple(config["development_score_audit"]["scores"]) == SCORE_NAMES
     assert tuple(config["development_score_audit"]["predictor_families"]) == PREDICTOR_FAMILIES

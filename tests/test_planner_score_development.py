@@ -1,4 +1,5 @@
 from copy import deepcopy
+import json
 from pathlib import Path
 
 import numpy as np
@@ -39,6 +40,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "planner-score-alignment-2026-08-23.json"
 CLOSED_CONFIG = ROOT / "configs" / "latent-planner-2026-08-23.json"
 SELECTION = ROOT / "results" / "planner-score-alignment" / "development-selection.json"
+DECISION = ROOT / "results" / "planner-score-alignment" / "planner-development-decision.json"
 
 
 def freeze(model: torch.nn.Module) -> torch.nn.Module:
@@ -60,10 +62,16 @@ def test_archived_selection_and_all_frozen_resources_match() -> None:
     config = load_score_alignment_config(CONFIG)
     closed = load_latent_planner_config(CLOSED_CONFIG)
     selection = load_frozen_development_selection(SELECTION)
+    assert config["status"] == "planner_development_complete_confirmatory_unauthorized"
+    assert config["planner_development"]["authorized"] is False
+    assert config["confirmatory_reserved"]["authorized"] is False
     assert selection["selection"]["predictor_family"] == "mse_only"
     assert selection["selection"]["score_name"] == "normalized_latent_l1"
     checks = validate_planner_development_resources(config, closed, selection)
     assert all(checks.values())
+    decision = json.loads(DECISION.read_text(encoding="utf-8"))
+    assert decision["status"] == "not_eligible"
+    assert decision["confirmatory_authorized"] is False
 
 
 def test_planner_development_validation_is_unauthorized_and_side_effect_free(
@@ -92,12 +100,12 @@ def test_planner_development_guards_authorization_and_incomplete_output(
 ) -> None:
     config = deepcopy(load_score_alignment_config(CONFIG))
     config["planner_development"]["output_dir"] = str(tmp_path / "planner-development")
-    require_planner_development_authorized(config)
-    unauthorized = deepcopy(config)
-    unauthorized["status"] = "development_score_audit_complete_planner_unauthorized"
-    unauthorized["planner_development"]["authorized"] = False
     with pytest.raises(PermissionError, match="not authorized"):
-        require_planner_development_authorized(unauthorized)
+        require_planner_development_authorized(config)
+    authorized = deepcopy(config)
+    authorized["status"] = "planner_development_authorized_once"
+    authorized["planner_development"]["authorized"] = True
+    require_planner_development_authorized(authorized)
     paths = planner_development_output_paths(config)
     paths.incomplete.mkdir()
     marker = paths.incomplete / "preserve.txt"
