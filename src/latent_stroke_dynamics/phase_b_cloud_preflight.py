@@ -61,7 +61,7 @@ def raw_file_sha256(path: str | Path) -> str:
 
 
 def required_resource_paths() -> tuple[str, ...]:
-    """Return the exact six cloud resources; ranking-aware models are not needed."""
+    """Return exactly the six used resources, excluding ranking-aware models."""
 
     paths = tuple(FROZEN_RESOURCE_RAW_HASHES)
     if any("ranking_aware_seed" in path for path in paths):
@@ -69,10 +69,8 @@ def required_resource_paths() -> tuple[str, ...]:
     return paths
 
 
-def validate_cloud_preflight_boundary(
-    root: str | Path = ".",
-) -> dict[str, Any]:
-    """Confirm recovery is locked before any resource or CUDA work."""
+def validate_cloud_preflight_boundary(root: str | Path = ".") -> dict[str, Any]:
+    """Confirm recovery is locked before resource loading or CUDA work."""
 
     root_path = Path(root).resolve()
     config = load_phase_b_development_config(root_path / DEFAULT_PHASE_B_CONFIG)
@@ -116,16 +114,15 @@ def verify_raw_resources(root: str | Path = ".") -> dict[str, str]:
 
 
 def verify_loaded_model_states(root: str | Path = ".") -> dict[str, Any]:
-    """Load only the historical resources used by the frozen six-method study."""
+    """Load only the resources actually used by the frozen Phase B0 comparison."""
 
     root_path = Path(root).resolve()
     closed = load_latent_planner_config(root_path / LATENT_PLANNER_CONFIG)
     portable = deepcopy(closed)
-    representation = portable["representation"]
-    representation["autoencoder_checkpoint"] = str(
+    portable["representation"]["autoencoder_checkpoint"] = str(
         root_path / closed["representation"]["autoencoder_checkpoint"]
     )
-    representation["latent_statistics"] = str(
+    portable["representation"]["latent_statistics"] = str(
         root_path / closed["representation"]["latent_statistics"]
     )
     autoencoder, _ = load_task_latent_resources(portable)
@@ -141,20 +138,20 @@ def verify_loaded_model_states(root: str | Path = ".") -> dict[str, Any]:
         )
         mse_digests[str(entry["seed"])] = loaded.state_sha256
 
-    pixel_config = closed["pixel_predictor"]
-    pixel_model, pixel_metadata = load_pixel_checkpoint(
-        root_path / pixel_config["path"], device="cpu"
+    pixel = closed["pixel_predictor"]
+    pixel_model, metadata = load_pixel_checkpoint(
+        root_path / pixel["path"], device="cpu"
     )
     pixel_digest = state_dict_sha256(pixel_model)
-    if pixel_digest != pixel_config["state_sha256"]:
+    if pixel_digest != pixel["state_sha256"]:
         raise ValueError("Frozen pixel predictor state SHA-256 mismatch.")
-    if pixel_metadata.model_seed != 11:
+    if metadata.model_seed != 11:
         raise ValueError("Frozen pixel predictor seed changed.")
     return {
         "task_autoencoder_state_sha256": autoencoder_digest,
         "mse_only_state_sha256": mse_digests,
         "pixel_predictor_state_sha256": pixel_digest,
-        "pixel_predictor_model_seed": pixel_metadata.model_seed,
+        "pixel_predictor_model_seed": metadata.model_seed,
         "ranking_aware_models_loaded": False,
     }
 
@@ -207,7 +204,6 @@ def compare_cpu_cuda_outputs() -> dict[str, Any]:
     with torch.inference_mode():
         cpu = cpu_model(current, actions, goal)
         cuda = cuda_model(current.cuda(), actions.cuda(), goal.cuda())
-    comparisons: dict[str, float] = {}
     pairs = {
         "current_32": (cpu["current"]["32"], cuda["current"]["32"]),
         "current_16": (cpu["current"]["16"], cuda["current"]["16"]),
@@ -226,26 +222,31 @@ def compare_cpu_cuda_outputs() -> dict[str, Any]:
             cuda["predicted_progress"],
         ),
     }
+    errors: dict[str, float] = {}
     passed = True
     for name, (cpu_value, cuda_value) in pairs.items():
-        gpu_cpu = cuda_value.detach().cpu()
-        comparisons[name] = float((cpu_value - gpu_cpu).abs().max().item())
-        passed = passed and torch.allclose(
-            cpu_value,
-            gpu_cpu,
-            atol=CPU_CUDA_ABSOLUTE_TOLERANCE,
-            rtol=CPU_CUDA_RELATIVE_TOLERANCE,
+        observed = cuda_value.detach().cpu()
+        errors[name] = float((cpu_value - observed).abs().max().item())
+        passed = passed and bool(
+            torch.allclose(
+                cpu_value,
+                observed,
+                atol=CPU_CUDA_ABSOLUTE_TOLERANCE,
+                rtol=CPU_CUDA_RELATIVE_TOLERANCE,
+            )
         )
     return {
-        "passed": bool(passed),
+        "passed": passed,
         "absolute_tolerance": CPU_CUDA_ABSOLUTE_TOLERANCE,
         "relative_tolerance": CPU_CUDA_RELATIVE_TOLERANCE,
-        "maximum_absolute_error": max(comparisons.values()),
-        "per_output_maximum_absolute_error": comparisons,
+        "maximum_absolute_error": max(errors.values()),
+        "per_output_maximum_absolute_error": errors,
     }
 
 
-def _dummy_batch(batch_size: int, device: torch.device, seed: int) -> dict[str, torch.Tensor]:
+def _dummy_batch(
+    batch_size: int, device: torch.device, seed: int
+) -> dict[str, torch.Tensor]:
     generator = torch.Generator(device=device).manual_seed(seed)
     current = torch.rand(batch_size, 1, 64, 64, generator=generator, device=device)
     next_canvas = torch.rand(batch_size, 1, 64, 64, generator=generator, device=device)
@@ -300,15 +301,16 @@ def _optimizer_step(
         )
     else:
         raise ValueError("Unexpected dummy benchmark variant.")
+
     loss = losses["total"]
     optimizer.zero_grad(set_to_none=True)
     loss.backward()
     parameters = [parameter for parameter in model.parameters() if parameter.requires_grad]
-    if not all(
-        parameter.grad is not None and bool(torch.isfinite(parameter.grad).all())
-        for parameter in parameters
-    ):
+    gradients = [parameter.grad for parameter in parameters if parameter.grad is not None]
+    if not gradients or not all(bool(torch.isfinite(gradient).all()) for gradient in gradients):
         raise RuntimeError("Dummy benchmark produced missing or non-finite gradients.")
+    if variant == "joint_prediction_progress" and len(gradients) != len(parameters):
+        raise RuntimeError("Progress dummy objective did not reach every trainable parameter.")
     torch.nn.utils.clip_grad_norm_(parameters, 5.0)
     optimizer.step()
     model.update_target_encoder(0.99)
@@ -366,14 +368,9 @@ def benchmark_cuda(warmup_steps: int = 2, measured_steps: int = 8) -> dict[str, 
     planner_batch = _dummy_batch(32, device, 8202)
     torch.cuda.empty_cache()
     torch.cuda.reset_peak_memory_stats()
-
     for _ in range(warmup_steps):
-        _optimizer_step(
-            model, optimizer, "joint_prediction_only", transition_batch
-        )
-        _optimizer_step(
-            model, optimizer, "joint_prediction_progress", planner_batch
-        )
+        _optimizer_step(model, optimizer, "joint_prediction_only", transition_batch)
+        _optimizer_step(model, optimizer, "joint_prediction_progress", planner_batch)
     torch.cuda.synchronize()
 
     timings: dict[str, list[float]] = {
@@ -407,11 +404,8 @@ def benchmark_cuda(warmup_steps: int = 2, measured_steps: int = 8) -> dict[str, 
         "median_planner_optimizer_step_ms": planner_ms,
         "maximum_epoch_transition_optimizer_steps": transition_steps,
         "maximum_progress_optimizer_steps": planner_steps,
-        "estimated_maximum_training_minutes_excluding_validation": training_seconds
-        / 60.0,
-        "three_x_safety_training_hours_excluding_validation": 3.0
-        * training_seconds
-        / 3600.0,
+        "estimated_maximum_training_minutes_excluding_validation": training_seconds / 60.0,
+        "three_x_safety_training_hours_excluding_validation": 3.0 * training_seconds / 3600.0,
         "peak_cuda_memory_bytes": int(torch.cuda.max_memory_allocated()),
         "dummy_tensors_only": True,
     }
