@@ -1,9 +1,9 @@
 # Current State
 
 **Last updated:** 2026-08-23  
-**Branch:** `main`  
-**Current stage:** Stage A closed; thesis writing  
-**Status:** Planner development complete and not eligible for confirmatory evaluation
+**Branch:** `phase-b/saliency-latent`  
+**Current stage:** Phase B0 protocol frozen; validation-only implementation next  
+**Status:** Phase B0 implementation and every experimental data phase unauthorized
 
 ## Closed evidence
 
@@ -11,16 +11,24 @@ The formal ranking-aware one-step comparison remains a strong positive result at
 
 The controlled multi-step comparison remains a frozen criterion failure with implementation integrity passed: latent ranking mean final MSE was 1.996× exact pixel.
 
-The score audit selected the MSE-only ensemble with normalized-latent L1. The single three-target planner-development comparison then completed with all deterministic replays and integrity checks passed.
+The score audit selected the MSE-only ensemble with normalized-latent L1. Forced L1 then reduced mean final MSE by about 7.05% versus forced latent MSE on all three planner-development targets. The zero-margin no-op stopped after only 3.33 strokes on average. The Stage A decision is permanently `not_eligible`, and its confirmatory phase remains prohibited.
 
-## Planner-development result
+## Phase B0 frozen direction
 
-Forced normalized-latent L1 achieved mean final MSE 0.072176 versus 0.077652 for forced normalized-latent MSE, a reduction of about 7.05%. L1 was lower on all three development targets. Its mean best MSE was 0.068289 versus 0.072546.
+A new protocol now isolates a stronger latent model before saliency, color, or renderer changes. The fixed B0 system uses:
 
-The zero-margin no-op stopped after an average of 3.33 strokes and produced mean final MSE 0.137607. It stopped before any stroke on target 2. The direct comparison between exact current-state distance and predicted candidate distance was not calibrated and caused premature stopping.
+- the unchanged 64×64 grayscale straight-stroke renderer;
+- a trainable multi-scale online encoder with 32×32×32 and 16×16×64 spatial latents;
+- a momentum target encoder with stop-gradient targets;
+- a two-channel pre-rendered stroke action;
+- a multi-scale latent residual predictor;
+- variance/covariance anti-collapse regularization;
+- an explicit no-op transition;
+- a target-conditioned progress head trained on exact pixel-MSE reduction;
+- fixed progress regression and candidate-ranking terms.
 
-The frozen decision is `not_eligible`: implementation integrity and selected-pair matching passed, while improvement on every target and mean reduction versus the current forced latent-MSE baseline failed. Confirmatory evaluation remains unauthorized.
+All B0 development and formal seeds are new and disjoint. Development must pass eleven frozen eligibility conditions before formal B0 can be considered. B1 background→object→detail scheduling and B2 RGB/high-resolution painting each require a later separate protocol.
 
 ## Next action
 
-Do not run more Stage A data. Preserve the complete local output directory and compact repository archive. Move to thesis Methodology, Results, and Discussion writing, presenting forced L1 as an exploratory positive and the no-op as a stopping-calibration failure.
+Implement validation-only configuration, architecture, objective, EMA, gradient, parameter-count, and dummy-overfit checks. This stage may not load historical checkpoints, generate renderer data, create output directories, or authorize training. After the complete test suite passes on Navid's machine, archive the implementation manifest and decide whether to authorize exactly one B0 development execution.

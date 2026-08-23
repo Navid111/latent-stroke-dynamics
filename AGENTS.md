@@ -9,11 +9,12 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 ## Required reading order
 
 1. `logbooks/STATE.md`;
-2. `docs/planner-score-development-results.md`;
-3. `docs/planner-score-audit-results.md`;
-4. `docs/planner-score-alignment-protocol.md`;
-5. `docs/latent-planner-controlled-results.md`;
-6. relevant result artifacts and code.
+2. `docs/phase-b-saliency-latent-protocol.md`;
+3. `docs/planner-score-development-results.md`;
+4. `docs/planner-score-audit-results.md`;
+5. `docs/planner-score-alignment-protocol.md`;
+6. `docs/latent-planner-controlled-results.md`;
+7. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -25,14 +26,20 @@ The Stage A score audit selected MSE-only plus normalized-latent L1. In long-hor
 
 ## Active task
 
-Archive the completed Stage A evidence and write the thesis. The planner-development result is `not_eligible`; confirmatory evaluation is unauthorized and must not run.
+Phase B0 has a new frozen protocol on branch `phase-b/saliency-latent`. Implement only the configuration validator, fixed architecture, objective utilities, and validation-only tests. Phase B0 development data, formal B0, saliency scheduling B1, and RGB/high-resolution B2 are all unauthorized.
+
+## Phase B0 scientific purpose
+
+Test a multi-scale action-conditioned joint-embedding model with rendered spatial action conditioning and a calibrated exact-progress head. B0 remains 64×64 grayscale with the existing renderer so model and objective effects are isolated. Saliency scheduling and color are later, separately frozen phases.
 
 ## Hard boundaries
 
-- Do not rerun or tune the completed score audit, planner development, smoke, or controlled comparison.
+- Do not rerun or tune any completed experiment.
 - Do not train or fine-tune against any completed target.
 - Do not change or overwrite any completed result.
-- Keep the selected pair fixed as MSE-only plus normalized-latent L1.
-- Do not tune the no-op margin on development targets.
-- Do not run the reserved confirmatory phase.
+- Do not tune the Stage A no-op margin or run its reserved confirmatory phase.
+- Do not generate any Phase B renderer transition, target, state bank, candidate set, checkpoint, or output before a separate authorization commit.
+- Validation may use deterministic random dummy tensors only and may not load historical checkpoints.
+- Do not alter the frozen Phase B0 architecture, objectives, seeds, thresholds, or compute cap after implementation begins.
 - Preserve positive and negative outcomes.
+- Do not call the approach a canonical JEPA.

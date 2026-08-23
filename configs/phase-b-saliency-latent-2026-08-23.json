@@ -1,0 +1,270 @@
+{
+  "experiment_id": "phase-b0-action-conditioned-joint-embedding-2026-08-23",
+  "status": "frozen_before_implementation_and_data",
+  "evidential_role": "post_stage_a_exploratory_training_extension",
+  "branch": "phase-b/saliency-latent",
+  "base_commit": "c211c3ab3a37b9c37eda5ba3c07c01173fd4c7f7",
+  "historical_results_unchanged": true,
+  "closed_targets_may_be_reused": false,
+  "device": "cpu",
+  "canvas_size": 64,
+  "renderer": {
+    "mode": "L",
+    "stroke_primitive": "normalized_straight_line",
+    "widths": [1, 2, 3, 4],
+    "values": [0, 32, 64, 96, 128],
+    "minimum_transition_length": 0.2,
+    "transition_crowding": [0, 5, 15, 30],
+    "target_strokes": 20,
+    "execute_with_exact_renderer": true,
+    "renderer_changes_allowed": false
+  },
+  "closed_comparators": {
+    "task_autoencoder": {
+      "path": "outputs/representation-extension-2026-08-22/task_autoencoder/checkpoints/task_autoencoder.pt",
+      "state_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900"
+    },
+    "latent_statistics": {
+      "path": "outputs/representation-extension-2026-08-22/task_autoencoder/latent_channel_statistics.json",
+      "sha256": "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903"
+    },
+    "mse_only_predictors": {
+      "score": "normalized_latent_l1",
+      "seeds": [11, 22, 33],
+      "state_sha256": {
+        "11": "5023e63d268ea37c17bf328a8fc4ef5f66219ed7e1127e0d4bf109330f833431",
+        "22": "8a8ea0e7e6dbfc9c5f64ae5212a48a5fc12ee5bb5ff1f23c0394c8891b5a89dc",
+        "33": "3a58be00b601a08cf9faa55e1643bf24adfd08c0a0648cbe851e9f9e49388c5e"
+      }
+    },
+    "learned_pixel_predictor": {
+      "path": "checkpoints/stage3-pixel-mlp-seed11.pt",
+      "state_sha256": "e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472"
+    },
+    "all_closed_comparators_frozen": true
+  },
+  "model": {
+    "name": "MultiScaleActionJointEmbeddingModel",
+    "input_shape": [1, 64, 64],
+    "online_encoder": [
+      {"name": "stem", "type": "conv_gn_gelu", "in": 1, "out": 24, "kernel": 3, "stride": 1, "padding": 1, "groups": 6},
+      {"name": "stage_64", "type": "conv_gn_gelu", "in": 24, "out": 24, "kernel": 3, "stride": 1, "padding": 1, "groups": 6},
+      {"name": "down_32", "type": "conv_gn_gelu", "in": 24, "out": 48, "kernel": 4, "stride": 2, "padding": 1, "groups": 8},
+      {"name": "stage_32", "type": "conv_gn_gelu", "in": 48, "out": 48, "kernel": 3, "stride": 1, "padding": 1, "groups": 8},
+      {"name": "down_16", "type": "conv_gn_gelu", "in": 48, "out": 64, "kernel": 4, "stride": 2, "padding": 1, "groups": 8},
+      {"name": "stage_16", "type": "conv_gn_gelu", "in": 64, "out": 64, "kernel": 3, "stride": 1, "padding": 1, "groups": 8},
+      {"name": "projection_32", "type": "conv", "in": 48, "out": 32, "kernel": 1, "stride": 1, "padding": 0},
+      {"name": "projection_16", "type": "conv", "in": 64, "out": 64, "kernel": 1, "stride": 1, "padding": 0}
+    ],
+    "latent_scales": {
+      "32": [32, 32, 32],
+      "16": [64, 16, 16]
+    },
+    "target_encoder": {
+      "architecture": "exact_online_encoder_copy",
+      "gradient": false,
+      "update": "exponential_moving_average_after_optimizer_step",
+      "momentum": 0.99,
+      "stop_gradient_targets": true
+    },
+    "action_raster": {
+      "shape": [2, 64, 64],
+      "channels": ["binary_coverage", "coverage_times_value_divided_by_255"],
+      "no_op": "all_zeros"
+    },
+    "action_encoder": [
+      {"name": "action_32", "type": "conv_gn_gelu", "in": 2, "out": 16, "kernel": 5, "stride": 2, "padding": 2, "groups": 4},
+      {"name": "action_16", "type": "conv_gn_gelu", "in": 16, "out": 32, "kernel": 3, "stride": 2, "padding": 1, "groups": 8}
+    ],
+    "predictor_32": [
+      {"type": "conv_gn_gelu", "in": 48, "out": 64, "kernel": 3, "stride": 1, "padding": 1, "groups": 8},
+      {"type": "conv", "in": 64, "out": 32, "kernel": 3, "stride": 1, "padding": 1}
+    ],
+    "predictor_16": {
+      "pooled_residual_32_channels": 32,
+      "layers": [
+        {"type": "conv_gn_gelu", "in": 128, "out": 96, "kernel": 3, "stride": 1, "padding": 1, "groups": 8},
+        {"type": "conv", "in": 96, "out": 64, "kernel": 3, "stride": 1, "padding": 1}
+      ]
+    },
+    "progress_head": {
+      "input_dim": 224,
+      "layers": [224, 128, 64, 1],
+      "hidden_activation": "gelu",
+      "target": "exact_current_pixel_mse_minus_exact_next_pixel_mse",
+      "target_standardization": "training_only_mean_and_std"
+    },
+    "decoder_used": false,
+    "maximum_trainable_parameters": 500000,
+    "exact_parameter_count_manifest_required_before_development": true
+  },
+  "objectives": {
+    "joint_prediction": {
+      "type": "balanced_smooth_l1_on_predicted_next_latents",
+      "scale_weights": {"32": 0.5, "16": 0.5},
+      "beta": 1.0,
+      "action_and_background_equal_weight": true
+    },
+    "anti_collapse": {
+      "variance_floor": 1.0,
+      "variance_weight": 0.1,
+      "covariance_weight": 0.01,
+      "axes": "batch_and_spatial_per_scale"
+    },
+    "no_op_consistency": {
+      "transition_fraction": 0.1,
+      "residual_weight": 0.25,
+      "exact_next_equals_current": true
+    },
+    "planner_progress": {
+      "regression": "smooth_l1_on_train_standardized_exact_progress",
+      "regression_weight": 1.0,
+      "regression_beta": 1.0,
+      "ranking": "cross_entropy_over_predicted_standardized_progress",
+      "ranking_weight": 0.3,
+      "ranking_temperature": 0.1,
+      "candidates_per_state": 32,
+      "no_op_index": 0,
+      "target_guided_strokes": 31,
+      "exact_tie_tolerance": 1e-12,
+      "exact_tie_break": "lowest_candidate_index"
+    },
+    "development_variants": [
+      "joint_prediction_only",
+      "joint_prediction_progress"
+    ],
+    "hyperparameter_grid_allowed": false
+  },
+  "training": {
+    "optimizer": "AdamW",
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "batch_size": 16,
+    "maximum_epochs": 40,
+    "patience": 8,
+    "gradient_clip_norm": 5.0,
+    "development_model_seed": 73,
+    "maximum_completed_development_executions": 1,
+    "development_wall_clock_cap_hours": 6.0,
+    "device": "cpu"
+  },
+  "development": {
+    "authorized": false,
+    "transition_splits": {
+      "train": {"samples": 2048, "seed": 20270401},
+      "validation": {"samples": 512, "seed": 20270402},
+      "diagnostic_test": {"samples": 512, "seed": 20270403, "may_select": false}
+    },
+    "planner_supervision_train": {
+      "target_seeds": [20270411, 20270412, 20270413, 20270414, 20270415, 20270416, 20270417, 20270418],
+      "trajectory_seeds": [20270421, 20270422, 20270423, 20270424, 20270425, 20270426, 20270427, 20270428],
+      "candidate_seeds": [20270431, 20270432, 20270433, 20270434, 20270435, 20270436, 20270437, 20270438],
+      "states": ["blank", "exact_20", "exact_40", "exact_60", "random_20", "random_40", "random_60", "random_80"],
+      "candidates_per_state": 32
+    },
+    "planner_supervision_validation": {
+      "target_seeds": [20270441, 20270442, 20270443, 20270444],
+      "trajectory_seeds": [20270451, 20270452, 20270453, 20270454],
+      "candidate_seeds": [20270461, 20270462, 20270463, 20270464],
+      "states": ["blank", "exact_20", "exact_40", "exact_60", "random_20", "random_40", "random_60", "random_80"],
+      "candidates_per_state": 32
+    },
+    "long_horizon": {
+      "target_seeds": [20270471, 20270472, 20270473],
+      "planner_seeds": [20270481, 20270482, 20270483],
+      "maximum_steps": 100,
+      "candidates_per_step": 128,
+      "methods": [
+        "exact_pixel",
+        "learned_pixel",
+        "archived_mse_l1_forced",
+        "joint_prediction_only_forced",
+        "joint_prediction_progress_forced",
+        "joint_prediction_progress_no_op"
+      ]
+    },
+    "output_dir": "outputs/phase-b0-joint-embedding-development-2026-08-23",
+    "single_run": true
+  },
+  "development_metrics": [
+    "joint_prediction_by_scale",
+    "feature_mean_channel_std_by_scale",
+    "feature_off_diagonal_covariance_by_scale",
+    "four_way_exact_action_retrieval",
+    "candidate_top1_top5_rank_regret_spearman",
+    "progress_mae_rmse_sign_accuracy_calibration",
+    "premature_stop_rate",
+    "final_and_best_pixel_mse_mae",
+    "best_step_executed_steps_stop_rate",
+    "runtime_parameter_counts_hashes_replay_integrity"
+  ],
+  "development_eligibility": {
+    "implementation_integrity_required": true,
+    "historical_artifacts_unchanged_required": true,
+    "minimum_mean_channel_std_each_scale": 0.5,
+    "minimum_diagnostic_four_way_retrieval": 0.5,
+    "minimum_mean_128_way_regret_reduction_vs_archived_mse_l1": 0.1,
+    "no_op_improves_every_target_from_blank": true,
+    "minimum_mean_final_mse_reduction_vs_archived_mse_l1": 0.05,
+    "no_op_no_worse_than_joint_prediction_only_forced": true,
+    "maximum_mean_final_mse_ratio_to_exact_pixel": 1.5,
+    "maximum_premature_stop_rate": 0.1,
+    "compute_cap_required": true
+  },
+  "formal_reserved": {
+    "authorized": false,
+    "transition_splits": {
+      "train": {"samples": 4096, "seed": 20270501},
+      "validation": {"samples": 1024, "seed": 20270502},
+      "test": {"samples": 1024, "seed": 20270503},
+      "crowding_60": {"samples": 256, "seed": 20270504}
+    },
+    "planner_supervision_train": {
+      "target_seeds": [20270511, 20270512, 20270513, 20270514, 20270515, 20270516, 20270517, 20270518],
+      "trajectory_seeds": [20270521, 20270522, 20270523, 20270524, 20270525, 20270526, 20270527, 20270528],
+      "candidate_seeds": [20270531, 20270532, 20270533, 20270534, 20270535, 20270536, 20270537, 20270538]
+    },
+    "planner_supervision_validation": {
+      "target_seeds": [20270541, 20270542, 20270543, 20270544],
+      "trajectory_seeds": [20270551, 20270552, 20270553, 20270554],
+      "candidate_seeds": [20270561, 20270562, 20270563, 20270564]
+    },
+    "long_horizon": {
+      "target_seeds": [20270571, 20270572, 20270573, 20270574, 20270575, 20270576],
+      "planner_seeds": [20270581, 20270582, 20270583, 20270584, 20270585, 20270586],
+      "model_seeds": [83, 97, 109],
+      "maximum_steps": 100,
+      "candidates_per_step": 128
+    },
+    "output_dir": "outputs/phase-b0-joint-embedding-formal-2026-08-23",
+    "single_run": true
+  },
+  "region_scheduler_reserved": {
+    "phase": "B1",
+    "authorized": false,
+    "requires_separate_frozen_protocol": true,
+    "intended_order": ["background_low_frequency", "objects_or_salient_regions", "residual_edges_and_details"]
+  },
+  "rgb_high_resolution_reserved": {
+    "phase": "B2",
+    "authorized": false,
+    "requires_separate_frozen_protocol": true,
+    "intended_scope": ["rgb", "alpha", "anti_aliasing", "curved_strokes", "high_resolution_replay"]
+  },
+  "validation_boundary": {
+    "may_load_config": true,
+    "may_instantiate_random_models": true,
+    "may_use_deterministic_random_dummy_tensors": true,
+    "may_compute_shapes_gradients_ema_losses_and_parameter_counts": true,
+    "may_run_dummy_overfit_check": true,
+    "may_load_historical_checkpoints": false,
+    "may_generate_renderer_transitions": false,
+    "may_generate_targets": false,
+    "may_generate_state_banks": false,
+    "may_generate_candidate_sets": false,
+    "may_create_output_directories": false,
+    "may_train_on_renderer_data": false,
+    "may_download_models": false,
+    "may_authorize_any_experimental_phase": false
+  }
+}
