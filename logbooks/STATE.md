@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-08-23  
 **Branch:** `main`  
-**Current stage:** Latent-space planner smoke execution  
-**Status:** One smoke run authorized; controlled comparison unauthorized
+**Current stage:** Controlled latent-planner runner implementation  
+**Status:** Smoke complete and closed; controlled comparison unauthorized
 
 ## Formal result carried forward
 
@@ -13,18 +13,16 @@
 - formal integrity: passed;
 - formal experiment: permanently closed.
 
-## Frozen latent planner
+## Smoke result
 
-The planner compares random, exact pixel, learned pixel, three-seed MSE-only latent, and three-seed ranking-aware latent methods. Latent candidates are scored by full-grid normalized-feature MSE to the frozen target latent, averaged across seeds 11/22/33. Every selected stroke is executed exactly and the observed canvas is re-encoded.
+The one authorized five-method smoke passed implementation integrity. Final MSE was 0.138367 random, 0.084314 exact pixel, 0.092628 learned pixel, 0.095354 latent MSE, and 0.116399 latent ranking. Latent MSE showed stronger score-to-exact association and a better short trajectory than latent ranking on this diagnostic target. This cannot select or retune methods.
 
-Foundation validation passed with 79 tests. The guarded five-method runner then passed all 84 tests and returned the expected no-data unauthorized status. Six latent hashes, target/planner seeds, methods, budgets, scores, and proposal settings remain frozen.
+All learned replays were deterministic, target encoding and observed-canvas re-encoding checks passed, predicted latents were never rolled forward, hashes matched, and no training occurred. The smoke is closed and must not be rerun.
 
 ## Authorization boundary
 
-One implementation smoke execution is authorized for target seed `20261201`, planner seed `20261202`, 20 steps, and 32 candidates. The output guard makes any completed or incomplete execution non-repeatable without written adjudication.
-
-The controlled six-target comparison remains unauthorized. No model training or fine-tuning is authorized.
+The six-target controlled comparison remains unauthorized. No controlled target may be generated. No model training or fine-tuning is authorized.
 
 ## Next action
 
-Pull the authorization commit, rerun the 84-test suite, then execute `python experiments/16_latent_planner_smoke.py --smoke-run` exactly once. Preserve and report the complete terminal output and generated `summary.csv` plus `run_config.json`.
+Implement a guarded five-method controlled runner with atomic output, overwrite refusal, frozen criteria, integrity checks, aggregation, and a validation-only unauthorized path. Then validate it without loading models or generating controlled data.

@@ -1,6 +1,6 @@
 {
   "experiment_id": "latent-space-planner-2026-08-23",
-  "status": "smoke_authorized_once",
+  "status": "smoke_complete_controlled_unauthorized",
   "evidential_role": "post_formal_deployment_study",
   "historical_results_unchanged": true,
   "device": "cpu",
@@ -57,7 +57,7 @@
     }
   },
   "smoke": {
-    "authorized": true,
+    "authorized": false,
     "target_seed": 20261201,
     "planner_seed": 20261202,
     "steps": 20,
@@ -67,7 +67,7 @@
   "controlled": {
     "authorized": false,
     "target_seeds": [20261211, 20261212, 20261213, 20261214, 20261215, 20261216],
-    "planner_seeds": [20261221,20261222,20261223,20261224,20261225,20261226],
+    "planner_seeds": [20261221, 20261222, 20261223, 20261224, 20261225, 20261226],
     "output_dir": "outputs/latent-planner-controlled-2026-08-23",
     "single_run": true
   },

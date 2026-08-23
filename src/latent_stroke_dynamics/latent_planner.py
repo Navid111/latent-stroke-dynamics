@@ -36,6 +36,7 @@ VALID_CONFIG_STATUSES = {
     "frozen_before_implementation_and_planner_data",
     "hashes_frozen_before_smoke",
     "smoke_authorized_once",
+    "smoke_complete_controlled_unauthorized",
 }
 
 

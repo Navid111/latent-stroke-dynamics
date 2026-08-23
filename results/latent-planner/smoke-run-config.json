@@ -1,0 +1,48 @@
+{
+  "status": "latent_planner_smoke_complete_integrity_passed",
+  "diagnostic_only": true,
+  "smoke_authorized": true,
+  "controlled_authorized": false,
+  "methods": [
+    "random",
+    "exact_pixel",
+    "learned_pixel",
+    "latent_mse",
+    "latent_ranking"
+  ],
+  "target_seed": 20261201,
+  "planner_seed": 20261202,
+  "steps": 20,
+  "candidates_per_step": 32,
+  "proposal": {
+    "error_guided_fraction": 0.8,
+    "min_length": 0.1,
+    "max_length": 0.6,
+    "width_choices": [1, 2, 3, 4],
+    "value_choices": [0, 32, 64, 96, 128]
+  },
+  "latent_score": "mean_full_grid_mse_of_l2_normalized_patch_features_to_target",
+  "latent_predictor_state_sha256": {
+    "mse_only": {
+      "11": "5023e63d268ea37c17bf328a8fc4ef5f66219ed7e1127e0d4bf109330f833431",
+      "22": "8a8ea0e7e6dbfc9c5f64ae5212a48a5fc12ee5bb5ff1f23c0394c8891b5a89dc",
+      "33": "3a58be00b601a08cf9faa55e1643bf24adfd08c0a0648cbe851e9f9e49388c5e"
+    },
+    "ranking_aware": {
+      "11": "1833f9a4f68aa402587f2842e3143ee018423ff12c36afdbc61f64c0120d9588",
+      "22": "cbd1aae6c83fe7d06a1226ea58cc5953e3745f81912ad93b9a1328ffdf267ac2",
+      "33": "f4543610be2dab8adf7a14ca4bf9b862bacde49c3a3c048fb6e46d3f50097675"
+    }
+  },
+  "pixel_predictor_state_sha256": "e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472",
+  "target_encoded_once_per_latent_method": true,
+  "observed_canvas_reencoded_every_step": true,
+  "predicted_latent_rolled_forward": false,
+  "deterministic_replay": {
+    "learned_pixel": true,
+    "latent_mse": true,
+    "latent_ranking": true
+  },
+  "models_trained_or_finetuned": false,
+  "historical_results_unchanged": true
+}

@@ -47,13 +47,12 @@ def test_smoke_validation_is_unauthorized_and_side_effect_free(tmp_path: Path) -
     assert not (tmp_path / "smoke.incomplete").exists()
 
 
-def test_only_current_smoke_is_authorized() -> None:
+def test_smoke_is_closed_after_completed_execution() -> None:
     config = load_latent_planner_config(CONFIG)
-    require_smoke_authorized(config)
-    assert config["smoke"]["authorized"] is True
+    assert config["smoke"]["authorized"] is False
     assert config["controlled"]["authorized"] is False
     with pytest.raises(PermissionError, match="not authorized"):
-        require_smoke_authorized(unauthorized_config(Path("unused")))
+        require_smoke_authorized(config)
 
 
 def test_smoke_output_guard_preserves_existing_incomplete(tmp_path: Path) -> None:

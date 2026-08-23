@@ -1,0 +1,6 @@
+method,steps,candidates_per_step,initial_mse,final_mse,best_mse,best_step,final_mae,relative_final_mse_improvement,relative_best_mse_improvement,improved_steps,elapsed_seconds,exact_top1_rate,exact_top5_rate,mean_exact_rank,mean_exact_regret,max_exact_regret,mean_score_exact_spearman
+random,20,32,0.165492,0.138367,0.138367,20,0.212801,0.163901,0.163901,16,0.091649,,,,,,
+exact_pixel,20,32,0.165492,0.084314,0.084314,20,0.145670,0.490522,0.490522,20,0.111068,,,,,,
+learned_pixel,20,32,0.165492,0.092628,0.092628,20,0.151257,0.440283,0.440283,18,0.414781,0.55,0.75,5.05,0.000862,0.004660,
+latent_mse,20,32,0.165492,0.095354,0.095354,20,0.153846,0.423815,0.423815,18,0.610556,0.25,0.90,3.95,0.001468,0.006811,0.621884
+latent_ranking,20,32,0.165492,0.116399,0.116399,20,0.174099,0.296645,0.296645,18,0.588598,0.10,0.45,7.05,0.003136,0.006954,0.414264
