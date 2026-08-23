@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-08-23  
 **Branch:** `main`  
-**Current stage:** Stage A planner-score audit validation  
-**Status:** Guarded runner implemented; every new-data phase unauthorized
+**Current stage:** Stage A planner-score development audit  
+**Status:** One development score audit authorized; not yet executed
 
 ## Closed evidence
 
@@ -13,12 +13,14 @@ The single six-target, five-method controlled comparison remains closed. Mean fi
 
 Forced continuation caused overpainting, but it was not sufficient to explain failure. Ranking's mean best MSE was 0.083470, about 1.832× exact pixel even with oracle best-frame selection. Ranking also had weaker top-1, top-5, mean-rank, regret, and Spearman diagnostics than latent MSE. The main follow-up hypothesis is planner-score misalignment; stopping is secondary.
 
-## Stage A implementation
+## Stage A validation
 
-The protocol was committed before implementation or data. The guarded development runner now supports five exactly frozen scores across the MSE-only and ranking-aware three-seed ensembles. It includes inverse-standardized frozen decoding, pixel-error patch weights, Sobel scoring, exact candidate labels, deterministic state-bank generation, atomic outputs, overwrite refusal, frozen lexicographic selection, and complete integrity records.
+The protocol was committed before implementation or data. The guarded runner then passed all 96 tests. Validation reported `planner_score_audit_runner_valid_unauthorized`, all closed resource references matched, all downstream phases were unauthorized, and no model, target, trajectory, candidate set, output, training, or fine-tuning was created.
 
-Validation-only mode must remain side-effect free. Development, planner-development, and confirmatory authorizations are all false. The closed targets are prohibited, and no Stage A model training or fine-tuning is allowed.
+## Current authorization
+
+Exactly one development score audit is now authorized. It uses eight new target seeds, eight new state-planner seeds, eight new candidate seeds, 72 fixed candidate sets, 128 candidates per set, two frozen predictor ensembles, and five frozen scores. No training or fine-tuning is authorized. Planner development and confirmatory evaluation remain unauthorized.
 
 ## Next action
 
-Pull the implementation, run the full test suite, and run only the validation command in `docs/planner-score-audit-command.md`. Do not run the development audit until its output is reviewed and a separate one-time authorization is committed.
+Pull the authorization commit, rerun the 96-test suite, and execute `python experiments/18_planner_score_alignment.py --development-score-audit` exactly once. Preserve any `.incomplete` directory if an error or interruption occurs.

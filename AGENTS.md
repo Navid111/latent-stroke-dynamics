@@ -23,7 +23,7 @@ The controlled multi-step latent planner completed with implementation integrity
 
 ## Active task
 
-Validate the guarded Stage A development score-audit runner. It compares five frozen target scores across both frozen latent ensembles using only new reserved seeds. Development remains unauthorized until tests and validation-only output pass review.
+Run the separately authorized Stage A development score audit exactly once. It compares five frozen target scores across both frozen latent ensembles using only new reserved seeds. Planner development and confirmatory evaluation remain unauthorized.
 
 ## Hard boundaries
 
@@ -31,6 +31,7 @@ Validate the guarded Stage A development score-audit runner. It compares five fr
 - Do not train or fine-tune against controlled targets.
 - Do not change or overwrite any completed result.
 - Do not rerun any closed experiment.
-- Do not run `--development-score-audit` before a separate committed authorization.
+- Run `--development-score-audit` at most once under the current authorization.
+- Preserve an incomplete output directory after any error or interruption; do not retry without review.
 - Do not generate planner-development or confirmatory data before their matching explicit authorizations.
 - Preserve positive and negative outcomes.

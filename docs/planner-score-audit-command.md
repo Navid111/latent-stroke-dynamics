@@ -1,42 +1,41 @@
-# Planner-score audit validation command
+# Single authorized planner-score development audit
 
-The Stage A score-audit protocol is frozen, but development data are not authorized.
+Validation completed successfully before authorization: 96 tests passed, the guarded status was `planner_score_audit_runner_valid_unauthorized`, every closed resource reference matched, and no models or data were loaded or generated.
+
+Exactly one development score audit is now authorized.
 
 ## Run now
 
 ```bash
 git pull --ff-only
 pytest
-python experiments/18_planner_score_alignment.py --validate-only
-```
-
-Expected test count: **96 passed**.
-
-Expected validation status:
-
-```text
-planner_score_audit_runner_valid_unauthorized
-```
-
-The JSON should also report:
-
-- 8 reserved development targets;
-- 9 fixed states per target;
-- 72 candidate sets;
-- 128 candidates per state;
-- 2 frozen predictor families;
-- 5 frozen scores;
-- 10 predictor/score pairs;
-- all Stage A phases unauthorized;
-- no models loaded;
-- no targets, trajectories, or candidate sets generated;
-- no training or fine-tuning;
-- all closed resource references verified.
-
-## Do not run
-
-```bash
 python experiments/18_planner_score_alignment.py --development-score-audit
 ```
 
-That command must remain blocked until the validation output and tests are reviewed and a separate one-time authorization is committed.
+Expected test count after the authorization commit: **96 passed**.
+
+The authorized command will use only the reserved new development seeds. It will evaluate 72 fixed candidate sets, each containing 128 candidates, across both frozen predictor families and all five frozen scores. It will not train or fine-tune any model.
+
+The run may take a while on CPU. Let it finish without opening a second copy of the command.
+
+## Single-use rule
+
+- Run `--development-score-audit` exactly once.
+- Do not rerun it after success.
+- If it errors or is interrupted, do not delete or rename the `.incomplete` directory and do not retry. Send the complete terminal output for review.
+- Do not run planner development or confirmatory experiments yet.
+
+## Expected artifacts
+
+```text
+outputs/planner-score-audit-development-2026-08-23/
+├── aggregate_summary.csv
+├── candidate_scores.csv
+├── per_state_summary.csv
+├── run_config.json
+├── selection.json
+├── state_bank.csv
+└── targets/
+```
+
+After completion, send the complete terminal output and the contents of `aggregate_summary.csv`, `selection.json`, and `run_config.json` for review.
