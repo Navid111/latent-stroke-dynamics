@@ -1,0 +1,92 @@
+{
+  "boundary": {
+    "config_status": "development_attempt_aborted_recovery_unauthorized",
+    "development_authorized": false,
+    "dummy_tensors_only": true,
+    "formal_authorized": false,
+    "local_incomplete_directory_may_exist": true,
+    "phase_b1_authorized": false,
+    "phase_b2_authorized": false,
+    "renderer_data_generation_allowed": false,
+    "scientific_training_allowed": false,
+    "status": "phase_b0_cloud_preflight_boundary_valid_recovery_unauthorized"
+  },
+  "candidate_sets_generated": false,
+  "cpu_cuda_numerical_check": {
+    "absolute_tolerance": 0.0005,
+    "maximum_absolute_error": 3.2782554626464844e-06,
+    "passed": true,
+    "per_output_maximum_absolute_error": {
+      "action_16": 3.0994415283203125e-06,
+      "action_32": 1.430511474609375e-06,
+      "current_16": 3.084540367126465e-06,
+      "current_32": 1.7881393432617188e-06,
+      "predicted_next_16": 3.2782554626464844e-06,
+      "predicted_next_32": 2.1457672119140625e-06,
+      "predicted_progress": 7.450580596923828e-09
+    },
+    "relative_tolerance": 0.0005
+  },
+  "dummy_cuda_benchmark": {
+    "dummy_tensors_only": true,
+    "estimated_maximum_training_minutes_excluding_validation": 7.984561109343001,
+    "maximum_epoch_transition_optimizer_steps": 10240,
+    "maximum_progress_optimizer_steps": 2560,
+    "measured_steps_per_variant": 8,
+    "median_planner_optimizer_step_ms": 36.35918500003754,
+    "median_transition_optimizer_step_ms": 37.69474150004726,
+    "peak_cuda_memory_bytes": 288602112,
+    "planner_candidate_batch_size": 32,
+    "three_x_safety_training_hours_excluding_validation": 0.39922805546715,
+    "transition_batch_size": 16,
+    "warmup_steps_per_variant": 2
+  },
+  "dummy_metrics_are_scientific_evidence": false,
+  "dummy_optimizer_smoke": {
+    "device": "cuda",
+    "finite": true,
+    "joint_prediction_only_dummy_loss": 0.1563444435596466,
+    "joint_prediction_progress_dummy_loss": 0.8266896605491638
+  },
+  "environment": {
+    "cuda_available": true,
+    "cuda_compute_capability": [7, 5],
+    "cuda_device_count": 1,
+    "cuda_device_name": "Tesla T4",
+    "cuda_total_memory_bytes": 15637086208,
+    "cudnn_version": 91900,
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+    "python": "3.13.15 (main, Aug  6 2026, 11:06:23) [GCC 11.4.0]",
+    "torch": "2.11.0+cu128",
+    "torch_cuda_version": "12.8"
+  },
+  "formal_authorized": false,
+  "loaded_model_states": {
+    "mse_only_state_sha256": {
+      "11": "5023e63d268ea37c17bf328a8fc4ef5f66219ed7e1127e0d4bf109330f833431",
+      "22": "8a8ea0e7e6dbfc9c5f64ae5212a48a5fc12ee5bb5ff1f23c0394c8891b5a89dc",
+      "33": "3a58be00b601a08cf9faa55e1643bf24adfd08c0a0648cbe851e9f9e49388c5e"
+    },
+    "pixel_predictor_model_seed": 11,
+    "pixel_predictor_state_sha256": "e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472",
+    "ranking_aware_models_loaded": false,
+    "task_autoencoder_state_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900"
+  },
+  "phase_b1_authorized": false,
+  "phase_b2_authorized": false,
+  "raw_resource_sha256": {
+    "checkpoints/stage3-pixel-mlp-seed11.pt": "7b9fe1598ee50bcc79bd7f5e9762aff6eb3183cc1266adf5541627cbdbc4e4eb",
+    "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed11.pt": "f14ae080d7ac4a34e536eab706405d79390b17efafbcb0201177a01ea99b886d",
+    "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed22.pt": "cf5e0c7808fb8d2a388e186d4803f17a05f81d9f8ebcf0fe54ebe37929cdb46a",
+    "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed33.pt": "f72e941c0d7157347327282311cd14cbc64c7ed0639ff8d807a0e947e80981dc",
+    "outputs/representation-extension-2026-08-22/task_autoencoder/checkpoints/task_autoencoder.pt": "65debde397895ff25f0b3bf10d4fc8d2c47487ec13887d03be602195b328696d",
+    "outputs/representation-extension-2026-08-22/task_autoencoder/latent_channel_statistics.json": "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903"
+  },
+  "recovery_authorized": false,
+  "renderer_transitions_generated": false,
+  "scientific_models_trained": false,
+  "scientific_outputs_created": false,
+  "state_banks_generated": false,
+  "status": "phase_b0_colab_cuda_preflight_passed_recovery_unauthorized",
+  "targets_generated": false
+}

@@ -12,13 +12,14 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 2. `docs/phase-b-saliency-latent-protocol.md`;
 3. `docs/phase-b0-implementation-manifest.md`;
 4. `configs/phase-b0-aborted-local-attempt-2026-08-23.json`;
-5. `docs/phase-b0-development-command.md`;
-6. `docs/phase-b0-colab-preflight.md`;
-7. `docs/planner-score-development-results.md`;
-8. `docs/planner-score-audit-results.md`;
-9. `docs/planner-score-alignment-protocol.md`;
-10. `docs/latent-planner-controlled-results.md`;
-11. relevant result artifacts and code.
+5. `docs/phase-b0-colab-preflight-results.md`;
+6. `docs/phase-b0-development-command.md`;
+7. `docs/phase-b0-colab-preflight.md`;
+8. `docs/planner-score-development-results.md`;
+9. `docs/planner-score-audit-results.md`;
+10. `docs/planner-score-alignment-protocol.md`;
+11. `docs/latent-planner-controlled-results.md`;
+12. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -30,7 +31,7 @@ The Stage A score audit selected MSE-only plus normalized-latent L1. In long-hor
 
 ## Active task
 
-The initial Phase B0 local development attempt was interrupted during the first model variant. Its only four persisted JSON manifests are archived by hash; no variant, checkpoint, long-horizon evaluation, or scientific decision completed. The original authorization is consumed. Validate the complete random-dummy-tensor Google Colab CUDA preflight while recovery remains unauthorized.
+The initial Phase B0 local attempt was interrupted before any completed variant and is archived by hash. The original authorization is consumed. The Google Colab CUDA preflight passed on a Tesla T4 with 120 tests, exact resource/state hashes, CPU/CUDA tolerance, finite dummy gradients, and a conservative training-only safety estimate under 0.4 hours. Implement and validate the guarded CUDA recovery runner while recovery remains unauthorized.
 
 ## Phase B0 scientific purpose
 
@@ -44,10 +45,11 @@ Test a multi-scale action-conditioned joint-embedding model with rendered spatia
 - Do not tune the Stage A no-op margin or run its reserved confirmatory phase.
 - Do not delete, rename, modify, or select against the preserved Phase B0 `.incomplete` directory.
 - Phase B0 recovery is unauthorized.
-- The Colab preflight may use deterministic random dummy tensors and load frozen resources for hash verification only.
 - Do not run `experiments/21_phase_b_development.py --development` locally or in the cloud.
+- CUDA recovery implementation may use deterministic random dummy tensors and load frozen resources for hash verification only.
+- Do not generate renderer transitions, targets, state banks, candidate sets, scientific checkpoints, or scientific outputs before a separate recovery authorization.
 - Do not treat preflight losses or timing as scientific evidence.
+- Preserve the frozen architecture, objectives, seeds, thresholds, method order, and six-hour cap.
 - Formal Phase B0, saliency scheduling B1, and RGB/high-resolution B2 remain unauthorized.
-- Do not alter the frozen architecture, objectives, seeds, thresholds, or compute cap.
 - Preserve positive and negative outcomes.
 - Do not call the approach a canonical JEPA.
