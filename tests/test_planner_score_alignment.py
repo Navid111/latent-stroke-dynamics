@@ -46,9 +46,9 @@ def freeze(model: torch.nn.Module) -> torch.nn.Module:
 def test_score_alignment_audit_is_closed_and_resources_match() -> None:
     config = load_score_alignment_config(CONFIG)
     closed = load_latent_planner_config(CLOSED_CONFIG)
-    assert config["status"] == "development_score_audit_complete_planner_unauthorized"
+    assert config["status"] == "planner_development_authorized_once"
     assert config["development_score_audit"]["authorized"] is False
-    assert config["planner_development"]["authorized"] is False
+    assert config["planner_development"]["authorized"] is True
     assert config["confirmatory_reserved"]["authorized"] is False
     assert tuple(config["development_score_audit"]["scores"]) == SCORE_NAMES
     assert tuple(config["development_score_audit"]["predictor_families"]) == PREDICTOR_FAMILIES
@@ -57,6 +57,7 @@ def test_score_alignment_audit_is_closed_and_resources_match() -> None:
     authorized = deepcopy(config)
     authorized["status"] = "development_score_audit_authorized_once"
     authorized["development_score_audit"]["authorized"] = True
+    authorized["planner_development"]["authorized"] = False
     require_score_audit_authorized(authorized)
     result = validate_closed_resource_references(config, closed)
     assert all(result.values())
@@ -74,6 +75,7 @@ def test_score_audit_validation_is_unauthorized_and_side_effect_free(tmp_path: P
     config = deepcopy(load_score_alignment_config(CONFIG))
     config["status"] = "frozen_before_implementation_and_data"
     config["development_score_audit"]["authorized"] = False
+    config["planner_development"]["authorized"] = False
     output = tmp_path / "score-audit"
     config["development_score_audit"]["output_dir"] = str(output)
     result = validate_score_audit_runner_request(config)
