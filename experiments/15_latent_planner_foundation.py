@@ -43,8 +43,21 @@ def main() -> None:
     pixel_path = Path(config["pixel_predictor"]["path"])
     pixel_model, pixel_metadata = load_pixel_checkpoint(pixel_path, device="cpu")
     pixel_digest = state_dict_sha256(pixel_model)
-    if pixel_digest != config["pixel_predictor"]["state_sha256"]:
-        raise RuntimeError("Frozen pixel predictor SHA-256 mismatch.")
+    configured_pixel_digest = config["pixel_predictor"]["state_sha256"]
+    if pixel_digest != configured_pixel_digest:
+        differing_indices = [
+            index
+            for index, (expected, observed) in enumerate(
+                zip(configured_pixel_digest, pixel_digest, strict=True)
+            )
+            if expected != observed
+        ]
+        raise RuntimeError(
+            "Frozen pixel predictor SHA-256 mismatch: "
+            f"configured={configured_pixel_digest!r}, "
+            f"recomputed={pixel_digest!r}, "
+            f"differing_indices={differing_indices}."
+        )
     pixel_model.eval()
     for parameter in pixel_model.parameters():
         parameter.requires_grad_(False)

@@ -35,7 +35,7 @@
   },
   "pixel_predictor": {
     "path": "checkpoints/stage3-pixel-mlp-seed11.pt",
-    "state_sha256": "e32f3612f7a184e4e9f58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472"
+    "state_sha256": "e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472"
   },
   "planner": {
     "methods": ["random", "exact_pixel", "learned_pixel", "latent_mse", "latent_ranking"],
