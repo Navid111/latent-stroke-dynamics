@@ -1,6 +1,6 @@
 # Guarded latent-planner implementation smoke
 
-**Status:** Implemented; unauthorized validation pending  
+**Status:** One execution authorized after successful no-data validation  
 **Role:** one-target engineering diagnostic only  
 **Controlled comparison:** unauthorized
 
@@ -15,19 +15,19 @@
 - exact stroke execution and exact-canvas re-encoding after every latent selection;
 - no model training or fine-tuning.
 
-## Validation-only command
+## Validation evidence
+
+The full suite passed all 84 tests. Validation returned `latent_planner_smoke_runner_valid_unauthorized` with models unloaded, target generation false, planner-data generation false, both smoke paths available, and controlled authorization false.
+
+## Single authorized command
 
 ```bash
 git pull --ff-only
 source .venv/bin/activate
 pytest
-python experiments/16_latent_planner_smoke.py --validate-only
+python experiments/16_latent_planner_smoke.py --smoke-run
 ```
 
-Validation must report status `latent_planner_smoke_runner_valid_unauthorized` with authorization false, models unloaded, target generation false, planner-data generation false, and both smoke output paths available.
+Exactly one execution is authorized. Do not rerun it after either a completed output or a preserved `.incomplete` output appears. The runner enforces both conditions.
 
-## Guard boundary
-
-Do not run `--smoke-run` while the config remains unauthorized. The command rejects that path before loading models, generating target seed `20261201`, or creating an output directory.
-
-After validation is reviewed, one separate commit may set the smoke authorization. The smoke may then run once. Existing completed or `.incomplete` output directories are never overwritten.
+The smoke is implementation-diagnostic only. It cannot alter models, choose settings, revise formal results, or authorize the controlled comparison.

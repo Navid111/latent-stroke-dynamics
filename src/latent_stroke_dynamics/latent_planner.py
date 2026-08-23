@@ -35,6 +35,7 @@ DEFAULT_LATENT_PLANNER_CONFIG = Path("configs/latent-planner-2026-08-23.json")
 VALID_CONFIG_STATUSES = {
     "frozen_before_implementation_and_planner_data",
     "hashes_frozen_before_smoke",
+    "smoke_authorized_once",
 }
 
 
@@ -75,7 +76,7 @@ def load_latent_planner_config(
 
 
 def validate_latent_planner_config(config: Mapping[str, Any]) -> None:
-    """Reject planner, scoring, model, and seed drift."""
+    """Reject planner, scoring, model, seed, and authorization drift."""
 
     status = config.get("status")
     if config.get("experiment_id") != "latent-space-planner-2026-08-23":
@@ -151,9 +152,8 @@ def validate_latent_planner_config(config: Mapping[str, Any]) -> None:
     if status == "frozen_before_implementation_and_planner_data":
         if any(value is not None for value in all_hashes):
             raise ValueError("Planner hashes cannot be populated before hash freeze status.")
-    else:
-        if not all(_is_sha256(value) for value in all_hashes):
-            raise ValueError("Every latent checkpoint hash must be frozen before smoke.")
+    elif not all(_is_sha256(value) for value in all_hashes):
+        raise ValueError("Every latent checkpoint hash must be frozen before smoke.")
 
     pixel = _mapping(config.get("pixel_predictor"), "pixel_predictor")
     if pixel.get("path") != "checkpoints/stage3-pixel-mlp-seed11.pt":
@@ -195,8 +195,9 @@ def validate_latent_planner_config(config: Mapping[str, Any]) -> None:
         raise ValueError("Frozen latent-planner mechanism changed.")
 
     smoke = _mapping(config.get("smoke"), "smoke")
+    expected_smoke_authorization = status == "smoke_authorized_once"
     if dict(smoke) != {
-        "authorized": False,
+        "authorized": expected_smoke_authorization,
         "target_seed": 20261201,
         "planner_seed": 20261202,
         "steps": 20,

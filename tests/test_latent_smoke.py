@@ -28,10 +28,16 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "latent-planner-2026-08-23.json"
 
 
-def test_smoke_validation_is_unauthorized_and_side_effect_free(tmp_path: Path) -> None:
+def unauthorized_config(output_dir: Path) -> dict:
     config = deepcopy(load_latent_planner_config(CONFIG))
-    config["smoke"]["output_dir"] = str(tmp_path / "smoke")
-    result = validate_smoke_runner_request(config)
+    config["status"] = "hashes_frozen_before_smoke"
+    config["smoke"]["authorized"] = False
+    config["smoke"]["output_dir"] = str(output_dir)
+    return config
+
+
+def test_smoke_validation_is_unauthorized_and_side_effect_free(tmp_path: Path) -> None:
+    result = validate_smoke_runner_request(unauthorized_config(tmp_path / "smoke"))
     assert result["status"] == "latent_planner_smoke_runner_valid_unauthorized"
     assert result["smoke_authorized"] is False
     assert result["models_loaded"] is False
@@ -41,15 +47,17 @@ def test_smoke_validation_is_unauthorized_and_side_effect_free(tmp_path: Path) -
     assert not (tmp_path / "smoke.incomplete").exists()
 
 
-def test_smoke_run_is_rejected_before_authorization() -> None:
+def test_only_current_smoke_is_authorized() -> None:
     config = load_latent_planner_config(CONFIG)
+    require_smoke_authorized(config)
+    assert config["smoke"]["authorized"] is True
+    assert config["controlled"]["authorized"] is False
     with pytest.raises(PermissionError, match="not authorized"):
-        require_smoke_authorized(config)
+        require_smoke_authorized(unauthorized_config(Path("unused")))
 
 
 def test_smoke_output_guard_preserves_existing_incomplete(tmp_path: Path) -> None:
-    config = deepcopy(load_latent_planner_config(CONFIG))
-    config["smoke"]["output_dir"] = str(tmp_path / "smoke")
+    config = unauthorized_config(tmp_path / "smoke")
     paths = smoke_output_paths(config)
     paths.incomplete.mkdir()
     marker = paths.incomplete / "preserve.txt"

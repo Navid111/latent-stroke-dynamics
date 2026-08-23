@@ -1,0 +1,28 @@
+{
+  "test_suite": {
+    "passed": 84
+  },
+  "status": "latent_planner_smoke_runner_valid_unauthorized",
+  "candidates_per_step": 32,
+  "config_status": "hashes_frozen_before_smoke",
+  "controlled_authorized": false,
+  "historical_results_unchanged": true,
+  "latent_predictor_hashes_frozen": true,
+  "methods": [
+    "random",
+    "exact_pixel",
+    "learned_pixel",
+    "latent_mse",
+    "latent_ranking"
+  ],
+  "models_loaded": false,
+  "models_trained_or_finetuned": false,
+  "planner_data_generated": false,
+  "planner_seed_reserved": 20261202,
+  "smoke_authorized": false,
+  "smoke_incomplete_dir_available": true,
+  "smoke_output_dir_available": true,
+  "steps": 20,
+  "target_generated": false,
+  "target_seed_reserved": 20261201
+}

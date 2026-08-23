@@ -1,0 +1,18 @@
+{
+  "authorization_type": "single_latent_planner_smoke_run",
+  "authorized": true,
+  "authorized_on": "2026-08-23",
+  "validated_runner_commit": "946ae20e3e16fc6c4946b08aa4e5bbb62f6ea4d2",
+  "validation_status": "latent_planner_smoke_runner_valid_unauthorized",
+  "test_suite_passed": 84,
+  "target_seed": 20261201,
+  "planner_seed": 20261202,
+  "steps": 20,
+  "candidates_per_step": 32,
+  "methods": ["random", "exact_pixel", "learned_pixel", "latent_mse", "latent_ranking"],
+  "output_dir": "outputs/latent-planner-smoke-2026-08-23",
+  "authorized_executions": 1,
+  "model_training_or_finetuning_authorized": false,
+  "controlled_planner_authorized": false,
+  "protocol_changes_authorized": false
+}
