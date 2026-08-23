@@ -9,9 +9,10 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 ## Required reading order
 
 1. `logbooks/STATE.md`;
-2. `docs/latent-planner-controlled-results.md`;
-3. `docs/latent-planner-protocol.md`;
-4. relevant result artifacts and code.
+2. `docs/planner-score-alignment-protocol.md`;
+3. `docs/latent-planner-controlled-results.md`;
+4. `docs/latent-planner-protocol.md`;
+5. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -21,7 +22,7 @@ The controlled multi-step latent planner completed with implementation integrity
 
 ## Active task
 
-Analyze only saved controlled artifacts, formulate the final thesis interpretation, and begin thesis writing. Any new experiment requires new seeds and a separately frozen protocol.
+Implement and validate the separately frozen Stage A planner-score alignment study. Stage A uses only new seeds and already-frozen models. Development score-audit data remain unauthorized until the validation-only runner passes review.
 
 ## Hard boundaries
 
@@ -29,4 +30,5 @@ Analyze only saved controlled artifacts, formulate the final thesis interpretati
 - Do not train or fine-tune against controlled targets.
 - Do not change or overwrite any completed result.
 - Do not rerun any closed experiment.
+- Do not generate Stage A development, planner-development, or confirmatory data before its matching explicit authorization.
 - Preserve positive and negative outcomes.

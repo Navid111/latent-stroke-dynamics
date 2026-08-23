@@ -1,0 +1,148 @@
+{
+  "experiment_id": "planner-score-alignment-2026-08-23",
+  "status": "frozen_before_implementation_and_data",
+  "evidential_role": "post_controlled_exploratory_extension",
+  "historical_results_unchanged": true,
+  "closed_controlled_targets_may_be_reused": false,
+  "device": "cpu",
+  "canvas_size": 64,
+  "frozen_resources": {
+    "latent_planner_config": "configs/latent-planner-2026-08-23.json",
+    "required_latent_planner_status": "controlled_complete_closed",
+    "autoencoder_checkpoint": "outputs/representation-extension-2026-08-22/task_autoencoder/checkpoints/task_autoencoder.pt",
+    "autoencoder_state_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900",
+    "latent_statistics": "outputs/representation-extension-2026-08-22/task_autoencoder/latent_channel_statistics.json",
+    "latent_statistics_sha256": "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903",
+    "predictor_families": ["mse_only", "ranking_aware"],
+    "model_seeds": [11, 22, 33],
+    "predictor_state_sha256": {
+      "mse_only": {
+        "11": "5023e63d268ea37c17bf328a8fc4ef5f66219ed7e1127e0d4bf109330f833431",
+        "22": "8a8ea0e7e6dbfc9c5f64ae5212a48a5fc12ee5bb5ff1f23c0394c8891b5a89dc",
+        "33": "3a58be00b601a08cf9faa55e1643bf24adfd08c0a0648cbe851e9f9e49388c5e"
+      },
+      "ranking_aware": {
+        "11": "1833f9a4f68aa402587f2842e3143ee018423ff12c36afdbc61f64c0120d9588",
+        "22": "cbd1aae6c83fe7d06a1226ea58cc5953e3745f81912ad93b9a1328ffdf267ac2",
+        "33": "f4543610be2dab8adf7a14ca4bf9b862bacde49c3a3c048fb6e46d3f50097675"
+      }
+    },
+    "all_models_frozen": true,
+    "training_or_finetuning_allowed": false
+  },
+  "proposal": {
+    "error_guided_fraction": 0.8,
+    "min_length": 0.1,
+    "max_length": 0.6,
+    "width_choices": [1, 2, 3, 4],
+    "value_choices": [0, 32, 64, 96, 128]
+  },
+  "development_score_audit": {
+    "authorized": false,
+    "target_seeds": [20270101, 20270102, 20270103, 20270104, 20270105, 20270106, 20270107, 20270108],
+    "state_planner_seeds": [20270111, 20270112, 20270113, 20270114, 20270115, 20270116, 20270117, 20270118],
+    "candidate_seeds": [20270121, 20270122, 20270123, 20270124, 20270125, 20270126, 20270127, 20270128],
+    "target_strokes": 20,
+    "state_trajectory_steps": 80,
+    "state_sources": {
+      "include_blank": true,
+      "exact_pixel_steps": [20, 40, 60, 80],
+      "random_steps": [20, 40, 60, 80]
+    },
+    "states_per_target": 9,
+    "candidates_per_state": 128,
+    "prediction_batch_size": 32,
+    "predictor_families": ["mse_only", "ranking_aware"],
+    "scores": [
+      "normalized_latent_mse",
+      "normalized_latent_l1",
+      "pixel_error_weighted_normalized_latent_mse",
+      "decoded_pixel_l1",
+      "decoded_pixel_l1_plus_quarter_sobel_l1"
+    ],
+    "score_definitions": {
+      "normalized_latent_mse": "mean full-grid squared error after per-patch L2 normalization",
+      "normalized_latent_l1": "mean full-grid absolute error after per-patch L2 normalization",
+      "pixel_error_weighted_normalized_latent_mse": "normalized-latent patch MSE weighted by pooled exact current-to-target absolute pixel error plus its patch mean, then normalized to unit mean weight",
+      "decoded_pixel_l1": "mean absolute error between the exact target pixels and the frozen decoder output of the predicted standardized next latent after inverse standardization",
+      "decoded_pixel_l1_plus_quarter_sobel_l1": "decoded pixel L1 plus 0.25 times mean absolute Sobel-x and Sobel-y response error"
+    },
+    "sobel_edge_weight": 0.25,
+    "exact_label": "pixel_mse_of_exactly_rendered_candidate_to_target",
+    "exact_rank_tolerance": 1e-12,
+    "selection_order": [
+      "lowest_mean_exact_regret",
+      "highest_exact_top5_rate",
+      "highest_mean_score_exact_spearman",
+      "fixed_score_simplicity_order",
+      "mse_only_before_ranking_aware"
+    ],
+    "score_simplicity_order": [
+      "normalized_latent_mse",
+      "normalized_latent_l1",
+      "pixel_error_weighted_normalized_latent_mse",
+      "decoded_pixel_l1",
+      "decoded_pixel_l1_plus_quarter_sobel_l1"
+    ],
+    "output_dir": "outputs/planner-score-audit-development-2026-08-23",
+    "single_run": true
+  },
+  "planner_development": {
+    "authorized": false,
+    "target_seeds": [20270201, 20270202, 20270203],
+    "planner_seeds": [20270211, 20270212, 20270213],
+    "target_strokes": 20,
+    "maximum_steps": 100,
+    "candidates_per_step": 128,
+    "prediction_batch_size": 32,
+    "methods": [
+      "exact_pixel",
+      "learned_pixel",
+      "current_latent_mse_forced",
+      "development_selected_score_forced",
+      "development_selected_score_no_op"
+    ],
+    "no_op_rule": "stop when the selected score of the exactly observed current canvas is less than or equal to the minimum predicted candidate score",
+    "no_op_margin": 0.0,
+    "eligibility_for_confirmatory": {
+      "implementation_integrity_required": true,
+      "selected_pair_must_match_score_audit": true,
+      "improve_every_target_from_blank": true,
+      "minimum_mean_final_mse_reduction_vs_current_latent_mse_forced": 0.0
+    },
+    "output_dir": "outputs/planner-score-audit-planner-development-2026-08-23",
+    "single_run": true
+  },
+  "confirmatory_reserved": {
+    "authorized": false,
+    "target_seeds": [20270301, 20270302, 20270303, 20270304, 20270305, 20270306],
+    "planner_seeds": [20270311, 20270312, 20270313, 20270314, 20270315, 20270316],
+    "target_strokes": 20,
+    "maximum_steps": 100,
+    "candidates_per_step": 128,
+    "methods": [
+      "exact_pixel",
+      "learned_pixel",
+      "current_latent_mse_forced",
+      "development_selected_score_forced",
+      "development_selected_score_no_op"
+    ],
+    "success_criteria": {
+      "selected_no_op_improves_every_target_from_blank": true,
+      "minimum_mean_final_mse_reduction_vs_current_latent_mse_forced": 0.05,
+      "maximum_mean_final_mse_ratio_to_exact_pixel": 1.5,
+      "implementation_integrity_required": true,
+      "outperform_learned_pixel_required": false
+    },
+    "output_dir": "outputs/planner-score-audit-confirmatory-2026-08-23",
+    "single_run": true
+  },
+  "validation_boundary": {
+    "may_load_models": false,
+    "may_generate_targets": false,
+    "may_generate_state_trajectories": false,
+    "may_generate_candidate_sets": false,
+    "may_train_or_finetune": false,
+    "may_create_output_directories": false
+  }
+}

@@ -2,23 +2,23 @@
 
 **Last updated:** 2026-08-23  
 **Branch:** `main`  
-**Current stage:** Controlled-result analysis and thesis writing  
-**Status:** Controlled planner complete, integrity passed, frozen decision failed
+**Current stage:** Stage A planner-score alignment protocol  
+**Status:** Protocol frozen before implementation or new data
 
-## Result
+## Closed evidence
 
-The single six-target, five-method controlled comparison completed. Mean final MSE was 0.146905 random, 0.045569 exact pixel, 0.053630 learned pixel, 0.076142 latent MSE, and 0.090934 latent ranking.
+The single six-target, five-method controlled comparison remains closed. Mean final MSE was 0.146905 random, 0.045569 exact pixel, 0.053630 learned pixel, 0.076142 latent MSE, and 0.090934 latent ranking. Latent ranking improved every target and beat random by 38.10%, but its 1.996× exact-pixel ratio failed the frozen 1.5× maximum. Integrity passed completely.
 
-Latent ranking improved every target and reduced error by 38.10% versus random. It failed the full protocol because its mean error was 1.996× exact pixel, above the frozen 1.5× limit. Integrity passed completely. Latent MSE was the stronger latent planner; learned pixel was the strongest learned planner.
+## Read-only diagnosis
 
-## Interpretation
+Forced continuation caused overpainting, but it was not sufficient to explain failure. Ranking's mean best MSE was 0.083470, about 1.832× exact pixel even with oracle best-frame selection. Ranking also had weaker top-1, top-5, mean-rank, regret, and Spearman diagnostics than latent MSE. The main follow-up hypothesis is planner-score misalignment; stopping is secondary.
 
-Formal ranking-aware four-way retrieval success did not transfer into ranking-planner superiority across repeated 128-candidate decisions. The result supports weak latent planning viability but rejects the stronger performance claim under the frozen mechanism. Overpainting remained visible: ranking's mean best step was 53.5 and its final MSE was about 8.9% above its mean best MSE.
+## New frozen extension
 
-## Closure
+`configs/planner-score-alignment-2026-08-23.json` and `docs/planner-score-alignment-protocol.md` freeze a post-controlled Stage A study before implementation or data. It compares five reference-target scores across both existing three-seed latent ensembles on 72 new development state/candidate sets. A later planner development phase tests the selected score with and without an untuned no-op rule. Six additional targets are reserved for one separately authorized confirmatory comparison.
 
-Smoke and controlled planner runs are closed and unauthorized. No rerun or retuning on these targets is allowed. Models remain frozen, and historical formal evidence remains unchanged.
+No training or fine-tuning is allowed in Stage A. All new seeds are disjoint, and closed targets are prohibited.
 
 ## Next action
 
-Perform read-only per-target and per-step diagnostics from saved artifacts, then choose between one separately frozen small follow-up using new seeds or immediate thesis drafting. The writing priority is methodology, results, discussion, and the final contribution statement.
+Implement the guarded validation-only score-audit runner and tests. Validation must not load models, generate targets or state trajectories, create candidate sets, train models, or create output directories.
