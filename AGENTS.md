@@ -21,7 +21,7 @@ The latent-planner foundation passed with 79 tests. Six formal latent predictor 
 
 ## Active task
 
-Implement and validate a guarded all-five-method latent-planner smoke runner. Validation must exercise only the unauthorized path and must not generate the reserved target or create output directories. A separate authorization commit is required before the one smoke execution.
+Validate the guarded all-five-method latent-planner smoke runner. Validation must exercise only the unauthorized path and must not generate the reserved target or create output directories. A separate authorization commit is required before the one smoke execution.
 
 ## Hard boundaries
 
