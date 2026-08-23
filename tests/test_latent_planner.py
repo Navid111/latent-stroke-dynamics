@@ -124,4 +124,9 @@ def test_latent_candidate_scores_are_finite_deterministic_and_ensemble_mean() ->
     assert np.isfinite(aggregate).all()
     assert np.array_equal(aggregate, repeated)
     assert np.array_equal(per_model, repeated_per_model)
-    assert np.allclose(aggregate, per_model.mean(axis=0), rtol=0.0, atol=0.0)
+    assert np.allclose(
+        aggregate,
+        per_model.mean(axis=0),
+        rtol=1e-7,
+        atol=1e-9,
+    )

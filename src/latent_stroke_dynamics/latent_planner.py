@@ -36,6 +36,9 @@ VALID_CONFIG_STATUSES = {
     "frozen_before_implementation_and_planner_data",
     "hashes_frozen_before_smoke",
 }
+FROZEN_PIXEL_CHECKPOINT_SHA256 = (
+    "e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472"
+)
 
 
 @dataclass(frozen=True)
@@ -156,14 +159,16 @@ def validate_latent_planner_config(config: Mapping[str, Any]) -> None:
             raise ValueError("Every latent checkpoint hash must be frozen before smoke.")
 
     pixel = _mapping(config.get("pixel_predictor"), "pixel_predictor")
-    if dict(pixel) != {
-        "path": "checkpoints/stage3-pixel-mlp-seed11.pt",
-        "state_sha256": (
-            "e32f3612f7a184e4e9b58f95a987551"
-            "bd25cdb17ff1bf2b6be40fcf5781ea472"
-        ),
-    }:
-        raise ValueError("Frozen pixel predictor changed.")
+    if pixel.get("path") != "checkpoints/stage3-pixel-mlp-seed11.pt":
+        raise ValueError("Frozen pixel predictor path changed.")
+    if pixel.get("state_sha256") != FROZEN_PIXEL_CHECKPOINT_SHA256:
+        raise ValueError(
+            "Frozen pixel predictor hash changed: "
+            f"expected {FROZEN_PIXEL_CHECKPOINT_SHA256!r}, "
+            f"observed {pixel.get('state_sha256')!r}."
+        )
+    if set(pixel) != {"path", "state_sha256"}:
+        raise ValueError("Frozen pixel predictor fields changed.")
 
     planner = _mapping(config.get("planner"), "planner")
     expected_planner = {
