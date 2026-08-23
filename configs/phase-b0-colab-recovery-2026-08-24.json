@@ -1,0 +1,143 @@
+{
+  "experiment_id": "phase-b0-colab-cuda-recovery-2026-08-24",
+  "status": "frozen_before_recovery_implementation",
+  "evidential_role": "infrastructure_recovery_of_zero-completion_development_attempt",
+  "base_phase_b_experiment_id": "phase-b0-action-conditioned-joint-embedding-2026-08-23",
+  "branch": "phase-b/saliency-latent",
+  "scientific_protocol_unchanged": true,
+  "historical_results_unchanged": true,
+  "closed_targets_may_be_reused": false,
+  "source_commits": {
+    "stage_a_base": "c211c3ab3a37b9c37eda5ba3c07c01173fd4c7f7",
+    "phase_b_protocol": "b3c2c284741dccb413b7811633336edc5e548b26",
+    "development_runner": "323df8328e99c26a63fc05194edc43a4ca781efe",
+    "interruption_archive": "b93951a5dc3b150199acc66d7b783c6e76dbe88f",
+    "colab_preflight_source": "18afc1f3abf301f03417be73d817fea660ef6e45",
+    "colab_preflight_archive": "09b4bb1040c495675379a6f2ec9ea43dc74e8fb8"
+  },
+  "interrupted_attempt": {
+    "record": "configs/phase-b0-aborted-local-attempt-2026-08-23.json",
+    "attempts_started": 1,
+    "completed_executions": 0,
+    "completed_variants": 0,
+    "checkpoints_saved": false,
+    "scientific_decision_produced": false,
+    "local_incomplete_must_remain_untouched": true
+  },
+  "passing_preflight": {
+    "report": "docs/artifacts/phase-b0-colab-preflight-report-2026-08-24.json",
+    "status": "phase_b0_colab_cuda_preflight_passed_recovery_unauthorized",
+    "local_test_count": 120,
+    "colab_test_count": 120,
+    "bundle_sha256": "80ad2421ac888d239a97a88397402d2233efc5c3b9543f82250fbf0aad0aadbc",
+    "cpu_cuda_absolute_tolerance": 0.0005,
+    "cpu_cuda_relative_tolerance": 0.0005,
+    "observed_maximum_absolute_error": 0.0000032782554626464844,
+    "dummy_only": true,
+    "scientific_evidence": false
+  },
+  "environment": {
+    "provider": "google_colab_free",
+    "device": "cuda:0",
+    "gpu_name": "Tesla T4",
+    "compute_capability": [7, 5],
+    "gpu_memory_bytes": 15637086208,
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+    "python": "3.13.15",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "cudnn": 91900,
+    "float_precision": "float32",
+    "automatic_mixed_precision": false,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": true,
+    "matmul_tf32": false,
+    "cudnn_tf32": false
+  },
+  "device_allocation": {
+    "renderer_and_candidate_generation": "cpu",
+    "phase_b_training": "cuda:0",
+    "phase_b_diagnostics": "cuda:0",
+    "phase_b_new_planners": "cuda:0",
+    "learned_pixel_planner": "cuda:0",
+    "exact_pixel_planner": "cpu",
+    "archived_mse_l1_planner": "cpu",
+    "historical_checkpoint_integrity_loading": "cpu"
+  },
+  "data_manifest_sha256_required_before_training": {
+    "diagnostic_test_transitions.json": "d3101d29de97659a44932282fcbeed807405eecc1f678e71fd36e96a600d997a",
+    "planner_supervision.json": "02bef6101b0e380651301bbf7c8c0cf5e02c7c2a39e2dbab13e44fac1a9d186a",
+    "train_transitions.json": "7bb572b4d053649d22de75584615441b9d72c014f1a6128b435677e560c6304b",
+    "validation_transitions.json": "234ff3b68399aea160ceb0665728d9f1d3d5971e1924ab36eef5c1537558c817"
+  },
+  "resource_policy": {
+    "raw_and_loaded_state_hashes_must_match_preflight": true,
+    "load_task_autoencoder": true,
+    "load_mse_only_predictor_seeds": [11, 22, 33],
+    "load_pixel_predictor_seed": 11,
+    "load_ranking_aware_predictors": false,
+    "downloads_allowed": false
+  },
+  "scientific_settings": {
+    "base_config": "configs/phase-b-saliency-latent-2026-08-23.json",
+    "architecture_unchanged": true,
+    "objectives_unchanged": true,
+    "seeds_unchanged": true,
+    "eligibility_thresholds_unchanged": true,
+    "method_order_unchanged": true,
+    "maximum_completed_recovery_executions": 1,
+    "total_wall_clock_cap_hours": 6.0
+  },
+  "persistence": {
+    "external_artifact_root_required": true,
+    "expected_colab_mount_prefix": "/content/drive/MyDrive",
+    "output_leaf": "phase-b0-joint-embedding-development-2026-08-24-colab-recovery",
+    "incomplete_suffix": ".incomplete",
+    "atomic_incomplete_to_final_rename": true,
+    "repository_output_prohibited": true,
+    "stage_journal_required": true,
+    "save_each_completed_variant_immediately": true,
+    "preserve_incomplete_on_error_or_interrupt": true,
+    "automatic_resume_authorized": false
+  },
+  "required_stage_order": [
+    "guard_and_environment",
+    "resource_integrity",
+    "deterministic_data_generation",
+    "data_manifest_hash_verification",
+    "joint_prediction_only_training_and_checkpoint",
+    "joint_prediction_progress_training_and_checkpoint",
+    "diagnostics",
+    "long_horizon_comparison",
+    "eligibility_decision",
+    "final_integrity_manifest",
+    "atomic_finalize"
+  ],
+  "recovery": {
+    "authorized": false,
+    "single_run": true
+  },
+  "formal_reserved": {
+    "authorized": false
+  },
+  "phase_b1_reserved": {
+    "authorized": false
+  },
+  "phase_b2_reserved": {
+    "authorized": false
+  },
+  "implementation_validation_boundary": {
+    "may_load_configs_and_preflight_report": true,
+    "may_load_frozen_resources_for_hash_checks": true,
+    "may_use_deterministic_random_dummy_tensors": true,
+    "may_validate_cuda_device_and_numerical_tolerance": true,
+    "may_create_temporary_test_directories": true,
+    "may_generate_renderer_transitions": false,
+    "may_generate_targets": false,
+    "may_generate_state_banks": false,
+    "may_generate_candidate_sets": false,
+    "may_create_recovery_output": false,
+    "may_train_on_renderer_data": false,
+    "may_authorize_recovery_or_any_later_phase": false
+  }
+}
