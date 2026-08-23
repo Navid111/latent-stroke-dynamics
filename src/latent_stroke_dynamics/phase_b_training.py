@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 import time
@@ -38,12 +37,21 @@ class PhaseBFitResult:
     history: list[dict[str, Any]]
     wall_clock_seconds: float
     compute_cap_reached: bool
+    training_device: str
+
+
+def _model_device(model: torch.nn.Module) -> torch.device:
+    devices = {parameter.device for parameter in model.parameters()}
+    if len(devices) != 1:
+        raise RuntimeError("Phase B0 model parameters must share one device.")
+    return next(iter(devices))
 
 
 def _transition_mean(
     model: MultiScaleActionJointEmbeddingModel,
     payload: TransitionTensorPayload,
     batch_size: int,
+    device: torch.device,
 ) -> float:
     model.eval()
     total = 0.0
@@ -51,16 +59,20 @@ def _transition_mean(
     with torch.inference_mode():
         for start in range(0, payload.size, batch_size):
             stop = min(start + batch_size, payload.size)
-            output = model(payload.current[start:stop], payload.actions[start:stop])
-            target = model.encode_target(payload.next_canvas[start:stop])
+            current = payload.current[start:stop].to(device)
+            actions = payload.actions[start:stop].to(device)
+            next_canvas = payload.next_canvas[start:stop].to(device)
+            no_op = payload.no_op[start:stop].to(device)
+            output = model(current, actions)
+            target = model.encode_target(next_canvas)
             loss = phase_b_objective(
                 variant="joint_prediction_only",
                 online_features=output["current"],
                 predicted_next=output["predicted_next"],
                 target_next=target,
                 residuals=output["residual"],
-                action_rasters=payload.actions[start:stop],
-                no_op_examples=payload.no_op[start:stop],
+                action_rasters=actions,
+                no_op_examples=no_op,
             )["total"]
             total += float(loss.item()) * (stop - start)
             count += stop - start
@@ -72,28 +84,31 @@ def _planner_mean(
     payload: PlannerTensorPayload,
     progress_mean: float,
     progress_std: float,
+    device: torch.device,
 ) -> float:
     model.eval()
     values: list[float] = []
     with torch.inference_mode():
         for set_id in range(payload.candidate_sets):
             indices = torch.nonzero(payload.set_index == set_id, as_tuple=False).squeeze(1)
-            output = model(
-                payload.current[indices],
-                payload.actions[indices],
-                payload.target[indices],
-            )
-            target = model.encode_target(payload.next_canvas[indices])
+            current = payload.current[indices].to(device)
+            actions = payload.actions[indices].to(device)
+            target_canvas = payload.target[indices].to(device)
+            next_canvas = payload.next_canvas[indices].to(device)
+            candidate_index = payload.candidate_index[indices].to(device)
+            exact_progress = payload.exact_progress[indices].to(device)
+            output = model(current, actions, target_canvas)
+            target = model.encode_target(next_canvas)
             loss = phase_b_objective(
                 variant="joint_prediction_progress",
                 online_features=output["current"],
                 predicted_next=output["predicted_next"],
                 target_next=target,
                 residuals=output["residual"],
-                action_rasters=payload.actions[indices],
-                no_op_examples=payload.candidate_index[indices].eq(0),
+                action_rasters=actions,
+                no_op_examples=candidate_index.eq(0),
                 predicted_progress=output["predicted_progress"].reshape(1, -1),
-                exact_progress=payload.exact_progress[indices].reshape(1, -1),
+                exact_progress=exact_progress.reshape(1, -1),
                 progress_training_mean=progress_mean,
                 progress_training_std=progress_std,
             )["total"]
@@ -118,27 +133,34 @@ def train_phase_b_variant(
     patience: int,
     gradient_clip_norm: float,
     wall_clock_cap_hours: float,
+    device: str | torch.device = "cpu",
 ) -> PhaseBFitResult:
     """Fit one preregistered variant with paired initialization and early stopping."""
 
     if variant not in {"joint_prediction_only", "joint_prediction_progress"}:
         raise ValueError("Unexpected Phase B0 training variant.")
+    resolved_device = torch.device(device)
+    if resolved_device.type == "cuda" and not torch.cuda.is_available():
+        raise RuntimeError("CUDA Phase B0 training requested but CUDA is unavailable.")
     seed_everything(seed)
-    model = MultiScaleActionJointEmbeddingModel().cpu().train()
+    model = MultiScaleActionJointEmbeddingModel().to(resolved_device).train()
     optimizer = torch.optim.AdamW(
         [parameter for parameter in model.parameters() if parameter.requires_grad],
         lr=learning_rate,
         weight_decay=weight_decay,
     )
-    generator = torch.Generator().manual_seed(seed)
+    generator = torch.Generator(device="cpu").manual_seed(seed)
     best_loss = float("inf")
     best_epoch = 0
-    best_state = deepcopy(model.state_dict())
+    best_state = {
+        name: value.detach().cpu().clone() for name, value in model.state_dict().items()
+    }
     stale = 0
     history: list[dict[str, Any]] = []
     started = time.perf_counter()
     cap_seconds = wall_clock_cap_hours * 3600.0
     cap_reached = False
+    trainable = [parameter for parameter in model.parameters() if parameter.requires_grad]
     for epoch in range(1, maximum_epochs + 1):
         model.train()
         permutation = torch.randperm(train.size, generator=generator)
@@ -146,23 +168,24 @@ def train_phase_b_variant(
         transition_count = 0
         for start in range(0, train.size, batch_size):
             indices = permutation[start : start + batch_size]
-            output = model(train.current[indices], train.actions[indices])
-            target = model.encode_target(train.next_canvas[indices])
+            current = train.current[indices].to(resolved_device)
+            actions = train.actions[indices].to(resolved_device)
+            next_canvas = train.next_canvas[indices].to(resolved_device)
+            no_op = train.no_op[indices].to(resolved_device)
+            output = model(current, actions)
+            target = model.encode_target(next_canvas)
             loss = phase_b_objective(
                 variant="joint_prediction_only",
                 online_features=output["current"],
                 predicted_next=output["predicted_next"],
                 target_next=target,
                 residuals=output["residual"],
-                action_rasters=train.actions[indices],
-                no_op_examples=train.no_op[indices],
+                action_rasters=actions,
+                no_op_examples=no_op,
             )["total"]
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(
-                [parameter for parameter in model.parameters() if parameter.requires_grad],
-                gradient_clip_norm,
-            )
+            torch.nn.utils.clip_grad_norm_(trainable, gradient_clip_norm)
             optimizer.step()
             model.update_target_encoder(0.99)
             transition_total += float(loss.detach().item()) * len(indices)
@@ -177,43 +200,48 @@ def train_phase_b_variant(
                 indices = torch.nonzero(
                     planner_train.set_index == set_id, as_tuple=False
                 ).squeeze(1)
-                output = model(
-                    planner_train.current[indices],
-                    planner_train.actions[indices],
-                    planner_train.target[indices],
-                )
-                target = model.encode_target(planner_train.next_canvas[indices])
+                current = planner_train.current[indices].to(resolved_device)
+                actions = planner_train.actions[indices].to(resolved_device)
+                target_canvas = planner_train.target[indices].to(resolved_device)
+                next_canvas = planner_train.next_canvas[indices].to(resolved_device)
+                candidate_index = planner_train.candidate_index[indices].to(resolved_device)
+                exact_progress = planner_train.exact_progress[indices].to(resolved_device)
+                output = model(current, actions, target_canvas)
+                target = model.encode_target(next_canvas)
                 loss = phase_b_objective(
                     variant="joint_prediction_progress",
                     online_features=output["current"],
                     predicted_next=output["predicted_next"],
                     target_next=target,
                     residuals=output["residual"],
-                    action_rasters=planner_train.actions[indices],
-                    no_op_examples=planner_train.candidate_index[indices].eq(0),
+                    action_rasters=actions,
+                    no_op_examples=candidate_index.eq(0),
                     predicted_progress=output["predicted_progress"].reshape(1, -1),
-                    exact_progress=planner_train.exact_progress[indices].reshape(1, -1),
+                    exact_progress=exact_progress.reshape(1, -1),
                     progress_training_mean=progress_mean,
                     progress_training_std=progress_std,
                 )["total"]
                 optimizer.zero_grad(set_to_none=True)
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(
-                    [parameter for parameter in model.parameters() if parameter.requires_grad],
-                    gradient_clip_norm,
-                )
+                torch.nn.utils.clip_grad_norm_(trainable, gradient_clip_norm)
                 optimizer.step()
                 model.update_target_encoder(0.99)
                 planner_values.append(float(loss.detach().item()))
             planner_train_mean = float(np.mean(planner_values))
 
         train_transition = transition_total / transition_count
-        validation_transition = _transition_mean(model, validation, batch_size)
+        validation_transition = _transition_mean(
+            model, validation, batch_size, resolved_device
+        )
         validation_planner: float | None = None
         selection = validation_transition
         if variant == "joint_prediction_progress":
             validation_planner = _planner_mean(
-                model, planner_validation, progress_mean, progress_std
+                model,
+                planner_validation,
+                progress_mean,
+                progress_std,
+                resolved_device,
             )
             selection = 0.5 * (validation_transition + validation_planner)
         if not np.isfinite(selection):
@@ -232,7 +260,10 @@ def train_phase_b_variant(
         if selection < best_loss - 1e-12:
             best_loss = selection
             best_epoch = epoch
-            best_state = deepcopy(model.state_dict())
+            best_state = {
+                name: value.detach().cpu().clone()
+                for name, value in model.state_dict().items()
+            }
             stale = 0
         else:
             stale += 1
@@ -251,6 +282,7 @@ def train_phase_b_variant(
         history=history,
         wall_clock_seconds=time.perf_counter() - started,
         compute_cap_reached=cap_reached,
+        training_device=str(resolved_device),
     )
 
 
@@ -282,13 +314,17 @@ def save_phase_b_checkpoint(
             "seed": fit.seed,
             "best_epoch": fit.best_epoch,
             "best_validation_loss": fit.best_validation_loss,
+            "training_device": fit.training_device,
             "trainable_parameter_count": trainable_parameter_count(
                 MultiScaleActionJointEmbeddingModel()
             ),
             "progress_training_mean": progress_mean,
             "progress_training_std": progress_std,
             "state_sha256": digest,
-            "state_dict": {name: value.detach().cpu() for name, value in fit.model.state_dict().items()},
+            "state_dict": {
+                name: value.detach().cpu()
+                for name, value in fit.model.state_dict().items()
+            },
         },
         output,
     )
@@ -301,10 +337,13 @@ def feature_statistics(
     batch_size: int = 32,
 ) -> dict[str, dict[str, float]]:
     features: dict[str, list[torch.Tensor]] = {"32": [], "16": []}
+    device = _model_device(model)
     model.eval()
     with torch.inference_mode():
         for start in range(0, payload.size, batch_size):
-            encoded = model.online_encoder(payload.current[start : start + batch_size])
+            encoded = model.online_encoder(
+                payload.current[start : start + batch_size].to(device)
+            )
             for scale in features:
                 features[scale].append(encoded[scale].cpu())
     result: dict[str, dict[str, float]] = {}
@@ -331,12 +370,17 @@ def four_way_retrieval(
     examples = [item for item in payload.examples if not item.no_op]
     correct = 0
     total = 0
+    device = _model_device(model)
     model.eval()
     with torch.inference_mode():
         for start in range(0, len(examples), batch_size):
             batch = examples[start : start + batch_size]
-            current = images_to_grayscale_tensor([item.current for item in batch])
-            actions = torch.stack([stroke_action_raster(item.stroke) for item in batch])
+            current = images_to_grayscale_tensor(
+                [item.current for item in batch]
+            ).to(device)
+            actions = torch.stack(
+                [stroke_action_raster(item.stroke) for item in batch]
+            ).to(device)
             output = model(current, actions)
             candidate_images = []
             for item in batch:
@@ -351,14 +395,18 @@ def four_way_retrieval(
                     )
                 )
                 candidate_images.extend(counterfactual.canvases)
-            encoded = model.encode_target(images_to_grayscale_tensor(candidate_images))
-            scores = torch.zeros(len(batch), 4)
+            encoded = model.encode_target(
+                images_to_grayscale_tensor(candidate_images).to(device)
+            )
+            scores = torch.zeros(len(batch), 4, device=device)
             for scale, weight in (("32", 0.5), ("16", 0.5)):
-                candidates = encoded[scale].reshape(len(batch), 4, *encoded[scale].shape[1:])
+                candidates = encoded[scale].reshape(
+                    len(batch), 4, *encoded[scale].shape[1:]
+                )
                 predicted = output["predicted_next"][scale][:, None]
                 scores += weight * F.smooth_l1_loss(
                     predicted.expand_as(candidates), candidates, reduction="none"
-                ).mean(dim=(2, 3, 4)).cpu()
+                ).mean(dim=(2, 3, 4))
             correct += int(scores.argmin(dim=1).eq(0).sum().item())
             total += len(batch)
     return {"examples": total, "top1_accuracy": correct / total}
@@ -372,27 +420,31 @@ def planner_candidate_metrics(
     if mode not in {"prediction", "progress"}:
         raise ValueError("Unexpected Phase B0 candidate score mode.")
     rows: list[dict[str, Any]] = []
+    device = _model_device(model)
     model.eval()
     with torch.inference_mode():
         for set_id in range(payload.candidate_sets):
             indices = torch.nonzero(payload.set_index == set_id, as_tuple=False).squeeze(1)
+            current = payload.current[indices].to(device)
+            actions = payload.actions[indices].to(device)
+            target_canvas = payload.target[indices].to(device)
             output = model(
-                payload.current[indices],
-                payload.actions[indices],
-                payload.target[indices] if mode == "progress" else None,
+                current,
+                actions,
+                target_canvas if mode == "progress" else None,
             )
             if mode == "progress":
                 score = output["predicted_progress"].cpu().numpy().astype(np.float64)
             else:
-                goal = model.encode_target(payload.target[indices[:1]])
-                distance = torch.zeros(len(indices))
+                goal = model.encode_target(target_canvas[:1])
+                distance = torch.zeros(len(indices), device=device)
                 for scale, weight in (("32", 0.5), ("16", 0.5)):
                     distance += weight * F.smooth_l1_loss(
                         output["predicted_next"][scale],
                         goal[scale].expand_as(output["predicted_next"][scale]),
                         reduction="none",
-                    ).mean(dim=(1, 2, 3)).cpu()
-                score = -distance.numpy().astype(np.float64)
+                    ).mean(dim=(1, 2, 3))
+                score = -distance.cpu().numpy().astype(np.float64)
             exact = payload.exact_progress[indices].numpy().astype(np.float64)
             selected = int(np.argmax(score))
             selected_progress = float(exact[selected])

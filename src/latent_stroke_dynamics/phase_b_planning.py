@@ -62,6 +62,13 @@ class PhaseBPlanningRun:
     stop_decision: PhaseBStopDecision | None
 
 
+def _model_device(model: torch.nn.Module) -> torch.device:
+    devices = {parameter.device for parameter in model.parameters()}
+    if len(devices) != 1:
+        raise RuntimeError("Phase B0 model parameters must share one device.")
+    return next(iter(devices))
+
+
 def phase_b_candidate_scores(
     model: MultiScaleActionJointEmbeddingModel,
     current: Image.Image,
@@ -73,32 +80,37 @@ def phase_b_candidate_scores(
 ) -> np.ndarray:
     if mode not in {"prediction", "progress"} or not candidates:
         raise ValueError("Invalid Phase B0 candidate scoring request.")
-    current_tensor = images_to_grayscale_tensor((current,))
-    target_tensor = images_to_grayscale_tensor((target,))
+    device = _model_device(model)
+    current_tensor = images_to_grayscale_tensor((current,)).to(device)
+    target_tensor = images_to_grayscale_tensor((target,)).to(device)
     goal = model.encode_target(target_tensor)
     parts: list[torch.Tensor] = []
     model.eval()
     with torch.inference_mode():
         for start in range(0, len(candidates), batch_size):
             batch = candidates[start : start + batch_size]
-            actions = torch.stack([stroke_action_raster(stroke) for stroke in batch])
+            actions = torch.stack(
+                [stroke_action_raster(stroke) for stroke in batch]
+            ).to(device)
             repeated = current_tensor.expand(len(batch), -1, -1, -1)
             output = model(
                 repeated,
                 actions,
-                target_tensor.expand(len(batch), -1, -1, -1) if mode == "progress" else None,
+                target_tensor.expand(len(batch), -1, -1, -1)
+                if mode == "progress"
+                else None,
             )
             if mode == "progress":
                 parts.append(output["predicted_progress"].cpu())
             else:
-                distance = torch.zeros(len(batch))
+                distance = torch.zeros(len(batch), device=device)
                 for scale, weight in (("32", 0.5), ("16", 0.5)):
                     distance += weight * F.smooth_l1_loss(
                         output["predicted_next"][scale],
                         goal[scale].expand_as(output["predicted_next"][scale]),
                         reduction="none",
-                    ).mean(dim=(1, 2, 3)).cpu()
-                parts.append(distance)
+                    ).mean(dim=(1, 2, 3))
+                parts.append(distance.cpu())
     result = torch.cat(parts).numpy().astype(np.float64, copy=False)
     if result.shape != (len(candidates),) or not np.isfinite(result).all():
         raise RuntimeError("Phase B0 candidate scores are invalid.")
@@ -110,12 +122,13 @@ def _no_op_progress_score(
     current: Image.Image,
     target: Image.Image,
 ) -> float:
-    current_tensor = images_to_grayscale_tensor((current,))
-    target_tensor = images_to_grayscale_tensor((target,))
+    device = _model_device(model)
+    current_tensor = images_to_grayscale_tensor((current,)).to(device)
+    target_tensor = images_to_grayscale_tensor((target,)).to(device)
     with torch.inference_mode():
         output = model(
             current_tensor,
-            torch.zeros(1, 2, 64, 64),
+            torch.zeros(1, 2, 64, 64, device=device),
             target_tensor,
         )
     return float(output["predicted_progress"].item())
@@ -139,6 +152,7 @@ def run_phase_b_planner(
         raise ValueError("Only the progress-aligned model may take no-op.")
     if any(parameter.requires_grad for parameter in model.parameters()):
         raise ValueError("Phase B0 planning requires a frozen model.")
+    _model_device(model)
     initial = blank_canvas(64)
     current = initial.copy()
     frames = [current.copy()] if capture_frames else []
