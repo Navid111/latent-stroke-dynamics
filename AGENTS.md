@@ -15,13 +15,15 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 5. `docs/phase-b0-colab-preflight-results.md`;
 6. `docs/phase-b0-colab-recovery-protocol.md`;
 7. `configs/phase-b0-colab-recovery-2026-08-24.json`;
-8. `docs/phase-b0-development-command.md`;
-9. `docs/phase-b0-colab-preflight.md`;
-10. `docs/planner-score-development-results.md`;
-11. `docs/planner-score-audit-results.md`;
-12. `docs/planner-score-alignment-protocol.md`;
-13. `docs/latent-planner-controlled-results.md`;
-14. relevant result artifacts and code.
+8. `docs/phase-b0-colab-recovery-implementation-manifest.md`;
+9. `docs/phase-b0-colab-recovery-command.md`;
+10. `docs/phase-b0-development-command.md`;
+11. `docs/phase-b0-colab-preflight.md`;
+12. `docs/planner-score-development-results.md`;
+13. `docs/planner-score-audit-results.md`;
+14. `docs/planner-score-alignment-protocol.md`;
+15. `docs/latent-planner-controlled-results.md`;
+16. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -33,7 +35,7 @@ The Stage A score audit selected MSE-only plus normalized-latent L1. In long-hor
 
 ## Active task
 
-The local Phase B0 attempt is archived with zero completed variants. The Tesla T4 Colab preflight passed and is archived. The CUDA recovery protocol is frozen while recovery remains unauthorized. Implement and validate the guarded device-aware recovery runner, exact data-manifest continuity checks, exact comparator loading, persistent stage journaling, immediate per-variant checkpointing, and atomic finalization without generating experimental data.
+The local Phase B0 attempt is archived with zero completed variants. The Tesla T4 Colab preflight passed and is archived. The CUDA recovery protocol and complete guarded persistent runner are implemented while recovery remains unauthorized. Run the 132-test local suite and validation-only command. If they pass, prepare a new exact six-resource bundle and dummy-only Colab recovery-runner validation. Do not authorize recovery until both validations are archived.
 
 ## Hard boundaries
 
@@ -44,9 +46,10 @@ The local Phase B0 attempt is archived with zero completed variants. The Tesla T
 - Do not delete, rename, modify, or select against the preserved Phase B0 `.incomplete` directory.
 - Phase B0 recovery is unauthorized.
 - Do not run `experiments/21_phase_b_development.py --development` locally or in the cloud.
+- Do not run `experiments/23_phase_b_colab_recovery.py --recovery` before a separate recovery-authorization commit.
 - Recovery implementation validation may use deterministic random dummy tensors and load frozen resources for hash checks only.
 - Do not generate renderer transitions, targets, state banks, candidate sets, recovery outputs, scientific checkpoints, or scientific results before a separate recovery authorization.
-- Do not treat preflight losses or timing as scientific evidence.
+- Do not treat preflight or validation losses and timing as scientific evidence.
 - Preserve the frozen architecture, objectives, seeds, thresholds, method order, and six-hour cap.
 - Formal Phase B0, saliency scheduling B1, and RGB/high-resolution B2 remain unauthorized.
 - Preserve positive and negative outcomes.
