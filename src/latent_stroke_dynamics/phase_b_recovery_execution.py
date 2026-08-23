@@ -54,10 +54,12 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _write_json_atomic(path: Path, payload: Mapping[str, Any] | list[Any]) -> None:
+def _write_json_atomic(path: Path, payload: Any) -> None:
+    """Atomically write canonical indented JSON without a trailing newline."""
+
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    temporary.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     temporary.replace(path)
 
 
@@ -170,7 +172,7 @@ def _save_run(run: RunLike, method: str, root: Path) -> None:
     if isinstance(run, PhaseBPlanningRun):
         _write_json_atomic(
             directory / "stop_decision.json",
-            asdict(run.stop_decision) if run.stop_decision else {},
+            asdict(run.stop_decision) if run.stop_decision else None,
         )
 
 
@@ -191,6 +193,8 @@ def _require_within_cap(started: float, cap_seconds: float, stage: str) -> None:
 def _create_data_manifests(
     config: Mapping[str, Any], data_root: Path
 ) -> tuple[dict[str, Any], Any, Any, float, float]:
+    """Generate frozen payloads and byte-identical no-newline continuity manifests."""
+
     split_payloads: dict[str, Any] = {}
     crowding = tuple(int(value) for value in config["renderer"]["transition_crowding"])
     for split_name, definition in config["development"]["transition_splits"].items():
@@ -249,13 +253,7 @@ def _create_data_manifests(
             ],
         },
     )
-    return (
-        split_payloads,
-        planner_train,
-        planner_validation,
-        progress_mean,
-        progress_std,
-    )
+    return split_payloads, planner_train, planner_validation, progress_mean, progress_std
 
 
 def _artifact_hash_manifest(root: Path) -> dict[str, str]:
@@ -293,51 +291,28 @@ def execute_phase_b_recovery(
     data_root.mkdir()
     checkpoint_root.mkdir()
     targets_root.mkdir()
-    record_recovery_event(
-        paths.journal,
-        "guard_and_environment",
-        "completed",
-        {"environment": dict(environment_snapshot)},
-    )
+    record_recovery_event(paths.journal, "guard_and_environment", "completed", {"environment": dict(environment_snapshot)})
 
     raw_hashes = verify_raw_resources(root)
     loaded_states = verify_loaded_model_states(root)
     if loaded_states.get("ranking_aware_models_loaded") is not False:
         raise RuntimeError("Recovery loaded a forbidden ranking-aware model.")
-    record_recovery_event(
-        paths.journal,
-        "resource_integrity",
-        "completed",
-        {"raw_resource_sha256": raw_hashes, "loaded_model_states": loaded_states},
-    )
+    record_recovery_event(paths.journal, "resource_integrity", "completed", {"raw_resource_sha256": raw_hashes, "loaded_model_states": loaded_states})
 
     _require_within_cap(started, cap_seconds, "deterministic data generation")
-    (
-        split_payloads,
-        planner_train,
-        planner_validation,
-        progress_mean,
-        progress_std,
-    ) = _create_data_manifests(config, data_root)
+    split_payloads, planner_train, planner_validation, progress_mean, progress_std = _create_data_manifests(config, data_root)
     record_recovery_event(
         paths.journal,
         "deterministic_data_generation",
         "completed",
         {
-            "transition_samples": {
-                name: payload.size for name, payload in split_payloads.items()
-            },
+            "transition_samples": {name: payload.size for name, payload in split_payloads.items()},
             "planner_training_candidate_sets": planner_train.candidate_sets,
             "planner_validation_candidate_sets": planner_validation.candidate_sets,
         },
     )
     manifest_hashes = validate_expected_data_manifests(recovery_config, data_root)
-    record_recovery_event(
-        paths.journal,
-        "data_manifest_hash_verification",
-        "completed",
-        {"sha256": manifest_hashes},
-    )
+    record_recovery_event(paths.journal, "data_manifest_hash_verification", "completed", {"sha256": manifest_hashes})
 
     training = config["training"]
     fits: dict[str, Any] = {}
@@ -365,9 +340,7 @@ def execute_phase_b_recovery(
             device=device,
         )
         fits[variant] = fit
-        pd.DataFrame(fit.history).to_csv(
-            paths.incomplete / f"training_history_{variant}.csv", index=False
-        )
+        pd.DataFrame(fit.history).to_csv(paths.incomplete / f"training_history_{variant}.csv", index=False)
         freeze_phase_b_model(fit.model)
         checkpoint, digest = save_phase_b_checkpoint(
             fit,
@@ -384,40 +357,17 @@ def execute_phase_b_recovery(
             "compute_cap_reached": fit.compute_cap_reached,
             "training_device": fit.training_device,
         }
-        record_recovery_event(
-            paths.journal,
-            f"{variant}_training_and_checkpoint",
-            "completed",
-            checkpoints[variant],
-        )
+        record_recovery_event(paths.journal, f"{variant}_training_and_checkpoint", "completed", checkpoints[variant])
 
     prediction_model = fits["joint_prediction_only"].model
     progress_model = fits["joint_prediction_progress"].model
     diagnostic = split_payloads["diagnostic_test"]
-    representation = {
-        variant: feature_statistics(fit.model, diagnostic)
-        for variant, fit in fits.items()
-    }
-    retrieval = {
-        variant: four_way_retrieval(fit.model, diagnostic)
-        for variant, fit in fits.items()
-    }
-    candidate_rows = planner_candidate_metrics(
-        prediction_model, planner_validation, "prediction"
-    ) + planner_candidate_metrics(progress_model, planner_validation, "progress")
-    pd.DataFrame(candidate_rows).to_csv(
-        paths.incomplete / "planner_validation_candidate_metrics.csv", index=False
-    )
-    _write_json_atomic(
-        paths.incomplete / "representation_and_retrieval.json",
-        {"representation": representation, "retrieval": retrieval},
-    )
-    record_recovery_event(
-        paths.journal,
-        "diagnostics",
-        "completed",
-        {"representation": representation, "retrieval": retrieval},
-    )
+    representation = {variant: feature_statistics(fit.model, diagnostic) for variant, fit in fits.items()}
+    retrieval = {variant: four_way_retrieval(fit.model, diagnostic) for variant, fit in fits.items()}
+    candidate_rows = planner_candidate_metrics(prediction_model, planner_validation, "prediction") + planner_candidate_metrics(progress_model, planner_validation, "progress")
+    pd.DataFrame(candidate_rows).to_csv(paths.incomplete / "planner_validation_candidate_metrics.csv", index=False)
+    _write_json_atomic(paths.incomplete / "representation_and_retrieval.json", {"representation": representation, "retrieval": retrieval})
+    record_recovery_event(paths.journal, "diagnostics", "completed", {"representation": representation, "retrieval": retrieval})
 
     closed = load_latent_planner_config(root / "configs/latent-planner-2026-08-23.json")
     autoencoder, statistics = load_task_latent_resources(closed)
@@ -425,10 +375,7 @@ def execute_phase_b_recovery(
     archived_models = [item.model for item in archived_loaded]
     if tuple(item.method for item in archived_loaded) != ("mse_only",) * 3:
         raise RuntimeError("Recovery comparator family changed.")
-    pixel_model, pixel_metadata = load_pixel_checkpoint(
-        root / config["closed_comparators"]["learned_pixel_predictor"]["path"],
-        device=device,
-    )
+    pixel_model, pixel_metadata = load_pixel_checkpoint(root / config["closed_comparators"]["learned_pixel_predictor"]["path"], device=device)
     pixel_digest = state_dict_sha256(pixel_model)
     if pixel_digest != config["closed_comparators"]["learned_pixel_predictor"]["state_sha256"]:
         raise RuntimeError("Frozen pixel comparator hash changed.")
@@ -439,89 +386,19 @@ def execute_phase_b_recovery(
     proposal = _proposal(int(horizon["candidates_per_step"]))
     summary_rows: list[dict[str, Any]] = []
     step_rows: list[dict[str, Any]] = []
-    for target_index, (target_seed, planner_seed) in enumerate(
-        zip(horizon["target_seeds"], horizon["planner_seeds"], strict=True), start=1
-    ):
+    for target_index, (target_seed, planner_seed) in enumerate(zip(horizon["target_seeds"], horizon["planner_seeds"], strict=True), start=1):
         _require_within_cap(started, cap_seconds, f"long-horizon target {target_index}")
         target_id = f"target_{target_index:02d}"
         target_dir = targets_root / target_id
         target_dir.mkdir()
-        target = random_base_canvas(
-            64,
-            int(config["renderer"]["target_strokes"]),
-            np.random.default_rng(int(target_seed)),
-        )
+        target = random_base_canvas(64, int(config["renderer"]["target_strokes"]), np.random.default_rng(int(target_seed)))
         target.save(target_dir / "target.png")
-        exact, exact_time = _timed(
-            run_planner,
-            target,
-            "exact",
-            steps=int(horizon["maximum_steps"]),
-            seed=int(planner_seed),
-            proposal_config=proposal,
-            capture_frames=True,
-        )
-        learned, learned_time = _timed(
-            run_learned_planner,
-            target,
-            pixel_model,
-            steps=int(horizon["maximum_steps"]),
-            seed=int(planner_seed),
-            proposal_config=proposal,
-            prediction_batch_size=32,
-            device=device,
-            capture_frames=True,
-        )
-        archived, archived_time = _timed(
-            run_selected_score_planner,
-            target,
-            autoencoder,
-            statistics,
-            archived_models,
-            maximum_steps=int(horizon["maximum_steps"]),
-            seed=int(planner_seed),
-            proposal_config=proposal,
-            prediction_batch_size=32,
-            allow_no_op=False,
-            no_op_margin=0.0,
-            capture_frames=True,
-        )
-        prediction, prediction_time = _timed(
-            run_phase_b_planner,
-            target,
-            prediction_model,
-            mode="prediction",
-            maximum_steps=int(horizon["maximum_steps"]),
-            seed=int(planner_seed),
-            proposal_config=proposal,
-            prediction_batch_size=32,
-            allow_no_op=False,
-            capture_frames=True,
-        )
-        progress_forced, progress_forced_time = _timed(
-            run_phase_b_planner,
-            target,
-            progress_model,
-            mode="progress",
-            maximum_steps=int(horizon["maximum_steps"]),
-            seed=int(planner_seed),
-            proposal_config=proposal,
-            prediction_batch_size=32,
-            allow_no_op=False,
-            capture_frames=True,
-        )
-        progress_no_op, progress_no_op_time = _timed(
-            run_phase_b_planner,
-            target,
-            progress_model,
-            mode="progress",
-            maximum_steps=int(horizon["maximum_steps"]),
-            seed=int(planner_seed),
-            proposal_config=proposal,
-            prediction_batch_size=32,
-            allow_no_op=True,
-            capture_frames=True,
-        )
+        exact, exact_time = _timed(run_planner, target, "exact", steps=int(horizon["maximum_steps"]), seed=int(planner_seed), proposal_config=proposal, capture_frames=True)
+        learned, learned_time = _timed(run_learned_planner, target, pixel_model, steps=int(horizon["maximum_steps"]), seed=int(planner_seed), proposal_config=proposal, prediction_batch_size=32, device=device, capture_frames=True)
+        archived, archived_time = _timed(run_selected_score_planner, target, autoencoder, statistics, archived_models, maximum_steps=int(horizon["maximum_steps"]), seed=int(planner_seed), proposal_config=proposal, prediction_batch_size=32, allow_no_op=False, no_op_margin=0.0, capture_frames=True)
+        prediction, prediction_time = _timed(run_phase_b_planner, target, prediction_model, mode="prediction", maximum_steps=int(horizon["maximum_steps"]), seed=int(planner_seed), proposal_config=proposal, prediction_batch_size=32, allow_no_op=False, capture_frames=True)
+        progress_forced, progress_forced_time = _timed(run_phase_b_planner, target, progress_model, mode="progress", maximum_steps=int(horizon["maximum_steps"]), seed=int(planner_seed), proposal_config=proposal, prediction_batch_size=32, allow_no_op=False, capture_frames=True)
+        progress_no_op, progress_no_op_time = _timed(run_phase_b_planner, target, progress_model, mode="progress", maximum_steps=int(horizon["maximum_steps"]), seed=int(planner_seed), proposal_config=proposal, prediction_batch_size=32, allow_no_op=True, capture_frames=True)
         runs = (
             (exact, "exact_pixel", exact_time),
             (learned, "learned_pixel", learned_time),
@@ -533,37 +410,18 @@ def execute_phase_b_recovery(
         if tuple(method for _, method, _ in runs) != LONG_HORIZON_METHODS:
             raise RuntimeError("Phase B0 long-horizon method order changed.")
         for run, method, seconds in runs:
-            summary_rows.append(
-                {
-                    "target_id": target_id,
-                    "target_seed": int(target_seed),
-                    "planner_seed": int(planner_seed),
-                    **_summary_row(
-                        run,
-                        method,
-                        seconds,
-                        int(horizon["maximum_steps"]),
-                        int(horizon["candidates_per_step"]),
-                    ),
-                }
-            )
+            summary_rows.append({
+                "target_id": target_id,
+                "target_seed": int(target_seed),
+                "planner_seed": int(planner_seed),
+                **_summary_row(run, method, seconds, int(horizon["maximum_steps"]), int(horizon["candidates_per_step"])),
+            })
             for item in run.steps:
-                step_rows.append(
-                    {"target_id": target_id, "method": method, **asdict(item)}
-                )
+                step_rows.append({"target_id": target_id, "method": method, **asdict(item)})
             _save_run(run, method, target_dir)
-        pd.DataFrame(summary_rows).to_csv(
-            paths.incomplete / "long_horizon_per_target.partial.csv", index=False
-        )
-        pd.DataFrame(step_rows).to_csv(
-            paths.incomplete / "long_horizon_steps.partial.csv", index=False
-        )
-        record_recovery_event(
-            paths.journal,
-            "long_horizon_target",
-            "completed",
-            {"target_id": target_id, "methods": list(LONG_HORIZON_METHODS)},
-        )
+        pd.DataFrame(summary_rows).to_csv(paths.incomplete / "long_horizon_per_target.partial.csv", index=False)
+        pd.DataFrame(step_rows).to_csv(paths.incomplete / "long_horizon_steps.partial.csv", index=False)
+        record_recovery_event(paths.journal, "long_horizon_target", "completed", {"target_id": target_id, "methods": list(LONG_HORIZON_METHODS)})
 
     summary = pd.DataFrame(summary_rows)
     if len(summary) != len(horizon["target_seeds"]) * len(LONG_HORIZON_METHODS):
@@ -580,12 +438,7 @@ def execute_phase_b_recovery(
         mean_exact_regret=("mean_exact_regret", "mean"),
     ).reset_index()
     aggregate.to_csv(paths.incomplete / "long_horizon_aggregate.csv", index=False)
-    record_recovery_event(
-        paths.journal,
-        "long_horizon_comparison",
-        "completed",
-        {"targets": len(horizon["target_seeds"]), "methods": list(LONG_HORIZON_METHODS)},
-    )
+    record_recovery_event(paths.journal, "long_horizon_comparison", "completed", {"targets": len(horizon["target_seeds"]), "methods": list(LONG_HORIZON_METHODS)})
 
     means = aggregate.set_index("method")
     archived_final = float(means.loc["archived_mse_l1_forced", "mean_final_mse"])
@@ -600,10 +453,7 @@ def execute_phase_b_recovery(
     total_elapsed = time.perf_counter() - started
     eligibility = config["development_eligibility"]
     progress_stats = representation["joint_prediction_progress"]
-    fingerprints = {
-        name: {item.fingerprint for item in payload.examples}
-        for name, payload in split_payloads.items()
-    }
+    fingerprints = {name: {item.fingerprint for item in payload.examples} for name, payload in split_payloads.items()}
     splits_disjoint = not (
         fingerprints["train"] & fingerprints["validation"]
         or fingerprints["train"] & fingerprints["diagnostic_test"]
@@ -615,33 +465,20 @@ def execute_phase_b_recovery(
         and loaded_states.get("ranking_aware_models_loaded") is False
         and all(len(item["state_sha256"]) == 64 for item in checkpoints.values())
         and pixel_metadata.model_seed == 11
-        and model_state_sha256(prediction_model)
-        == checkpoints["joint_prediction_only"]["state_sha256"]
-        and model_state_sha256(progress_model)
-        == checkpoints["joint_prediction_progress"]["state_sha256"]
+        and model_state_sha256(prediction_model) == checkpoints["joint_prediction_only"]["state_sha256"]
+        and model_state_sha256(progress_model) == checkpoints["joint_prediction_progress"]["state_sha256"]
     )
     criteria = {
         "implementation_integrity": implementation_integrity,
         "historical_artifacts_unchanged": True,
-        "representation_noncollapse_each_scale": all(
-            progress_stats[scale]["mean_channel_std"]
-            >= float(eligibility["minimum_mean_channel_std_each_scale"])
-            for scale in ("32", "16")
-        ),
-        "diagnostic_four_way_retrieval": retrieval["joint_prediction_progress"]["top1_accuracy"]
-        >= float(eligibility["minimum_diagnostic_four_way_retrieval"]),
-        "minimum_128_way_regret_reduction_vs_archived_mse_l1": regret_reduction
-        >= float(eligibility["minimum_mean_128_way_regret_reduction_vs_archived_mse_l1"]),
-        "no_op_improves_every_target_from_blank": bool(
-            (no_op_rows["final_mse"] < no_op_rows["initial_mse"]).all()
-        ),
-        "minimum_mean_final_mse_reduction_vs_archived_mse_l1": final_reduction
-        >= float(eligibility["minimum_mean_final_mse_reduction_vs_archived_mse_l1"]),
+        "representation_noncollapse_each_scale": all(progress_stats[scale]["mean_channel_std"] >= float(eligibility["minimum_mean_channel_std_each_scale"]) for scale in ("32", "16")),
+        "diagnostic_four_way_retrieval": retrieval["joint_prediction_progress"]["top1_accuracy"] >= float(eligibility["minimum_diagnostic_four_way_retrieval"]),
+        "minimum_128_way_regret_reduction_vs_archived_mse_l1": regret_reduction >= float(eligibility["minimum_mean_128_way_regret_reduction_vs_archived_mse_l1"]),
+        "no_op_improves_every_target_from_blank": bool((no_op_rows["final_mse"] < no_op_rows["initial_mse"]).all()),
+        "minimum_mean_final_mse_reduction_vs_archived_mse_l1": final_reduction >= float(eligibility["minimum_mean_final_mse_reduction_vs_archived_mse_l1"]),
         "no_op_no_worse_than_joint_prediction_only_forced": progress_final <= prediction_final,
-        "maximum_mean_final_mse_ratio_to_exact_pixel": progress_final / max(exact_final, 1e-12)
-        <= float(eligibility["maximum_mean_final_mse_ratio_to_exact_pixel"]),
-        "maximum_premature_stop_rate": float(no_op_rows["premature_stop"].mean())
-        <= float(eligibility["maximum_premature_stop_rate"]),
+        "maximum_mean_final_mse_ratio_to_exact_pixel": progress_final / max(exact_final, 1e-12) <= float(eligibility["maximum_mean_final_mse_ratio_to_exact_pixel"]),
+        "maximum_premature_stop_rate": float(no_op_rows["premature_stop"].mean()) <= float(eligibility["maximum_premature_stop_rate"]),
         "compute_cap": total_elapsed <= cap_seconds,
     }
     eligible = bool(all(criteria.values()))
@@ -693,18 +530,8 @@ def execute_phase_b_recovery(
         "historical_results_unchanged": True,
     }
     _write_json_atomic(paths.incomplete / "integrity_manifest.json", integrity)
-    record_recovery_event(
-        paths.journal,
-        "final_integrity_manifest",
-        "completed",
-        {"artifact_count": len(integrity["artifact_sha256"])},
-    )
+    record_recovery_event(paths.journal, "final_integrity_manifest", "completed", {"artifact_count": len(integrity["artifact_sha256"])})
     paths.incomplete.rename(paths.final)
     final_journal = paths.final / "recovery_stage_journal.json"
-    record_recovery_event(
-        final_journal,
-        "atomic_finalize",
-        "completed",
-        {"final_path": str(paths.final)},
-    )
+    record_recovery_event(final_journal, "atomic_finalize", "completed", {"final_path": str(paths.final)})
     return decision
