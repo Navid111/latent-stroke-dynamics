@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-08-23  
 **Branch:** `main`  
-**Current stage:** Stage A planner-development validation  
-**Status:** Guarded runner implemented; planner development unauthorized
+**Current stage:** Stage A long-horizon planner development  
+**Status:** One planner-development comparison authorized; not yet executed
 
 ## Closed evidence
 
@@ -15,12 +15,12 @@ The single development score audit also completed and is closed. It evaluated 10
 
 The selected development pair is the three-seed MSE-only ensemble with normalized-latent L1 score. Mean exact regret was 0.001052, top-5 rate was 51.39%, mean exact rank was 12.39, and mean score-to-exact Spearman was 0.619. Compared with the previous normalized-latent MSE score using the same predictors, L1 reduced mean regret by about 28.8% and improved top-5 rate by 18.06 percentage points.
 
-## Planner-development runner
+## Validation and authorization
 
-The guarded runner compares five methods on three new reserved targets: exact pixel, learned pixel, current latent-MSE forced horizon, selected latent-L1 forced horizon, and selected latent-L1 with a zero-margin no-op. The no-op stops only when the exactly encoded observed current canvas scores no worse than every predicted candidate. The runner includes deterministic replays, exact execution, re-encoding, atomic outputs, frozen selection checks, and a preregistered eligibility decision.
+The guarded long-horizon runner passed all 103 tests. Validation returned `planner_score_planner_development_runner_valid_unauthorized`; the archived selection, pixel checkpoint, autoencoder, statistics, and all six latent predictors were verified. No model was loaded, no target or planner data was generated, and no training or fine-tuning occurred.
 
-Validation-only mode may not load models, generate targets, generate planner data, create outputs, train, or fine-tune. Planner development and confirmatory evaluation remain unauthorized.
+Exactly one three-target planner-development comparison is now authorized. The selected L1 score, zero no-op margin, five methods, 100-step maximum, 128 candidates, seeds, and eligibility criteria remain frozen. Confirmatory evaluation is unauthorized.
 
 ## Next action
 
-Pull the implementation, run the full test suite, and execute only `python experiments/19_planner_score_development.py --validate-only`. Do not run planner development until a separate one-time authorization is committed.
+Pull the authorization commit, rerun the 103-test suite, and execute `python experiments/19_planner_score_development.py --planner-development` exactly once. Preserve any `.incomplete` directory after an error or interruption.

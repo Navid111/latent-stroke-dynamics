@@ -70,6 +70,8 @@ def test_planner_development_validation_is_unauthorized_and_side_effect_free(
     tmp_path: Path,
 ) -> None:
     config = deepcopy(load_score_alignment_config(CONFIG))
+    config["status"] = "development_score_audit_complete_planner_unauthorized"
+    config["planner_development"]["authorized"] = False
     config["planner_development"]["output_dir"] = str(tmp_path / "planner-development")
     selection = load_frozen_development_selection(SELECTION)
     result = validate_planner_development_runner_request(config, selection)
@@ -90,8 +92,12 @@ def test_planner_development_guards_authorization_and_incomplete_output(
 ) -> None:
     config = deepcopy(load_score_alignment_config(CONFIG))
     config["planner_development"]["output_dir"] = str(tmp_path / "planner-development")
+    require_planner_development_authorized(config)
+    unauthorized = deepcopy(config)
+    unauthorized["status"] = "development_score_audit_complete_planner_unauthorized"
+    unauthorized["planner_development"]["authorized"] = False
     with pytest.raises(PermissionError, match="not authorized"):
-        require_planner_development_authorized(config)
+        require_planner_development_authorized(unauthorized)
     paths = planner_development_output_paths(config)
     paths.incomplete.mkdir()
     marker = paths.incomplete / "preserve.txt"

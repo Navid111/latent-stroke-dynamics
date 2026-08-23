@@ -1,6 +1,6 @@
 {
   "experiment_id": "planner-score-alignment-2026-08-23",
-  "status": "development_score_audit_complete_planner_unauthorized",
+  "status": "planner_development_authorized_once",
   "evidential_role": "post_controlled_exploratory_extension",
   "historical_results_unchanged": true,
   "closed_controlled_targets_may_be_reused": false,
@@ -88,7 +88,7 @@
     "single_run": true
   },
   "planner_development": {
-    "authorized": false,
+    "authorized": true,
     "target_seeds": [20270201, 20270202, 20270203],
     "planner_seeds": [20270211, 20270212, 20270213],
     "target_strokes": 20,

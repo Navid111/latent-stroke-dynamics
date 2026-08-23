@@ -1,0 +1,29 @@
+{
+  "authorization_type": "single_planner_score_long_horizon_development_comparison",
+  "authorized": true,
+  "authorized_on": "2026-08-23",
+  "validated_runner_commit": "5427965e21ac5f4cd2ffce740a8827269b52eb01",
+  "validation_status": "planner_score_planner_development_runner_valid_unauthorized",
+  "test_suite_passed": 103,
+  "target_seeds": [20270201, 20270202, 20270203],
+  "planner_seeds": [20270211, 20270212, 20270213],
+  "maximum_steps": 100,
+  "candidates_per_step": 128,
+  "methods": [
+    "exact_pixel",
+    "learned_pixel",
+    "current_latent_mse_forced",
+    "development_selected_score_forced",
+    "development_selected_score_no_op"
+  ],
+  "selected_predictor_family": "mse_only",
+  "selected_score_name": "normalized_latent_l1",
+  "no_op_margin": 0.0,
+  "output_dir": "outputs/planner-score-audit-planner-development-2026-08-23",
+  "authorized_executions": 1,
+  "model_training_or_finetuning_authorized": false,
+  "score_audit_rerun_authorized": false,
+  "closed_target_reuse_authorized": false,
+  "confirmatory_authorized": false,
+  "protocol_changes_authorized": false
+}

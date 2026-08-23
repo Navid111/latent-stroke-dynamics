@@ -25,7 +25,7 @@ The Stage A score audit completed with integrity passed. Its frozen development 
 
 ## Active task
 
-Validate the guarded three-target planner-development runner. It compares exact pixel, learned pixel, current latent MSE forced horizon, selected latent L1 forced horizon, and selected latent L1 with the preregistered zero-margin no-op. Planner-development data remain unauthorized.
+Run the separately authorized three-target planner-development comparison exactly once. It compares exact pixel, learned pixel, current latent MSE forced horizon, selected latent L1 forced horizon, and selected latent L1 with the preregistered zero-margin no-op. Confirmatory evaluation remains unauthorized.
 
 ## Hard boundaries
 
@@ -33,6 +33,7 @@ Validate the guarded three-target planner-development runner. It compares exact 
 - Do not train or fine-tune against any completed target.
 - Do not change or overwrite any completed result.
 - Keep the selected pair fixed as MSE-only plus normalized-latent L1.
-- Do not run `--planner-development` before a separate committed authorization.
+- Run `--planner-development` at most once under the current authorization.
+- Preserve an incomplete output directory after any error or interruption; do not retry without review.
 - Do not generate confirmatory data before explicit authorization.
 - Preserve positive and negative outcomes.
