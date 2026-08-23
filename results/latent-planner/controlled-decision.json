@@ -1,0 +1,26 @@
+{
+  "status": "fail",
+  "controlled_comparison_completed": true,
+  "implementation_integrity_passed": true,
+  "criteria_frozen_before_controlled_data": true,
+  "criteria_passed": {
+    "latent_ranking_improves_every_target": true,
+    "minimum_mean_reduction_vs_random": true,
+    "maximum_mean_ratio_to_exact_pixel": false,
+    "implementation_integrity": true
+  },
+  "latent_ranking_improved_every_target": true,
+  "mean_random_final_mse": 0.14690501420924798,
+  "mean_exact_pixel_final_mse": 0.045568784796084096,
+  "mean_learned_pixel_final_mse": 0.0536302990792592,
+  "mean_latent_mse_final_mse": 0.07614162433302833,
+  "mean_latent_ranking_final_mse": 0.09093374049378629,
+  "latent_ranking_mean_final_mse_reduction_vs_random": 0.381003153750338,
+  "latent_ranking_mean_final_mse_ratio_to_exact_pixel": 1.9955270016680493,
+  "latent_ranking_mean_final_mse_ratio_to_latent_mse": 1.194271087468008,
+  "latent_ranking_mean_final_mse_ratio_to_learned_pixel": 1.6955665371061428,
+  "outperform_learned_pixel_required": false,
+  "models_trained_or_finetuned": false,
+  "smoke_result_unchanged": true,
+  "formal_result_unchanged": true
+}

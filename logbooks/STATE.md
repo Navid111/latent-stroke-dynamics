@@ -2,21 +2,23 @@
 
 **Last updated:** 2026-08-23  
 **Branch:** `main`  
-**Current stage:** Controlled latent-planner execution  
-**Status:** Exactly one controlled run authorized
+**Current stage:** Controlled-result analysis and thesis writing  
+**Status:** Controlled planner complete, integrity passed, frozen decision failed
 
-## Evidence carried forward
+## Result
 
-The formal ranking-aware comparison remains closed at 74.44% retrieval versus 31.44% for MSE-only. The one-target planner smoke passed implementation integrity and is permanently closed. It found latent MSE better than latent ranking on that diagnostic target, without changing the frozen controlled protocol.
+The single six-target, five-method controlled comparison completed. Mean final MSE was 0.146905 random, 0.045569 exact pixel, 0.053630 learned pixel, 0.076142 latent MSE, and 0.090934 latent ranking.
 
-## Controlled validation
+Latent ranking improved every target and reduced error by 38.10% versus random. It failed the full protocol because its mean error was 1.996× exact pixel, above the frozen 1.5× limit. Integrity passed completely. Latent MSE was the stronger latent planner; learned pixel was the strongest learned planner.
 
-The expanded suite passed all 89 tests. No-data validation returned `latent_planner_controlled_runner_valid_unauthorized`: no models were loaded, no controlled target or planner data was generated, both atomic output paths were free, criteria were frozen, and historical evidence remained unchanged.
+## Interpretation
 
-## Authorization boundary
+Formal ranking-aware four-way retrieval success did not transfer into ranking-planner superiority across repeated 128-candidate decisions. The result supports weak latent planning viability but rejects the stronger performance claim under the frozen mechanism. Overpainting remained visible: ranking's mean best step was 53.5 and its final MSE was about 8.9% above its mean best MSE.
 
-Exactly one execution is authorized for the six frozen target/planner seed pairs, five methods, 100 steps, and 128 candidates. No model training, fine-tuning, smoke rerun, protocol change, or second controlled execution is authorized.
+## Closure
+
+Smoke and controlled planner runs are closed and unauthorized. No rerun or retuning on these targets is allowed. Models remain frozen, and historical formal evidence remains unchanged.
 
 ## Next action
 
-Pull the authorization commit, rerun the 89-test suite, and execute `python experiments/17_latent_planner_controlled.py --controlled-run` exactly once. Keep the machine awake. Preserve and report the complete terminal output, `aggregate_summary.csv`, `decision.json`, and `run_config.json`.
+Perform read-only per-target and per-step diagnostics from saved artifacts, then choose between one separately frozen small follow-up using new seeds or immediate thesis drafting. The writing priority is methodology, results, discussion, and the final contribution statement.

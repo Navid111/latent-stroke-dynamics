@@ -9,26 +9,24 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 ## Required reading order
 
 1. `logbooks/STATE.md`;
-2. `docs/latent-planner-protocol.md`;
-3. `docs/latent-planner-smoke-results.md`;
-4. `docs/latent-planner-controlled-command.md`;
-5. relevant planning, encoding, checkpoint, and test code.
+2. `docs/latent-planner-controlled-results.md`;
+3. `docs/latent-planner-protocol.md`;
+4. relevant result artifacts and code.
 
 ## Frozen evidence
 
-The formal ranking-aware comparison remains immutable: 74.44% retrieval versus 31.44% for MSE-only, +43.00 points, with every criterion passed.
+The formal ranking-aware comparison remains immutable: 74.44% retrieval versus 31.44% for MSE-only, +43.00 points, with every formal one-step criterion passed.
 
-The latent-planner foundation passed and six predictor hashes were frozen. The one authorized smoke completed with full implementation integrity and is closed. The guarded controlled runner passed all 89 tests and no-data validation.
+The controlled multi-step latent planner completed with implementation integrity passed but failed one required criterion. Latent ranking improved all six targets and beat random by 38.10%, but its mean final MSE was 1.996× exact pixel, above the frozen 1.5× maximum. Latent MSE and learned pixel were stronger planners.
 
 ## Active task
 
-Execute the one authorized six-target, five-method controlled comparison exactly once, preserve all outputs, and adjudicate only with the frozen criteria.
+Analyze only saved controlled artifacts, formulate the final thesis interpretation, and begin thesis writing. Any new experiment requires new seeds and a separately frozen protocol.
 
 ## Hard boundaries
 
-- Do not rerun the completed smoke.
-- Do not rerun the controlled comparison after a completed or `.incomplete` output appears.
-- Do not train or fine-tune any model.
+- Do not rerun or retune the completed smoke or controlled comparison.
+- Do not train or fine-tune against controlled targets.
+- Do not change or overwrite any completed result.
 - Do not rerun any closed experiment.
-- Do not change scoring, ensemble, proposal, target, step, candidate, threshold, or seed settings.
-- Preserve all completed raw and adjudicated artifacts.
+- Preserve positive and negative outcomes.

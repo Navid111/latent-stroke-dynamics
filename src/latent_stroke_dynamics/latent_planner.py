@@ -38,6 +38,7 @@ VALID_CONFIG_STATUSES = {
     "smoke_authorized_once",
     "smoke_complete_controlled_unauthorized",
     "controlled_authorized_once",
+    "controlled_complete_closed",
 }
 
 

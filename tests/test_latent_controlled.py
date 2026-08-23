@@ -89,13 +89,12 @@ def test_controlled_validation_is_unauthorized_and_side_effect_free(tmp_path: Pa
     assert not (tmp_path / "controlled.incomplete").exists()
 
 
-def test_only_controlled_run_is_authorized() -> None:
+def test_controlled_is_closed_after_completed_execution() -> None:
     config = load_latent_planner_config(CONFIG)
-    require_controlled_authorized(config)
-    assert config["controlled"]["authorized"] is True
+    assert config["controlled"]["authorized"] is False
     assert config["smoke"]["authorized"] is False
     with pytest.raises(PermissionError, match="not authorized"):
-        require_controlled_authorized(unauthorized_config(Path("unused")))
+        require_controlled_authorized(config)
 
 
 def test_controlled_output_guard_preserves_incomplete_evidence(tmp_path: Path) -> None:
