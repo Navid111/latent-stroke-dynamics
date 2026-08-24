@@ -1,0 +1,102 @@
+{
+  "experiment_id": "phase-b0-colab-native-development-2026-08-24",
+  "status": "cloud_native_development_frozen_unauthorized",
+  "evidential_role": "new_cloud_native_development_after_zero_completion_local_attempt",
+  "branch": "phase-b/saliency-latent",
+  "base_config": "configs/phase-b-saliency-latent-2026-08-23.json",
+  "historical_results_unchanged": true,
+  "recovery_of_mac_attempt": false,
+  "prior_attempts": {
+    "local_attempt": "aborted_before_first_variant_completion",
+    "local_completed_models": 0,
+    "local_scientific_decision_created": false,
+    "old_recovery_authorization_reusable": false,
+    "cross_platform_compatibility_result": "negative_renderer_platform_dependence"
+  },
+  "manifest_basis": {
+    "canonical_platform": "linux_x86_64_google_colab",
+    "independent_cloud_reproductions": 2,
+    "training_results_observed_before_freeze": false,
+    "mac_hashes_replaced_in_old_protocol": false,
+    "new_experiment": true
+  },
+  "environment": {
+    "provider": "google_colab_free",
+    "device": "cuda:0",
+    "gpu_name": "Tesla T4",
+    "compute_capability": [7, 5],
+    "gpu_memory_bytes": 15637086208,
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+    "python": "3.13.15",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "cudnn": 91900,
+    "float_precision": "float32",
+    "automatic_mixed_precision": false,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": true,
+    "matmul_tf32": false,
+    "cudnn_tf32": false
+  },
+  "device_allocation": {
+    "renderer_and_candidate_generation": "cpu",
+    "phase_b_training": "cuda:0",
+    "phase_b_diagnostics": "cuda:0",
+    "phase_b_new_planners": "cuda:0",
+    "learned_pixel_planner": "cuda:0",
+    "exact_pixel_planner": "cpu",
+    "archived_mse_l1_planner": "cpu",
+    "historical_checkpoint_integrity_loading": "cpu"
+  },
+  "data_manifest_sha256_required_before_training": {
+    "diagnostic_test_transitions.json": "97d7e6527b27ade5671732fd025e069cb4497c85e64ad6c853c0a3cf0cbfee0b",
+    "planner_supervision.json": "d5d0355c87f5f108b12a414c5e83c5a0bab733bcdfe41ddce9b5fc68e2feae62",
+    "train_transitions.json": "18551716942c747ee3daf8728bf1a8d1d21b9b075f85d71fe1365bcfd6a6e6e8",
+    "validation_transitions.json": "2b4fe2b782699538b91d3d13b453051fdb7e957d55fd371aba1cfdf56b44600a"
+  },
+  "resource_policy": {
+    "required_resource_count": 6,
+    "raw_and_loaded_state_hashes_must_match": true,
+    "load_task_autoencoder": true,
+    "load_mse_only_predictor_seeds": [11, 22, 33],
+    "load_pixel_predictor_seed": 11,
+    "load_ranking_aware_predictors": false,
+    "downloads_allowed_during_execution": false
+  },
+  "scientific_settings": {
+    "architecture_unchanged": true,
+    "objectives_unchanged": true,
+    "seeds_reused_from_zero_completion_protocol": true,
+    "eligibility_thresholds_unchanged": true,
+    "method_order_unchanged": true,
+    "hyperparameter_grid_allowed": false,
+    "maximum_completed_executions": 1,
+    "total_wall_clock_cap_hours": 6.0
+  },
+  "persistence": {
+    "external_artifact_root": "/content/drive/MyDrive/latent-stroke-dynamics-phase-b0-cloud-native",
+    "output_leaf": "phase-b0-cloud-native-development-2026-08-24",
+    "incomplete_suffix": ".incomplete",
+    "repository_output_prohibited": true,
+    "atomic_incomplete_to_final_rename": true,
+    "preserve_incomplete_on_error_or_interrupt": true,
+    "automatic_resume_authorized": false
+  },
+  "development": {
+    "authorized": false,
+    "single_run": true
+  },
+  "formal_reserved": {"authorized": false},
+  "phase_b1_reserved": {"authorized": false},
+  "phase_b2_reserved": {"authorized": false},
+  "validation_boundary": {
+    "may_load_config": true,
+    "may_run_existing_tests": true,
+    "may_verify_static_handoff_files": true,
+    "may_generate_renderer_data": false,
+    "may_load_model_resources": false,
+    "may_create_scientific_output": false,
+    "may_train_models": false,
+    "may_authorize_development_or_later_phases": false
+  }
+}
