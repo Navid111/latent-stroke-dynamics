@@ -1,0 +1,101 @@
+{
+  "status": "phase_b0_colab_manifest_compatibility_passed_unauthorized",
+  "experiment_id": "phase-b0-colab-manifest-compatibility-2026-08-24",
+  "compatibility_config_status": "manifest_only_compatibility_frozen_unauthorized",
+  "base_status": "development_attempt_aborted_recovery_unauthorized",
+  "consumed_attempt_status": "phase_b0_colab_recovery_attempt_consumed_manifest_mismatch",
+  "environment": {
+    "platform": "macOS-13.4-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "python": "3.14.4",
+    "numpy": "2.5.2",
+    "pillow": "12.3.0",
+    "torch": "2.11.0",
+    "torch_base": "2.11.0",
+    "cuda_available": false,
+    "generation_device": "cpu",
+    "renderer_boundary": "PIL.ImageDraw.line"
+  },
+  "generation": {
+    "transition_splits": {
+      "train": {
+        "samples": 2048,
+        "no_op_samples": 205
+      },
+      "validation": {
+        "samples": 512,
+        "no_op_samples": 51
+      },
+      "diagnostic_test": {
+        "samples": 512,
+        "no_op_samples": 51
+      }
+    },
+    "planner_training_candidate_sets": 64,
+    "planner_validation_candidate_sets": 32,
+    "progress_training_mean": -0.00015118662849999964,
+    "progress_training_std": 0.001871041371487081,
+    "images_or_tensors_persisted": false
+  },
+  "generation_seconds": 41.256663874999504,
+  "manifest_comparison": {
+    "files": {
+      "diagnostic_test_transitions.json": {
+        "expected_sha256": "d3101d29de97659a44932282fcbeed807405eecc1f678e71fd36e96a600d997a",
+        "actual_sha256": "d3101d29de97659a44932282fcbeed807405eecc1f678e71fd36e96a600d997a",
+        "match": true,
+        "size_bytes": 36981
+      },
+      "planner_supervision.json": {
+        "expected_sha256": "02bef6101b0e380651301bbf7c8c0cf5e02c7c2a39e2dbab13e44fac1a9d186a",
+        "actual_sha256": "02bef6101b0e380651301bbf7c8c0cf5e02c7c2a39e2dbab13e44fac1a9d186a",
+        "match": true,
+        "size_bytes": 16014
+      },
+      "train_transitions.json": {
+        "expected_sha256": "7bb572b4d053649d22de75584615441b9d72c014f1a6128b435677e560c6304b",
+        "actual_sha256": "7bb572b4d053649d22de75584615441b9d72c014f1a6128b435677e560c6304b",
+        "match": true,
+        "size_bytes": 147565
+      },
+      "validation_transitions.json": {
+        "expected_sha256": "234ff3b68399aea160ceb0665728d9f1d3d5971e1924ab36eef5c1537558c817",
+        "actual_sha256": "234ff3b68399aea160ceb0665728d9f1d3d5971e1924ab36eef5c1537558c817",
+        "match": true,
+        "size_bytes": 36976
+      }
+    },
+    "expected_filenames": [
+      "diagnostic_test_transitions.json",
+      "planner_supervision.json",
+      "train_transitions.json",
+      "validation_transitions.json"
+    ],
+    "actual_filenames": [
+      "diagnostic_test_transitions.json",
+      "planner_supervision.json",
+      "train_transitions.json",
+      "validation_transitions.json"
+    ],
+    "filename_set_matches": true,
+    "all_hashes_match": true
+  },
+  "hash_gate_passed": true,
+  "execution_attempt_consumed": true,
+  "old_authorization_reusable": false,
+  "model_resources_loaded": false,
+  "checkpoints_created": false,
+  "scientific_models_trained": false,
+  "recovery_output_created": false,
+  "targets_or_images_persisted": false,
+  "decision_created": false,
+  "google_drive_accessed": false,
+  "historical_incomplete_directories_touched": false,
+  "historical_evidence_unchanged": true,
+  "recovery_authorized": false,
+  "formal_authorized": false,
+  "phase_b1_authorized": false,
+  "phase_b2_authorized": false,
+  "passing_result_requires_separate_recovery_protocol": true,
+  "passing_result_requires_separate_one_time_authorization": true
+}
