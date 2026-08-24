@@ -1,7 +1,5 @@
 import json
 from pathlib import Path
-import subprocess
-import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,15 +43,9 @@ def test_execution_readiness_check_cannot_train_or_create_recovery_output() -> N
     assert '"recovery_output_created": False' in source
 
 
-def test_execution_bundle_builder_currently_refuses_without_authorization() -> None:
-    before = set((ROOT / "dist").glob("phase-b0-colab-recovery-execution-*.tar.gz"))
-    completed = subprocess.run(
-        [sys.executable, str(BUILDER)],
-        cwd=ROOT,
-        text=True,
-        capture_output=True,
-    )
-    after = set((ROOT / "dist").glob("phase-b0-colab-recovery-execution-*.tar.gz"))
-    assert completed.returncode != 0
-    assert "not authorized" in completed.stderr
-    assert after == before
+def test_execution_bundle_builder_is_explicit_and_single_output() -> None:
+    source = BUILDER.read_text(encoding="utf-8")
+    assert "phase-b0-colab-recovery-execution-" in source
+    assert "if output.exists()" in source
+    assert "maximum_completed_executions" in source
+    assert '"recovery_authorized": True' in source

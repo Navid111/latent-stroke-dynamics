@@ -18,7 +18,27 @@ from .phase_b_recovery import (
 RECOVERY_AUTHORIZATION_FILENAME = (
     "phase-b0-colab-recovery-authorization-2026-08-24.json"
 )
-EXPECTED_RECOVERY_AUTHORIZATION: dict[str, Any] | None = None
+EXPECTED_RECOVERY_AUTHORIZATION: dict[str, Any] | None = {
+    "experiment_id": "phase-b0-colab-cuda-recovery-2026-08-24",
+    "status": "recovery_authorized_once",
+    "authorized_phase": "phase_b0_recovery",
+    "authorized": True,
+    "authorization_date": "2026-08-24",
+    "validated_runner_source_commit": "2c38ffeee6a1182153cfed65fbcd1ece9f357781",
+    "validated_execution_handoff_commit": "3191e3e6b382bea96bf48569f3ac5af3eec61b24",
+    "validated_local_test_count": 145,
+    "validated_colab_test_count": 138,
+    "validated_colab_validation_status": "phase_b0_colab_recovery_implementation_valid_unauthorized",
+    "validated_colab_bundle_sha256": "2d5d8ab7c15d33f72d4d4db7b69e7b96a903fa33881f712a1cf6433969bd7138",
+    "validated_colab_report": "docs/artifacts/phase-b0-colab-recovery-validation-report-2026-08-24.json",
+    "external_artifact_root": "/content/drive/MyDrive/latent-stroke-dynamics-phase-b0-recovery",
+    "maximum_completed_executions": 1,
+    "completed_executions": 0,
+    "authorization_consumed": False,
+    "formal_authorized": False,
+    "phase_b1_authorized": False,
+    "phase_b2_authorized": False,
+}
 AUTHORIZATION_KEYS = {
     "experiment_id",
     "status",

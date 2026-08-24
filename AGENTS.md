@@ -15,20 +15,22 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 5. `docs/phase-b0-colab-preflight-results.md`;
 6. `docs/phase-b0-colab-recovery-protocol.md`;
 7. `configs/phase-b0-colab-recovery-2026-08-24.json`;
-8. `docs/phase-b0-colab-recovery-implementation-manifest.md`;
-9. `docs/phase-b0-colab-recovery-local-validation-2026-08-24.md`;
-10. `docs/phase-b0-colab-recovery-validation.md`;
-11. `docs/phase-b0-colab-recovery-validation-bundle-2026-08-24.md`;
-12. `docs/phase-b0-colab-recovery-validation-results.md`;
-13. `docs/phase-b0-colab-recovery-execution-handoff.md`;
-14. `docs/phase-b0-colab-recovery-command.md`;
-15. `docs/phase-b0-development-command.md`;
-16. `docs/phase-b0-colab-preflight.md`;
-17. `docs/planner-score-development-results.md`;
-18. `docs/planner-score-audit-results.md`;
-19. `docs/planner-score-alignment-protocol.md`;
-20. `docs/latent-planner-controlled-results.md`;
-21. relevant result artifacts and code.
+8. `configs/phase-b0-colab-recovery-authorization-2026-08-24.json`;
+9. `docs/phase-b0-colab-recovery-authorization-2026-08-24.md`;
+10. `docs/phase-b0-colab-recovery-implementation-manifest.md`;
+11. `docs/phase-b0-colab-recovery-local-validation-2026-08-24.md`;
+12. `docs/phase-b0-colab-recovery-validation.md`;
+13. `docs/phase-b0-colab-recovery-validation-bundle-2026-08-24.md`;
+14. `docs/phase-b0-colab-recovery-validation-results.md`;
+15. `docs/phase-b0-colab-recovery-execution-handoff.md`;
+16. `docs/phase-b0-colab-recovery-command.md`;
+17. `docs/phase-b0-development-command.md`;
+18. `docs/phase-b0-colab-preflight.md`;
+19. `docs/planner-score-development-results.md`;
+20. `docs/planner-score-audit-results.md`;
+21. `docs/planner-score-alignment-protocol.md`;
+22. `docs/latent-planner-controlled-results.md`;
+23. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -40,7 +42,7 @@ The Stage A score audit selected MSE-only plus normalized-latent L1. In long-hor
 
 ## Active task
 
-The guarded recovery implementation passed local and Tesla T4 validation. The persistent execution handoff is implemented while authorization remains absent and fail-closed. Run the 145-test local gate. If it passes, freeze that exact handoff commit in a separate one-time recovery authorization, rerun the suite, and build the authorized execution bundle once.
+Exactly one Phase B0 Colab recovery execution is authorized and unconsumed. Pull the authorization commit, run the 145-test suite, build the authorized execution bundle exactly once, and use only `notebooks/phase_b0_colab_recovery_execution.ipynb` on a fresh Tesla T4. Do not run the recovery locally. Formal B0, B1, and B2 remain unauthorized.
 
 ## Hard boundaries
 
@@ -48,13 +50,14 @@ The guarded recovery implementation passed local and Tesla T4 validation. The pe
 - Do not train or fine-tune against any completed target.
 - Do not change or overwrite any completed result.
 - Do not tune the Stage A no-op margin or run its reserved confirmatory phase.
-- Do not delete, rename, modify, or select against the preserved Phase B0 `.incomplete` directory.
-- Phase B0 recovery is unauthorized until a separate authorization commit.
-- Do not run `experiments/21_phase_b_development.py --development` locally or in the cloud.
-- Do not run `experiments/23_phase_b_colab_recovery.py` in execution mode before the authorization commit.
-- Do not generate renderer transitions, targets, state banks, candidate sets, recovery outputs, scientific checkpoints, or scientific results before authorization.
-- Do not treat preflight or validation losses and timing as scientific evidence.
-- Preserve the frozen architecture, objectives, seeds, thresholds, method order, and six-hour cap.
+- Do not delete, rename, modify, or select against the preserved local Phase B0 `.incomplete` directory.
+- The recovery authorization permits exactly one cloud execution and is not reusable.
+- Do not run `experiments/21_phase_b_development.py --development`.
+- Do not run `experiments/23_phase_b_colab_recovery.py` locally.
+- Build the authorized execution bundle only after the 145-test suite passes.
+- In Colab, run the readiness check before changing the explicit execution switch to true.
+- If interrupted, preserve the Google Drive `.incomplete` directory and console log; do not resume or restart without an audit.
+- Do not tune or rerun against the recovery result.
 - Formal Phase B0, saliency scheduling B1, and RGB/high-resolution B2 remain unauthorized.
 - Preserve positive and negative outcomes.
 - Do not call the approach a canonical JEPA.

@@ -62,7 +62,9 @@ def test_recovery_cli_validation_is_side_effect_free(tmp_path: Path) -> None:
     assert list(tmp_path.iterdir()) == []
 
 
-def test_recovery_cli_fails_before_output_while_unauthorized(tmp_path: Path) -> None:
+def test_recovery_cli_rejects_non_drive_root_before_output_when_authorized(
+    tmp_path: Path,
+) -> None:
     artifact_root = tmp_path / "drive"
     completed = subprocess.run(
         [
@@ -77,5 +79,5 @@ def test_recovery_cli_fails_before_output_while_unauthorized(tmp_path: Path) -> 
         capture_output=True,
     )
     assert completed.returncode != 0
-    assert "not authorized" in completed.stderr
+    assert "must be written under the frozen Google Drive root" in completed.stderr
     assert not artifact_root.exists()
