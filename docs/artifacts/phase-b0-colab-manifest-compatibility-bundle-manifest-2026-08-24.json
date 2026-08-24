@@ -1,0 +1,34 @@
+{
+  "status": "phase_b0_colab_manifest_compatibility_bundle_unauthorized",
+  "purpose": "pinned_manifest_only_cross_platform_compatibility_check",
+  "branch": "phase-b/saliency-latent",
+  "source_commit": "b2a8cc690ae93c7eca1b35f88a14a34f39a8d58c",
+  "entrypoint": "experiments/27_phase_b_colab_manifest_compatibility.py",
+  "requirements": "requirements/phase-b0-manifest-compatibility-2026-08-24.txt",
+  "targeted_tests": "tests/test_phase_b_manifest_compatibility.py",
+  "expected_local_test_count": 153,
+  "targeted_colab_test_count": 8,
+  "local_compatibility_report_sha256": "6c3b331ab6743b20f28de2ab752a07d695a3059c2c63c8ddc6baed4c624c6f63",
+  "expected_original_manifest_sha256": {
+    "diagnostic_test_transitions.json": "d3101d29de97659a44932282fcbeed807405eecc1f678e71fd36e96a600d997a",
+    "planner_supervision.json": "02bef6101b0e380651301bbf7c8c0cf5e02c7c2a39e2dbab13e44fac1a9d186a",
+    "train_transitions.json": "7bb572b4d053649d22de75584615441b9d72c014f1a6128b435677e560c6304b",
+    "validation_transitions.json": "234ff3b68399aea160ceb0665728d9f1d3d5971e1924ab36eef5c1537558c817"
+  },
+  "required_environment": {
+    "numpy": "2.5.2",
+    "pillow": "12.3.0",
+    "torch_base": "2.11.0",
+    "generation_device": "cpu",
+    "renderer_boundary": "PIL.ImageDraw.line"
+  },
+  "resource_count": 0,
+  "contains_model_resources": false,
+  "contains_historical_incomplete_output": false,
+  "contains_recovery_output": false,
+  "scientific_training_allowed": false,
+  "recovery_authorized": false,
+  "formal_authorized": false,
+  "phase_b1_authorized": false,
+  "phase_b2_authorized": false
+}
