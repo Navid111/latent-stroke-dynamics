@@ -20,6 +20,7 @@ from latent_stroke_dynamics.phase_b_recovery import EXPECTED_MANIFEST_HASHES
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs" / "phase-b0-colab-native-development-2026-08-24.json"
+COMPLETED = ROOT / "configs" / authorization.COMPLETED_ATTEMPT_FILENAME
 RUNNER = ROOT / "experiments" / "28_phase_b_colab_native_development.py"
 BUILDER = ROOT / "scripts" / "build_phase_b_colab_native_execution_bundle.py"
 NOTEBOOK = ROOT / "notebooks" / "phase_b0_colab_native_development.ipynb"
@@ -53,20 +54,16 @@ def test_cloud_native_validation_is_scientifically_side_effect_free() -> None:
     assert result["scientific_output_created"] is False
 
 
-def test_cloud_native_authorization_overlays_validated_handoff_only() -> None:
-    original = load_cloud_native_config(CONFIG)
-    loaded = authorization.load_cloud_native_execution_config(CONFIG)
-    expected = authorization.EXPECTED_CLOUD_NATIVE_AUTHORIZATION
-    assert expected["validated_handoff_commit"] == (
-        "b57ab921abfd51f4382b0436c8e10f49247402c7"
-    )
-    assert expected["validated_local_test_count"] == 160
-    assert loaded["protocol_status"] == original["status"]
-    assert loaded["status"] == "cloud_native_development_authorized_once"
-    assert loaded["development"] == {"authorized": True, "single_run": True}
-    assert loaded["cloud_native_authorization"] == expected
-    assert load_cloud_native_config(CONFIG) == original
-    assert cloud.EXPECTED_CLOUD_NATIVE_AUTHORIZATION == expected
+def test_cloud_native_authorization_is_locked_after_completed_run() -> None:
+    record = json.loads(COMPLETED.read_text(encoding="utf-8"))
+    assert record["execution_attempt_consumed"] is True
+    assert record["rerun_authorized"] is False
+    assert record["models_trained"] is True
+    assert record["decision"]["status"] == "not_eligible"
+    assert authorization.EXPECTED_CLOUD_NATIVE_AUTHORIZATION is None
+    with pytest.raises(PermissionError, match="consumed"):
+        authorization.load_cloud_native_execution_config(CONFIG)
+    assert cloud.EXPECTED_CLOUD_NATIVE_AUTHORIZATION is None
 
 
 def test_cloud_native_output_guard_preserves_existing_attempt(tmp_path: Path) -> None:

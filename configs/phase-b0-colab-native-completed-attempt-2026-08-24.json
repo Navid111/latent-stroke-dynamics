@@ -1,0 +1,88 @@
+{
+  "experiment_id": "phase-b0-colab-native-development-2026-08-24",
+  "status": "phase_b0_colab_native_development_complete_not_eligible",
+  "source_commit": "4f0b70dab03f1700a0fbbe5dc9598a1d019b8cc0",
+  "execution_attempt_consumed": true,
+  "rerun_authorized": false,
+  "completed_executions": 1,
+  "models_trained": true,
+  "development_completed": true,
+  "formal_authorized": false,
+  "phase_b1_authorized": false,
+  "phase_b2_authorized": false,
+  "environment": {
+    "provider": "google_colab_free",
+    "device": "cuda:0",
+    "gpu_name": "Tesla T4",
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+    "python": "3.13.15",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8"
+  },
+  "artifact_root": "/content/drive/MyDrive/latent-stroke-dynamics-phase-b0-cloud-native/phase-b0-cloud-native-development-2026-08-24",
+  "total_wall_clock_seconds": 496.43947252,
+  "data_manifest_sha256": {
+    "diagnostic_test_transitions.json": "97d7e6527b27ade5671732fd025e069cb4497c85e64ad6c853c0a3cf0cbfee0b",
+    "planner_supervision.json": "d5d0355c87f5f108b12a414c5e83c5a0bab733bcdfe41ddce9b5fc68e2feae62",
+    "train_transitions.json": "18551716942c747ee3daf8728bf1a8d1d21b9b075f85d71fe1365bcfd6a6e6e8",
+    "validation_transitions.json": "2b4fe2b782699538b91d3d13b453051fdb7e957d55fd371aba1cfdf56b44600a"
+  },
+  "checkpoints": {
+    "joint_prediction_only": {
+      "state_sha256": "c1402cb94faadb504487d7be5295ae1c95a5f0b41dd8485768c9e20c5ed9e462",
+      "artifact_sha256": "d13124a1becb7a11a84eb973a5d3acf72780f9813de6ed9422432778406155b4",
+      "best_epoch": 40,
+      "best_validation_loss": 0.006895331389387138,
+      "wall_clock_seconds": 104.48714970100002,
+      "training_device": "cuda:0",
+      "diagnostic_four_way_retrieval": 0.9761388286334056
+    },
+    "joint_prediction_progress": {
+      "state_sha256": "7fabfa17eb1ad61860b36de20bba3fb588babeaa61eb1fee8dfed0510e4960b3",
+      "artifact_sha256": "ef7ff874d4ec5c0a4a691a2298dcab89d59983d7cb8f5803dffeaaf68b5233ea",
+      "best_epoch": 8,
+      "best_validation_loss": 0.6048741451813839,
+      "wall_clock_seconds": 83.55308809000007,
+      "training_device": "cuda:0",
+      "diagnostic_four_way_retrieval": 0.48156182212581344
+    }
+  },
+  "decision": {
+    "status": "not_eligible",
+    "criteria_passed": {
+      "implementation_integrity": false,
+      "historical_artifacts_unchanged": true,
+      "representation_noncollapse_each_scale": true,
+      "diagnostic_four_way_retrieval": false,
+      "minimum_128_way_regret_reduction_vs_archived_mse_l1": false,
+      "no_op_improves_every_target_from_blank": true,
+      "minimum_mean_final_mse_reduction_vs_archived_mse_l1": false,
+      "no_op_no_worse_than_joint_prediction_only_forced": false,
+      "maximum_mean_final_mse_ratio_to_exact_pixel": false,
+      "maximum_premature_stop_rate": false,
+      "compute_cap": true
+    },
+    "mean_128_way_regret_reduction_vs_archived_mse_l1": -0.9676450347052652,
+    "mean_final_mse_reduction_vs_archived_mse_l1": -0.26517702028207046,
+    "mean_final_mse_ratio_to_exact_pixel": 1.935462032141575
+  },
+  "raw_integrity": {
+    "implementation_integrity_passed": false,
+    "transition_splits_disjoint": false,
+    "all_four_cloud_manifest_hashes_matched": true,
+    "all_six_raw_resources_matched": true,
+    "ranking_aware_models_loaded": false,
+    "historical_results_unchanged": true
+  },
+  "integrity_interpretation": {
+    "original_flag_preserved": true,
+    "eligibility_not_overridden": true,
+    "likely_split_overlap_source": "identical blank no-op transitions can share a content fingerprint across independently seeded splits because crowding zero, unchanged canvas, zero action, and no-op flag are identical",
+    "offline_fingerprint_intersection_audit_recommended": true,
+    "scientific_decision_unchanged_by_integrity_interpretation": true
+  },
+  "legacy_execution_engine_names_present": true,
+  "new_experiment": true,
+  "recovery_of_mac_attempt": false,
+  "do_not_rerun": true
+}
