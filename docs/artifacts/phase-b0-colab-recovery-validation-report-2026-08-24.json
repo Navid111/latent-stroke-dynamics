@@ -1,0 +1,132 @@
+{
+  "status": "phase_b0_colab_recovery_implementation_valid_unauthorized",
+  "boundary": {
+    "status": "phase_b0_colab_recovery_cuda_boundary_valid_unauthorized",
+    "runner_status": "phase_b0_colab_recovery_runner_valid_unauthorized",
+    "recovery_authorized": false,
+    "formal_authorized": false,
+    "phase_b1_authorized": false,
+    "phase_b2_authorized": false,
+    "dummy_tensors_only": true,
+    "temporary_dummy_checkpoints_allowed": true,
+    "renderer_transitions_allowed": false,
+    "targets_allowed": false,
+    "state_banks_allowed": false,
+    "candidate_sets_allowed": false,
+    "scientific_training_allowed": false,
+    "recovery_output_allowed": false
+  },
+  "environment": {
+    "provider": "google_colab_free",
+    "device": "cuda:0",
+    "gpu_name": "Tesla T4",
+    "compute_capability": [7, 5],
+    "gpu_memory_bytes": 15637086208,
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+    "python": "3.13.15",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "cudnn": 91900,
+    "float_precision": "float32",
+    "automatic_mixed_precision": false,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": true,
+    "matmul_tf32": false,
+    "cudnn_tf32": false
+  },
+  "raw_resource_sha256": {
+    "outputs/representation-extension-2026-08-22/task_autoencoder/checkpoints/task_autoencoder.pt": "65debde397895ff25f0b3bf10d4fc8d2c47487ec13887d03be602195b328696d",
+    "outputs/representation-extension-2026-08-22/task_autoencoder/latent_channel_statistics.json": "c2a3d781dab19a4714189d580dafb5ea95231af06021d3980beb495a3b85d903",
+    "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed11.pt": "f14ae080d7ac4a34e536eab706405d79390b17efafbcb0201177a01ea99b886d",
+    "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed22.pt": "cf5e0c7808fb8d2a388e186d4803f17a05f81d9f8ebcf0fe54ebe37929cdb46a",
+    "outputs/ranking-aware-latent-formal-2026-08-22/checkpoints/mse_only_seed33.pt": "f72e941c0d7157347327282311cd14cbc64c7ed0639ff8d807a0e947e80981dc",
+    "checkpoints/stage3-pixel-mlp-seed11.pt": "7b9fe1598ee50bcc79bd7f5e9762aff6eb3183cc1266adf5541627cbdbc4e4eb"
+  },
+  "loaded_model_states": {
+    "task_autoencoder_state_sha256": "95de3ecef8eeb7a350e862fa21185a168d9304870cb0c8391cbd008e88d93900",
+    "mse_only_state_sha256": {
+      "11": "5023e63d268ea37c17bf328a8fc4ef5f66219ed7e1127e0d4bf109330f833431",
+      "22": "8a8ea0e7e6dbfc9c5f64ae5212a48a5fc12ee5bb5ff1f23c0394c8891b5a89dc",
+      "33": "3a58be00b601a08cf9faa55e1643bf24adfd08c0a0648cbe851e9f9e49388c5e"
+    },
+    "pixel_predictor_state_sha256": "e32f3612f7a184e4e9b58f95a987551bd25cdb17ff1bf2b6be40fcf5781ea472",
+    "pixel_predictor_model_seed": 11,
+    "ranking_aware_models_loaded": false
+  },
+  "cpu_cuda_numerical_check": {
+    "passed": true,
+    "absolute_tolerance": 0.0005,
+    "relative_tolerance": 0.0005,
+    "maximum_absolute_error": 0.0000032782554626464844,
+    "per_output_maximum_absolute_error": {
+      "current_32": 0.0000017881393432617188,
+      "current_16": 0.000003084540367126465,
+      "action_32": 0.000001430511474609375,
+      "action_16": 0.0000030994415283203125,
+      "predicted_next_32": 0.0000021457672119140625,
+      "predicted_next_16": 0.0000032782554626464844,
+      "predicted_progress": 7.450580596923828e-9
+    }
+  },
+  "dummy_recovery_execution_smoke": {
+    "device": "cuda:0",
+    "variants": {
+      "joint_prediction_only": {
+        "best_epoch": 1,
+        "best_validation_loss": 0.13498744368553162,
+        "training_device": "cuda:0",
+        "state_sha256": "d8f262c3856f5dbd914a110023f1bd5e7273b961c7d4830df55170354b06b24f",
+        "temporary_checkpoint_exists_during_validation": true
+      },
+      "joint_prediction_progress": {
+        "best_epoch": 1,
+        "best_validation_loss": 0.7767516523599625,
+        "training_device": "cuda:0",
+        "state_sha256": "ec7737ac9359d1e8a715fb8b0261e1b5aca5018d2cbe60eb5f4ab41f6febddc9",
+        "temporary_checkpoint_exists_during_validation": true
+      }
+    },
+    "representation": {
+      "joint_prediction_only": {
+        "32": {
+          "mean_channel_std": 0.25160521268844604,
+          "mean_squared_off_diagonal_covariance": 0.006914146244525909
+        },
+        "16": {
+          "mean_channel_std": 0.2760869264602661,
+          "mean_squared_off_diagonal_covariance": 0.014092052355408669
+        }
+      },
+      "joint_prediction_progress": {
+        "32": {
+          "mean_channel_std": 0.2388056069612503,
+          "mean_squared_off_diagonal_covariance": 0.006401801481842995
+        },
+        "16": {
+          "mean_channel_std": 0.2600284516811371,
+          "mean_squared_off_diagonal_covariance": 0.01258485671132803
+        }
+      }
+    },
+    "planner_candidate_metric_rows": 2,
+    "prediction_score_count": 4,
+    "progress_score_count": 4,
+    "all_values_finite": true,
+    "temporary_dummy_checkpoints_removed": true,
+    "peak_cuda_memory_bytes": 291254784,
+    "dummy_tensors_only": true,
+    "scientific_evidence": false
+  },
+  "recovery_authorized": false,
+  "formal_authorized": false,
+  "phase_b1_authorized": false,
+  "phase_b2_authorized": false,
+  "renderer_transitions_generated": false,
+  "targets_generated": false,
+  "state_banks_generated": false,
+  "candidate_sets_generated": false,
+  "scientific_models_trained": false,
+  "recovery_output_created": false,
+  "temporary_dummy_checkpoints_removed": true,
+  "dummy_metrics_are_scientific_evidence": false
+}

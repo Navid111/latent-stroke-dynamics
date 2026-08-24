@@ -19,14 +19,15 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 9. `docs/phase-b0-colab-recovery-local-validation-2026-08-24.md`;
 10. `docs/phase-b0-colab-recovery-validation.md`;
 11. `docs/phase-b0-colab-recovery-validation-bundle-2026-08-24.md`;
-12. `docs/phase-b0-colab-recovery-command.md`;
-13. `docs/phase-b0-development-command.md`;
-14. `docs/phase-b0-colab-preflight.md`;
-15. `docs/planner-score-development-results.md`;
-16. `docs/planner-score-audit-results.md`;
-17. `docs/planner-score-alignment-protocol.md`;
-18. `docs/latent-planner-controlled-results.md`;
-19. relevant result artifacts and code.
+12. `docs/phase-b0-colab-recovery-validation-results.md`;
+13. `docs/phase-b0-colab-recovery-command.md`;
+14. `docs/phase-b0-development-command.md`;
+15. `docs/phase-b0-colab-preflight.md`;
+16. `docs/planner-score-development-results.md`;
+17. `docs/planner-score-audit-results.md`;
+18. `docs/planner-score-alignment-protocol.md`;
+19. `docs/latent-planner-controlled-results.md`;
+20. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -38,7 +39,7 @@ The Stage A score audit selected MSE-only plus normalized-latent L1. In long-hor
 
 ## Active task
 
-The guarded recovery runner passed 138 local tests. Its exact source commit and six-resource bundle are archived by SHA-256. Run `notebooks/phase_b0_colab_recovery_validation.ipynb` on a fresh Tesla T4, using only the archived bundle. Review and archive the dummy-only report. Recovery remains unauthorized.
+The guarded recovery implementation passed local and Tesla T4 dummy-only validation. Archive the pass, prepare the exact persistent Google Drive execution notebook and bundle flow while recovery remains unauthorized, then issue a separate one-time recovery authorization only after final lifecycle tests. Formal B0, B1, and B2 remain unauthorized.
 
 ## Hard boundaries
 
@@ -47,11 +48,10 @@ The guarded recovery runner passed 138 local tests. Its exact source commit and 
 - Do not change or overwrite any completed result.
 - Do not tune the Stage A no-op margin or run its reserved confirmatory phase.
 - Do not delete, rename, modify, or select against the preserved Phase B0 `.incomplete` directory.
-- Phase B0 recovery is unauthorized.
+- Phase B0 recovery is unauthorized until a separate authorization commit.
 - Do not run `experiments/21_phase_b_development.py --development` locally or in the cloud.
-- Do not run `experiments/23_phase_b_colab_recovery.py` in execution mode before a separate recovery-authorization commit.
-- Recovery validation may use deterministic random dummy tensors, temporary dummy checkpoints, and frozen resources for hash checks only.
-- Do not generate renderer transitions, targets, state banks, candidate sets, recovery outputs, scientific checkpoints, or scientific results before a separate recovery authorization.
+- Do not run `experiments/23_phase_b_colab_recovery.py` in execution mode before the authorization commit.
+- Do not generate renderer transitions, targets, state banks, candidate sets, recovery outputs, scientific checkpoints, or scientific results before authorization.
 - Do not treat preflight or validation losses and timing as scientific evidence.
 - Preserve the frozen architecture, objectives, seeds, thresholds, method order, and six-hour cap.
 - Formal Phase B0, saliency scheduling B1, and RGB/high-resolution B2 remain unauthorized.
