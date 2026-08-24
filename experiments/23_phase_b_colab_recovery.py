@@ -12,11 +12,13 @@ from latent_stroke_dynamics.phase_b_recovery import (
     DEFAULT_BASE_CONFIG,
     DEFAULT_RECOVERY_CONFIG,
     configure_recovery_determinism,
-    load_recovery_config,
     recovery_environment_snapshot,
     require_recovery_authorized,
     validate_recovery_environment_snapshot,
     validate_recovery_runner_request,
+)
+from latent_stroke_dynamics.phase_b_recovery_authorization import (
+    load_recovery_execution_config,
 )
 from latent_stroke_dynamics.phase_b_recovery_execution import (
     execute_phase_b_recovery,
@@ -49,7 +51,7 @@ def main() -> None:
         print(json.dumps(result, indent=2, sort_keys=True))
         return
 
-    recovery_config = load_recovery_config(ROOT / args.recovery_config)
+    recovery_config = load_recovery_execution_config(ROOT / args.recovery_config)
     base_config = load_phase_b_development_config(ROOT / DEFAULT_BASE_CONFIG)
     paths = require_recovery_authorized(recovery_config, args.artifact_root)
     configure_recovery_determinism()
