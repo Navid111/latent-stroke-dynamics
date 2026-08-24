@@ -1,0 +1,58 @@
+{
+  "experiment_id": "phase-b0-colab-manifest-compatibility-2026-08-24",
+  "status": "phase_b0_colab_manifest_compatibility_failed_unauthorized",
+  "source_bundle_commit": "b2a8cc690ae93c7eca1b35f88a14a34f39a8d58c",
+  "source_bundle_sha256": "b890d1fad0501971964b4bcc743f3d47e39e800ba33cfebbde76eac103f21856",
+  "setup_amendment": {
+    "reason": "Colab Python 3.13.15 omitted ensurepip, so stdlib venv creation failed before tests or data generation",
+    "scientific_code_changed": false,
+    "pinned_package_versions_changed": false,
+    "replacement": "ephemeral PYTHONPATH package overlay using system pip --target",
+    "tests_or_manifests_generated_before_amendment": false
+  },
+  "colab_boundary_tests_passed": 8,
+  "environment": {
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+    "machine": "x86_64",
+    "python": "3.13.15",
+    "numpy": "2.5.2",
+    "pillow": "12.3.0",
+    "torch": "2.11.0+cpu",
+    "generation_device": "cpu"
+  },
+  "hash_gate_passed": false,
+  "all_actual_hashes_equal_prior_failed_colab_attempt": true,
+  "actual_manifest_sha256": {
+    "diagnostic_test_transitions.json": "97d7e6527b27ade5671732fd025e069cb4497c85e64ad6c853c0a3cf0cbfee0b",
+    "planner_supervision.json": "d5d0355c87f5f108b12a414c5e83c5a0bab733bcdfe41ddce9b5fc68e2feae62",
+    "train_transitions.json": "18551716942c747ee3daf8728bf1a8d1d21b9b075f85d71fe1365bcfd6a6e6e8",
+    "validation_transitions.json": "2b4fe2b782699538b91d3d13b453051fdb7e957d55fd371aba1cfdf56b44600a"
+  },
+  "frozen_original_manifest_sha256": {
+    "diagnostic_test_transitions.json": "d3101d29de97659a44932282fcbeed807405eecc1f678e71fd36e96a600d997a",
+    "planner_supervision.json": "02bef6101b0e380651301bbf7c8c0cf5e02c7c2a39e2dbab13e44fac1a9d186a",
+    "train_transitions.json": "7bb572b4d053649d22de75584615441b9d72c014f1a6128b435677e560c6304b",
+    "validation_transitions.json": "234ff3b68399aea160ceb0665728d9f1d3d5971e1924ab36eef5c1537558c817"
+  },
+  "progress_statistics": {
+    "mac_mean": -0.00015118662849999964,
+    "linux_mean": -0.00017171769286505878,
+    "mac_std": 0.001871041371487081,
+    "linux_std": 0.0018368015298619866
+  },
+  "conclusion": {
+    "exact_dependency_pinning_sufficient": false,
+    "platform_independent_renderer_supported": false,
+    "same_version_platform_or_architecture_rasterization_drift_supported": true,
+    "cloud_regenerated_data_acceptable_for_frozen_recovery": false
+  },
+  "scientific_models_trained": false,
+  "model_resources_loaded": false,
+  "historical_incomplete_directories_touched": false,
+  "google_drive_accessed": false,
+  "next_allowed_action": "new_unauthorized_immutable_mac_data_packaging_protocol",
+  "recovery_authorized": false,
+  "formal_authorized": false,
+  "phase_b1_authorized": false,
+  "phase_b2_authorized": false
+}

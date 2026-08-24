@@ -1,0 +1,101 @@
+{
+  "status": "phase_b0_colab_manifest_compatibility_failed_unauthorized",
+  "experiment_id": "phase-b0-colab-manifest-compatibility-2026-08-24",
+  "compatibility_config_status": "manifest_only_compatibility_frozen_unauthorized",
+  "base_status": "development_attempt_aborted_recovery_unauthorized",
+  "consumed_attempt_status": "phase_b0_colab_recovery_attempt_consumed_manifest_mismatch",
+  "environment": {
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+    "machine": "x86_64",
+    "python": "3.13.15",
+    "numpy": "2.5.2",
+    "pillow": "12.3.0",
+    "torch": "2.11.0+cpu",
+    "torch_base": "2.11.0",
+    "cuda_available": false,
+    "generation_device": "cpu",
+    "renderer_boundary": "PIL.ImageDraw.line"
+  },
+  "generation": {
+    "transition_splits": {
+      "train": {
+        "samples": 2048,
+        "no_op_samples": 205
+      },
+      "validation": {
+        "samples": 512,
+        "no_op_samples": 51
+      },
+      "diagnostic_test": {
+        "samples": 512,
+        "no_op_samples": 51
+      }
+    },
+    "planner_training_candidate_sets": 64,
+    "planner_validation_candidate_sets": 32,
+    "progress_training_mean": -0.00017171769286505878,
+    "progress_training_std": 0.0018368015298619866,
+    "images_or_tensors_persisted": false
+  },
+  "generation_seconds": 66.62609805500006,
+  "manifest_comparison": {
+    "files": {
+      "diagnostic_test_transitions.json": {
+        "expected_sha256": "d3101d29de97659a44932282fcbeed807405eecc1f678e71fd36e96a600d997a",
+        "actual_sha256": "97d7e6527b27ade5671732fd025e069cb4497c85e64ad6c853c0a3cf0cbfee0b",
+        "match": false,
+        "size_bytes": 36981
+      },
+      "planner_supervision.json": {
+        "expected_sha256": "02bef6101b0e380651301bbf7c8c0cf5e02c7c2a39e2dbab13e44fac1a9d186a",
+        "actual_sha256": "d5d0355c87f5f108b12a414c5e83c5a0bab733bcdfe41ddce9b5fc68e2feae62",
+        "match": false,
+        "size_bytes": 16015
+      },
+      "train_transitions.json": {
+        "expected_sha256": "7bb572b4d053649d22de75584615441b9d72c014f1a6128b435677e560c6304b",
+        "actual_sha256": "18551716942c747ee3daf8728bf1a8d1d21b9b075f85d71fe1365bcfd6a6e6e8",
+        "match": false,
+        "size_bytes": 147565
+      },
+      "validation_transitions.json": {
+        "expected_sha256": "234ff3b68399aea160ceb0665728d9f1d3d5971e1924ab36eef5c1537558c817",
+        "actual_sha256": "2b4fe2b782699538b91d3d13b453051fdb7e957d55fd371aba1cfdf56b44600a",
+        "match": false,
+        "size_bytes": 36976
+      }
+    },
+    "expected_filenames": [
+      "diagnostic_test_transitions.json",
+      "planner_supervision.json",
+      "train_transitions.json",
+      "validation_transitions.json"
+    ],
+    "actual_filenames": [
+      "diagnostic_test_transitions.json",
+      "planner_supervision.json",
+      "train_transitions.json",
+      "validation_transitions.json"
+    ],
+    "filename_set_matches": true,
+    "all_hashes_match": false
+  },
+  "hash_gate_passed": false,
+  "execution_attempt_consumed": true,
+  "old_authorization_reusable": false,
+  "model_resources_loaded": false,
+  "checkpoints_created": false,
+  "scientific_models_trained": false,
+  "recovery_output_created": false,
+  "targets_or_images_persisted": false,
+  "decision_created": false,
+  "google_drive_accessed": false,
+  "historical_incomplete_directories_touched": false,
+  "historical_evidence_unchanged": true,
+  "recovery_authorized": false,
+  "formal_authorized": false,
+  "phase_b1_authorized": false,
+  "phase_b2_authorized": false,
+  "passing_result_requires_separate_recovery_protocol": true,
+  "passing_result_requires_separate_one_time_authorization": true
+}
