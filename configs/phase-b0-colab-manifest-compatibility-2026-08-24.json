@@ -1,0 +1,62 @@
+{
+  "experiment_id": "phase-b0-colab-manifest-compatibility-2026-08-24",
+  "status": "manifest_only_compatibility_frozen_unauthorized",
+  "purpose": "test_cross_platform_renderer_manifest_compatibility_before_any_new_recovery_protocol",
+  "branch": "phase-b/saliency-latent",
+  "source_incident_commit": "52feaf84a0a9966b8f75af6a1e33c34c77c04a92",
+  "source_consumed_attempt": "configs/phase-b0-colab-recovery-consumed-attempt-2026-08-24.json",
+  "base_config": "configs/phase-b-saliency-latent-2026-08-23.json",
+  "historical_evidence_unchanged": true,
+  "expected_original_manifest_sha256": {
+    "diagnostic_test_transitions.json": "d3101d29de97659a44932282fcbeed807405eecc1f678e71fd36e96a600d997a",
+    "planner_supervision.json": "02bef6101b0e380651301bbf7c8c0cf5e02c7c2a39e2dbab13e44fac1a9d186a",
+    "train_transitions.json": "7bb572b4d053649d22de75584615441b9d72c014f1a6128b435677e560c6304b",
+    "validation_transitions.json": "234ff3b68399aea160ceb0665728d9f1d3d5971e1924ab36eef5c1537558c817"
+  },
+  "required_environment": {
+    "numpy": "2.5.2",
+    "pillow": "12.3.0",
+    "torch_base": "2.11.0",
+    "generation_device": "cpu",
+    "renderer_boundary": "PIL.ImageDraw.line"
+  },
+  "generation": {
+    "transition_splits": ["train", "validation", "diagnostic_test"],
+    "planner_sections": ["planner_supervision_train", "planner_supervision_validation"],
+    "manifest_filenames": [
+      "diagnostic_test_transitions.json",
+      "planner_supervision.json",
+      "train_transitions.json",
+      "validation_transitions.json"
+    ],
+    "serialization": "json_indent_2_no_trailing_newline",
+    "persist_images_or_tensors": false,
+    "maximum_attempts_per_fresh_runtime": 1
+  },
+  "output_policy": {
+    "fresh_output_directory_required": true,
+    "repository_output_prohibited": true,
+    "google_drive_output_prohibited": true,
+    "preserve_generated_manifests_on_hash_mismatch": true,
+    "touch_historical_incomplete_directories": false
+  },
+  "validation_boundary": {
+    "renderer_manifest_generation_allowed": true,
+    "in_memory_targets_states_and_candidates_allowed": true,
+    "model_resource_loading_allowed": false,
+    "checkpoint_creation_allowed": false,
+    "scientific_training_allowed": false,
+    "recovery_execution_allowed": false,
+    "decision_creation_allowed": false,
+    "formal_authorization_allowed": false,
+    "phase_b1_authorization_allowed": false,
+    "phase_b2_authorization_allowed": false
+  },
+  "post_validation": {
+    "all_four_hashes_required": true,
+    "passing_result_is_scientific_training_authorization": false,
+    "separate_recovery_protocol_required": true,
+    "separate_one_time_authorization_required": true,
+    "old_authorization_reusable": false
+  }
+}
