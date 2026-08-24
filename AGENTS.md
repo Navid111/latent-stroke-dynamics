@@ -18,14 +18,15 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 8. `docs/phase-b0-colab-recovery-implementation-manifest.md`;
 9. `docs/phase-b0-colab-recovery-local-validation-2026-08-24.md`;
 10. `docs/phase-b0-colab-recovery-validation.md`;
-11. `docs/phase-b0-colab-recovery-command.md`;
-12. `docs/phase-b0-development-command.md`;
-13. `docs/phase-b0-colab-preflight.md`;
-14. `docs/planner-score-development-results.md`;
-15. `docs/planner-score-audit-results.md`;
-16. `docs/planner-score-alignment-protocol.md`;
-17. `docs/latent-planner-controlled-results.md`;
-18. relevant result artifacts and code.
+11. `docs/phase-b0-colab-recovery-validation-bundle-2026-08-24.md`;
+12. `docs/phase-b0-colab-recovery-command.md`;
+13. `docs/phase-b0-development-command.md`;
+14. `docs/phase-b0-colab-preflight.md`;
+15. `docs/planner-score-development-results.md`;
+16. `docs/planner-score-audit-results.md`;
+17. `docs/planner-score-alignment-protocol.md`;
+18. `docs/latent-planner-controlled-results.md`;
+19. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -37,7 +38,7 @@ The Stage A score audit selected MSE-only plus normalized-latent L1. In long-hor
 
 ## Active task
 
-The complete guarded persistent recovery runner passed 132 local tests and validation-only lifecycle checks. The new exact six-resource recovery-validation bundle builder and fail-closed Colab notebook are implemented. Run the updated 138-test local suite, rebuild the bundle from the exact clean head, and run dummy-only CUDA validation on a Tesla T4. Recovery remains unauthorized.
+The guarded recovery runner passed 138 local tests. Its exact source commit and six-resource bundle are archived by SHA-256. Run `notebooks/phase_b0_colab_recovery_validation.ipynb` on a fresh Tesla T4, using only the archived bundle. Review and archive the dummy-only report. Recovery remains unauthorized.
 
 ## Hard boundaries
 
