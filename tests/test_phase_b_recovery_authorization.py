@@ -9,39 +9,44 @@ from latent_stroke_dynamics.phase_b_recovery import AUTHORIZED_RECOVERY_STATUS
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE = ROOT / "configs" / "phase-b0-colab-recovery-2026-08-24.json"
+ISSUANCE = ROOT / "configs" / authorization.RECOVERY_AUTHORIZATION_FILENAME
+CONSUMED = ROOT / "configs" / authorization.CONSUMED_RECOVERY_ATTEMPT_FILENAME
 
 
-def _authorization_payload() -> dict:
-    assert authorization.EXPECTED_RECOVERY_AUTHORIZATION is not None
-    return dict(authorization.EXPECTED_RECOVERY_AUTHORIZATION)
+def _issued_payload() -> dict:
+    return json.loads(ISSUANCE.read_text(encoding="utf-8"))
 
 
-def test_recovery_execution_config_loads_exact_separate_authorization() -> None:
-    loaded = authorization.load_recovery_execution_config(BASE)
-    assert loaded["protocol_status"] == "frozen_before_recovery_implementation"
-    assert loaded["status"] == AUTHORIZED_RECOVERY_STATUS
-    assert loaded["recovery"] == {"authorized": True, "single_run": True}
-    assert loaded["recovery_authorization"] == _authorization_payload()
-    assert loaded["formal_reserved"]["authorized"] is False
-    assert loaded["phase_b1_reserved"]["authorized"] is False
-    assert loaded["phase_b2_reserved"]["authorized"] is False
+def test_recovery_execution_config_rejects_consumed_authorization() -> None:
+    record = json.loads(CONSUMED.read_text(encoding="utf-8"))
+    assert record["execution_attempt_consumed"] is True
+    assert record["rerun_authorized"] is False
+    assert record["training_started"] is False
+    assert authorization.EXPECTED_RECOVERY_AUTHORIZATION is None
+    with pytest.raises(PermissionError, match="consumed"):
+        authorization.load_recovery_execution_config(BASE)
 
 
-def test_unexpected_authorization_file_is_rejected_before_overlay(tmp_path: Path) -> None:
+def test_unexpected_authorization_file_is_rejected_before_overlay(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     config = tmp_path / BASE.name
     config.write_text(BASE.read_text(encoding="utf-8"), encoding="utf-8")
     authorization.authorization_path(config).write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(
+        authorization, "EXPECTED_RECOVERY_AUTHORIZATION", _issued_payload()
+    )
     with pytest.raises(ValueError, match="fields changed"):
         authorization.load_recovery_execution_config(config)
 
 
-def test_exact_separate_authorization_can_overlay_without_mutating_protocol(
+def test_historical_authorization_path_can_only_be_exercised_when_explicitly_patched(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     config = tmp_path / BASE.name
     original = json.loads(BASE.read_text(encoding="utf-8"))
     config.write_text(json.dumps(original), encoding="utf-8")
-    payload = _authorization_payload()
+    payload = _issued_payload()
     payload["validated_execution_handoff_commit"] = "a" * 40
     authorization.authorization_path(config).write_text(
         json.dumps(payload), encoding="utf-8"

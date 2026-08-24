@@ -1,0 +1,119 @@
+{
+  "experiment_id": "phase-b0-colab-cuda-recovery-2026-08-24",
+  "status": "phase_b0_colab_recovery_attempt_consumed_manifest_mismatch",
+  "source_authorization_commit": "fccead2890faee7c74bde763af81d8cbf568b16a",
+  "authorized_bundle_sha256": "5dff0950d391a57a6cab085a6abd30cd97902b5761b6e69761fb7b9197d45a05",
+  "execution_attempt_consumed": true,
+  "rerun_authorized": false,
+  "failure_stage": "data_manifest_hash_verification",
+  "failure_message": "Recovery data manifest SHA-256 mismatch: diagnostic_test_transitions.json",
+  "training_started": false,
+  "models_trained": false,
+  "checkpoints_created": false,
+  "targets_created": false,
+  "training_histories_created": false,
+  "decision_created": false,
+  "run_config_created": false,
+  "final_output_created": false,
+  "incomplete_output_preserved": true,
+  "cloud_artifact_root": "/content/drive/MyDrive/latent-stroke-dynamics-phase-b0-recovery",
+  "cloud_incomplete_output": "/content/drive/MyDrive/latent-stroke-dynamics-phase-b0-recovery/phase-b0-joint-embedding-development-2026-08-24-colab-recovery.incomplete",
+  "cloud_audit_archive_sha256": "be33a9dba1a8360dc9c582c65d1503a6b1446b2275b10a1597da73537922105b",
+  "expected_manifest_sha256": {
+    "diagnostic_test_transitions.json": "d3101d29de97659a44932282fcbeed807405eecc1f678e71fd36e96a600d997a",
+    "planner_supervision.json": "02bef6101b0e380651301bbf7c8c0cf5e02c7c2a39e2dbab13e44fac1a9d186a",
+    "train_transitions.json": "7bb572b4d053649d22de75584615441b9d72c014f1a6128b435677e560c6304b",
+    "validation_transitions.json": "234ff3b68399aea160ceb0665728d9f1d3d5971e1924ab36eef5c1537558c817"
+  },
+  "cloud_manifest_sha256": {
+    "diagnostic_test_transitions.json": "97d7e6527b27ade5671732fd025e069cb4497c85e64ad6c853c0a3cf0cbfee0b",
+    "planner_supervision.json": "d5d0355c87f5f108b12a414c5e83c5a0bab733bcdfe41ddce9b5fc68e2feae62",
+    "train_transitions.json": "18551716942c747ee3daf8728bf1a8d1d21b9b075f85d71fe1365bcfd6a6e6e8",
+    "validation_transitions.json": "2b4fe2b782699538b91d3d13b453051fdb7e957d55fd371aba1cfdf56b44600a"
+  },
+  "transition_comparison": {
+    "diagnostic_test": {
+      "samples": 512,
+      "matching": 507,
+      "differing": 5,
+      "differing_fraction": 0.009765625,
+      "differing_indices": [112, 157, 227, 254, 389],
+      "no_op_mismatches": 0,
+      "metadata_matches": true,
+      "byte_size_matches": true
+    },
+    "train": {
+      "samples": 2048,
+      "matching": 2011,
+      "differing": 37,
+      "differing_fraction": 0.01806640625,
+      "first_20_differing_indices": [97, 125, 129, 142, 203, 244, 270, 316, 392, 418, 435, 447, 631, 701, 918, 961, 962, 969, 988, 1036],
+      "no_op_mismatches": 0,
+      "metadata_matches": true,
+      "byte_size_matches": true
+    },
+    "validation": {
+      "samples": 512,
+      "matching": 505,
+      "differing": 7,
+      "differing_fraction": 0.013671875,
+      "differing_indices": [60, 66, 186, 339, 365, 373, 489],
+      "no_op_mismatches": 0,
+      "metadata_matches": true,
+      "byte_size_matches": true
+    }
+  },
+  "planner_comparison": {
+    "fixed_counts_match": true,
+    "training_records_match": true,
+    "validation_records_match": true,
+    "local_size_bytes": 16014,
+    "cloud_size_bytes": 16015,
+    "local_progress_mean": -0.00015118662849999964,
+    "cloud_progress_mean": -0.00017171769286505878,
+    "progress_mean_difference": -0.000020531064365059137,
+    "local_progress_std": 0.001871041371487081,
+    "cloud_progress_std": 0.0018368015298619866,
+    "progress_std_difference": -0.000034239841625094414
+  },
+  "local_environment": {
+    "platform": "macOS-13.4-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "python": "3.14.4",
+    "numpy": "2.5.2",
+    "pillow": "12.3.0",
+    "torch": "2.11.0",
+    "torchvision": "0.26.0",
+    "pandas": "3.0.5",
+    "pytest": "9.1.1"
+  },
+  "cloud_environment_captured": {
+    "platform": "Linux-6.6.122+-x86_64-with-glibc2.35",
+    "python": "3.13.15",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "cudnn": 91900,
+    "gpu": "Tesla T4",
+    "numpy": null,
+    "pillow": null
+  },
+  "forensic_interpretation": {
+    "confidence": "high",
+    "same_seed_order_and_counts": true,
+    "no_op_transitions_stable": true,
+    "sparse_non_no_op_stroke_differences": true,
+    "rng_sequence_drift_supported": false,
+    "file_corruption_supported": false,
+    "most_likely_boundary": "version_or_platform_dependent_PIL_ImageDraw_line_rasterization"
+  },
+  "runtime_deleted_after_evidence_preservation": true,
+  "runtime_deletion_was_expected": true,
+  "local_original_manifests_unchanged": true,
+  "cloud_drive_evidence_must_remain_untouched": true,
+  "local_incomplete_must_remain_untouched": true,
+  "next_allowed_action": "new_unauthorized_manifest_only_compatibility_protocol",
+  "formal_authorized": false,
+  "phase_b0_recovery_authorized": false,
+  "phase_b1_authorized": false,
+  "phase_b2_authorized": false
+}

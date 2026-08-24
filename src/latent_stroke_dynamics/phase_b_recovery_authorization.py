@@ -1,4 +1,4 @@
-"""Separate one-time authorization overlay for the validated Phase B0 recovery."""
+"""Historical authorization overlay and permanent consumed-attempt lock."""
 
 from __future__ import annotations
 
@@ -18,7 +18,10 @@ from .phase_b_recovery import (
 RECOVERY_AUTHORIZATION_FILENAME = (
     "phase-b0-colab-recovery-authorization-2026-08-24.json"
 )
-EXPECTED_RECOVERY_AUTHORIZATION: dict[str, Any] | None = {
+CONSUMED_RECOVERY_ATTEMPT_FILENAME = (
+    "phase-b0-colab-recovery-consumed-attempt-2026-08-24.json"
+)
+ISSUED_RECOVERY_AUTHORIZATION: dict[str, Any] = {
     "experiment_id": "phase-b0-colab-cuda-recovery-2026-08-24",
     "status": "recovery_authorized_once",
     "authorized_phase": "phase_b0_recovery",
@@ -39,6 +42,10 @@ EXPECTED_RECOVERY_AUTHORIZATION: dict[str, Any] | None = {
     "phase_b1_authorized": False,
     "phase_b2_authorized": False,
 }
+# The issuance record above remains immutable historical evidence. Runtime lifecycle
+# evidence proves that its one allowed attempt was started and consumed, so no
+# authorization may now be overlaid onto the recovery protocol.
+EXPECTED_RECOVERY_AUTHORIZATION: dict[str, Any] | None = None
 AUTHORIZATION_KEYS = {
     "experiment_id",
     "status",
@@ -128,16 +135,43 @@ def _validate_authorization_payload(payload: Mapping[str, Any]) -> None:
             raise ValueError(f"{name} must remain false.")
 
 
+def _validate_consumed_attempt(payload: Mapping[str, Any]) -> None:
+    expected = {
+        "status": "phase_b0_colab_recovery_attempt_consumed_manifest_mismatch",
+        "execution_attempt_consumed": True,
+        "rerun_authorized": False,
+        "failure_stage": "data_manifest_hash_verification",
+        "training_started": False,
+        "models_trained": False,
+    }
+    changed = [name for name, value in expected.items() if payload.get(name) != value]
+    if changed:
+        raise ValueError(
+            "Consumed recovery-attempt record changed: " + ", ".join(changed)
+        )
+
+
 def authorization_path(
     config_path: str | Path = DEFAULT_RECOVERY_CONFIG,
 ) -> Path:
     return Path(config_path).with_name(RECOVERY_AUTHORIZATION_FILENAME)
 
 
+def consumed_attempt_path(
+    config_path: str | Path = DEFAULT_RECOVERY_CONFIG,
+) -> Path:
+    return Path(config_path).with_name(CONSUMED_RECOVERY_ATTEMPT_FILENAME)
+
+
 def load_recovery_execution_config(
     config_path: str | Path = DEFAULT_RECOVERY_CONFIG,
 ) -> dict[str, Any]:
-    """Load the immutable recovery config plus an exact separately committed authorization."""
+    """Load an execution overlay only when a live authorization exists.
+
+    The 2026-08-24 authorization is permanently disabled because its sole
+    attempt reached the fail-closed data-manifest gate. Historical issuance
+    files are preserved, but they can no longer authorize code execution.
+    """
 
     path = Path(config_path)
     config = load_recovery_config(path)
@@ -149,8 +183,11 @@ def load_recovery_execution_config(
             "Phase B0 Colab recovery is not authorized; the separate authorization record is absent."
         )
     if EXPECTED_RECOVERY_AUTHORIZATION is None:
+        record_path = consumed_attempt_path(path)
+        if record_path.is_file():
+            _validate_consumed_attempt(_load_json(record_path))
         raise PermissionError(
-            "Phase B0 Colab recovery is not authorized; the expected authorization has not been frozen in code."
+            "Phase B0 Colab recovery authorization was consumed by the failed manifest-continuity attempt; no rerun is authorized."
         )
     authorization = _load_json(auth_path)
     _validate_authorization_payload(authorization)
