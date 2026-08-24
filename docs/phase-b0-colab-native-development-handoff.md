@@ -22,8 +22,12 @@ One fresh Tesla T4 runtime will:
 
 There is no Mac-to-Colab manifest exchange and no immutable-Mac-data packaging step.
 
-## Current boundary
+## Authorization
 
-This handoff commit is unauthorized. Run the complete local suite once. Only after it passes may a separate direct-child authorization commit be issued and the single execution bundle built.
+Navid reported `160 passed` on the complete handoff commit `b57ab921abfd51f4382b0436c8e10f49247402c7`. That commit produced no renderer data, loaded no model resources, trained no model, and created no scientific output.
 
-Formal Phase B0, Phase B1, and Phase B2 remain unauthorized.
+A separate direct-child commit now authorizes exactly one cloud-native Phase B0 development execution under:
+
+`/content/drive/MyDrive/latent-stroke-dynamics-phase-b0-cloud-native`
+
+The authorization does not authorize formal Phase B0, Phase B1, or Phase B2. The execution bundle must be built from this direct-child authorization commit, and the fresh Colab notebook must still pass all 160 tests before Drive mounting and training.

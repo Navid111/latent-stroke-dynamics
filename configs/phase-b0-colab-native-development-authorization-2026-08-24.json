@@ -1,0 +1,16 @@
+{
+  "experiment_id": "phase-b0-colab-native-development-2026-08-24",
+  "status": "cloud_native_development_authorized_once",
+  "authorized_phase": "phase_b0_cloud_native_development",
+  "authorized": true,
+  "authorization_date": "2026-08-24",
+  "validated_handoff_commit": "b57ab921abfd51f4382b0436c8e10f49247402c7",
+  "validated_local_test_count": 160,
+  "external_artifact_root": "/content/drive/MyDrive/latent-stroke-dynamics-phase-b0-cloud-native",
+  "maximum_completed_executions": 1,
+  "completed_executions": 0,
+  "authorization_consumed": false,
+  "formal_authorized": false,
+  "phase_b1_authorized": false,
+  "phase_b2_authorized": false
+}

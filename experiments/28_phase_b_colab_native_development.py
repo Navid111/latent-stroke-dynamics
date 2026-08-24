@@ -9,9 +9,11 @@ from pathlib import Path
 
 from latent_stroke_dynamics.phase_b_cloud_native import (
     DEFAULT_CLOUD_NATIVE_CONFIG,
-    load_cloud_native_execution_config,
     require_cloud_native_authorized,
     validate_cloud_native_runner_request,
+)
+from latent_stroke_dynamics.phase_b_cloud_native_authorization import (
+    load_cloud_native_execution_config,
 )
 from latent_stroke_dynamics.phase_b_development import (
     DEFAULT_PHASE_B_CONFIG,

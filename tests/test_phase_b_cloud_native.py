@@ -6,12 +6,12 @@ import sys
 import pytest
 
 import latent_stroke_dynamics.phase_b_cloud_native as cloud
+import latent_stroke_dynamics.phase_b_cloud_native_authorization as authorization
 from latent_stroke_dynamics.phase_b_cloud_native import (
     EXPECTED_CLOUD_MANIFEST_HASHES,
     FROZEN_STATUS,
     cloud_native_output_paths,
     load_cloud_native_config,
-    load_cloud_native_execution_config,
     require_cloud_native_outputs_absent,
     validate_cloud_native_runner_request,
 )
@@ -53,10 +53,20 @@ def test_cloud_native_validation_is_scientifically_side_effect_free() -> None:
     assert result["scientific_output_created"] is False
 
 
-def test_cloud_native_authorization_is_absent_before_local_validation() -> None:
-    assert cloud.EXPECTED_CLOUD_NATIVE_AUTHORIZATION is None
-    with pytest.raises(PermissionError, match="not yet authorized"):
-        load_cloud_native_execution_config(CONFIG)
+def test_cloud_native_authorization_overlays_validated_handoff_only() -> None:
+    original = load_cloud_native_config(CONFIG)
+    loaded = authorization.load_cloud_native_execution_config(CONFIG)
+    expected = authorization.EXPECTED_CLOUD_NATIVE_AUTHORIZATION
+    assert expected["validated_handoff_commit"] == (
+        "b57ab921abfd51f4382b0436c8e10f49247402c7"
+    )
+    assert expected["validated_local_test_count"] == 160
+    assert loaded["protocol_status"] == original["status"]
+    assert loaded["status"] == "cloud_native_development_authorized_once"
+    assert loaded["development"] == {"authorized": True, "single_run": True}
+    assert loaded["cloud_native_authorization"] == expected
+    assert load_cloud_native_config(CONFIG) == original
+    assert cloud.EXPECTED_CLOUD_NATIVE_AUTHORIZATION == expected
 
 
 def test_cloud_native_output_guard_preserves_existing_attempt(tmp_path: Path) -> None:

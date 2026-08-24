@@ -17,6 +17,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from latent_stroke_dynamics.phase_b_cloud_native import (  # noqa: E402
     DEFAULT_CLOUD_NATIVE_CONFIG,
+)
+from latent_stroke_dynamics.phase_b_cloud_native_authorization import (  # noqa: E402
     load_cloud_native_execution_config,
 )
 from latent_stroke_dynamics.phase_b_cloud_preflight import (  # noqa: E402
