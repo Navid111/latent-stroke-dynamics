@@ -18,6 +18,7 @@ completed result, eligibility decision, or authorization state.
 The audit:
 
 - reads the three existing transition manifest JSON files;
+- requires their exact completed cloud-native SHA-256 values before analysis;
 - derives the blank no-op SHA-256 directly from fixed bytes;
 - does not regenerate renderer data;
 - does not import or load a model;
@@ -35,7 +36,9 @@ must contain:
 - `validation_transitions.json`
 - `diagnostic_test_transitions.json`
 
-The planner-supervision manifest is not part of this audit.
+The command rejects the historical Mac manifests, compatibility-test files,
+and any edited copy because their hashes differ. The planner-supervision
+manifest is not part of this audit.
 
 ## Local validation
 
@@ -57,7 +60,9 @@ python scripts/audit_phase_b0_transition_overlap.py \
 ```
 
 The command prints the same JSON written to the report. It exits with status 2
-if the observed overlap is not classified as `blank_no_op_only`.
+if the observed overlap is not classified as `blank_no_op_only`. It fails before
+analysis if the three supplied files are not the exact manifests from the
+completed cloud-native execution.
 
 ## Interpretation
 

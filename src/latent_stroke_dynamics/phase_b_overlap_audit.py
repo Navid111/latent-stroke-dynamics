@@ -15,6 +15,17 @@ MANIFEST_FILES = {
     "validation": "validation_transitions.json",
     "diagnostic_test": "diagnostic_test_transitions.json",
 }
+EXPECTED_CLOUD_NATIVE_TRANSITION_MANIFEST_SHA256 = {
+    "train_transitions.json": (
+        "18551716942c747ee3daf8728bf1a8d1d21b9b075f85d71fe1365bcfd6a6e6e8"
+    ),
+    "validation_transitions.json": (
+        "2b4fe2b782699538b91d3d13b453051fdb7e957d55fd371aba1cfdf56b44600a"
+    ),
+    "diagnostic_test_transitions.json": (
+        "97d7e6527b27ade5671732fd025e069cb4497c85e64ad6c853c0a3cf0cbfee0b"
+    ),
+}
 _HEX = frozenset("0123456789abcdef")
 
 
@@ -74,7 +85,11 @@ def _load_manifest(path: Path, expected_split: str) -> dict[str, Any]:
     return payload
 
 
-def audit_transition_manifest_overlap(manifest_dir: str | Path) -> dict[str, Any]:
+def audit_transition_manifest_overlap(
+    manifest_dir: str | Path,
+    *,
+    require_cloud_native_hashes: bool = True,
+) -> dict[str, Any]:
     """Inspect frozen manifests without regenerating data or loading any model."""
 
     root = Path(manifest_dir).expanduser().resolve()
@@ -86,6 +101,24 @@ def audit_transition_manifest_overlap(manifest_dir: str | Path) -> dict[str, Any
         raise FileNotFoundError(f"Missing required transition manifests: {missing}")
 
     hashes_before = {path.name: file_sha256(path) for path in paths.values()}
+    cloud_native_hash_gate = (
+        hashes_before == EXPECTED_CLOUD_NATIVE_TRANSITION_MANIFEST_SHA256
+    )
+    if require_cloud_native_hashes and not cloud_native_hash_gate:
+        mismatches = {
+            name: {
+                "expected": EXPECTED_CLOUD_NATIVE_TRANSITION_MANIFEST_SHA256[name],
+                "actual": hashes_before.get(name),
+            }
+            for name in EXPECTED_CLOUD_NATIVE_TRANSITION_MANIFEST_SHA256
+            if hashes_before.get(name)
+            != EXPECTED_CLOUD_NATIVE_TRANSITION_MANIFEST_SHA256[name]
+        }
+        raise ValueError(
+            "The supplied files are not the canonical completed cloud-native "
+            f"transition manifests. Hash mismatches: {mismatches}"
+        )
+
     manifests = {
         name: _load_manifest(path, name) for name, path in paths.items()
     }
@@ -154,7 +187,11 @@ def audit_transition_manifest_overlap(manifest_dir: str | Path) -> dict[str, Any
         "classification": classification,
         "interpretation": interpretation,
         "manifest_directory": str(root),
+        "expected_cloud_native_transition_manifest_sha256": (
+            EXPECTED_CLOUD_NATIVE_TRANSITION_MANIFEST_SHA256
+        ),
         "source_manifest_sha256": hashes_before,
+        "cloud_native_manifest_hash_gate_passed": cloud_native_hash_gate,
         "source_files_unchanged": hashes_before == hashes_after,
         "expected_blank_no_op_fingerprint": blank,
         "split_summaries": split_summaries,
