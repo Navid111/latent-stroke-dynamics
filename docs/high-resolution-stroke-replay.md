@@ -29,6 +29,13 @@ This command:
 
 It is a presentation feature, not a new experiment.
 
+## Legacy compatibility
+
+Early qualitative output directories predate the addition of `best_step` to
+`summary.json`. For those outputs, the replay deterministically reconstructs
+the best step from the saved `progress.csv` curve. The replay configuration
+records whether the step came from `summary.json` or `progress.csv`.
+
 ## Validation
 
 From the repository root:
@@ -39,7 +46,7 @@ source .venv/bin/activate
 python -m pytest -q
 ```
 
-Expected total after this implementation: `167 passed`.
+Expected total after the legacy-compatibility repair: `168 passed`.
 
 ## Usage
 
@@ -48,8 +55,8 @@ First produce or identify a completed qualitative painting directory created by
 
 ```bash
 python replay_high_res.py \
-  --painting-dir outputs/qualitative-mnist-3/learned \
-  --output-dir outputs/qualitative-mnist-3-learned-512 \
+  --painting-dir outputs/qualitative-demo-mnist-3-learned \
+  --output-dir outputs/qualitative-demo-mnist-3-learned-512 \
   --size 512 \
   --supersample 2
 ```
@@ -68,8 +75,9 @@ painting.gif
 replay_config.json
 ```
 
-`best.png` uses the best step recorded during the original 64x64 planning run.
-The replay does not select a new best frame at presentation resolution.
+`best.png` uses the best step recorded during the original 64x64 planning run,
+or the exact minimum reconstructed from `progress.csv` for a legacy run. The
+replay does not select a new best frame at presentation resolution.
 
 ## What this does not solve
 

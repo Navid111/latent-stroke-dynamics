@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import argparse
+import csv
 from hashlib import sha256
 import json
+from math import isfinite
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -57,6 +59,59 @@ def _load_strokes(path: Path) -> tuple[Stroke, ...]:
     if not strokes:
         raise ValueError("At least one source stroke is required.")
     return tuple(strokes)
+
+
+def _best_step_from_progress(path: Path, stroke_count: int) -> int:
+    if not path.is_file():
+        raise ValueError(
+            "Source summary has no best_step and progress.csv is unavailable."
+        )
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    if len(rows) != stroke_count:
+        raise ValueError("progress.csv length does not match the stroke sequence.")
+
+    best_step = 0
+    best_mse: float | None = None
+    for expected_step, row in enumerate(rows, start=1):
+        try:
+            step = int(row["step"])
+            mse_before = float(row["mse_before"])
+            mse_after = float(row["mse_after"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("progress.csv has invalid best-step fields.") from exc
+        if step != expected_step or not isfinite(mse_before) or not isfinite(mse_after):
+            raise ValueError("progress.csv has invalid best-step values.")
+        if best_mse is None:
+            best_mse = mse_before
+        if mse_after < best_mse:
+            best_mse = mse_after
+            best_step = step
+    return best_step
+
+
+def _resolve_best_step(
+    summary: dict[str, Any],
+    source: Path,
+    stroke_count: int,
+) -> tuple[int, str]:
+    raw = summary.get("best_step")
+    if isinstance(raw, bool):
+        raise ValueError("Source summary has an invalid best_step.")
+    if isinstance(raw, int):
+        best_step = raw
+        source_name = "summary.json"
+    elif isinstance(raw, float) and isfinite(raw) and raw.is_integer():
+        best_step = int(raw)
+        source_name = "summary.json"
+    elif raw is None:
+        best_step = _best_step_from_progress(source / "progress.csv", stroke_count)
+        source_name = "progress.csv"
+    else:
+        raise ValueError("Source summary has an invalid best_step.")
+    if not 0 <= best_step <= stroke_count:
+        raise ValueError("Source best_step lies outside the stroke sequence.")
+    return best_step, source_name
 
 
 def replay_strokes_high_resolution(
@@ -154,6 +209,9 @@ def replay_existing_painting(
     output = Path(output_dir).expanduser()
     incomplete = _validate_directories(source, output)
     source_paths = {name: source / name for name in REQUIRED_SOURCE_FILES}
+    progress_path = source / "progress.csv"
+    if progress_path.is_file():
+        source_paths["progress.csv"] = progress_path
     hashes_before = {
         name: _file_sha256(path) for name, path in source_paths.items()
     }
@@ -166,11 +224,7 @@ def replay_existing_painting(
     if not isinstance(processing, dict) or processing.get("canvas_size") != 64:
         raise ValueError("Source painting was not planned under the 64x64 qualitative protocol.")
     strokes = _load_strokes(source / "strokes.json")
-    best_step = summary.get("best_step")
-    if isinstance(best_step, bool) or not isinstance(best_step, int):
-        raise ValueError("Source summary has an invalid best_step.")
-    if not 0 <= best_step <= len(strokes):
-        raise ValueError("Source best_step lies outside the stroke sequence.")
+    best_step, best_step_source = _resolve_best_step(summary, source, len(strokes))
 
     with Image.open(source / "processed_target.png") as image:
         target = image.convert("L")
@@ -210,6 +264,7 @@ def replay_existing_painting(
         "internal_render_size": output_size * supersample,
         "stroke_count": len(strokes),
         "source_best_step": best_step,
+        "source_best_step_source": best_step_source,
         "stroke_sequence_changed": False,
         "candidate_selection_repeated": False,
         "evaluation_metrics_recomputed": False,

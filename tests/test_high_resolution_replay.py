@@ -56,6 +56,12 @@ def _source_painting(root: Path) -> Path:
         ),
         encoding="utf-8",
     )
+    (source / "progress.csv").write_text(
+        "step,mse_before,mse_after\n"
+        "1,0.400000,0.100000\n"
+        "2,0.100000,0.200000\n",
+        encoding="utf-8",
+    )
     return source
 
 
@@ -99,11 +105,31 @@ def test_existing_painting_replay_is_atomic_and_read_only(tmp_path: Path) -> Non
             assert image.size == (128, 128)
     saved = json.loads((output / "replay_config.json").read_text(encoding="utf-8"))
     assert saved == config
+    assert config["source_best_step"] == 1
+    assert config["source_best_step_source"] == "summary.json"
     assert config["stroke_sequence_changed"] is False
     assert config["models_loaded"] is False
     assert config["models_trained"] is False
     assert config["source_artifacts_unchanged"] is True
     assert source_before == {path.name: path.read_bytes() for path in source.iterdir()}
+
+
+def test_legacy_summary_derives_best_step_from_progress(tmp_path: Path) -> None:
+    source = _source_painting(tmp_path)
+    (source / "summary.json").write_text(
+        json.dumps({"method": "learned"}),
+        encoding="utf-8",
+    )
+
+    _, config = replay_existing_painting(
+        source,
+        tmp_path / "legacy-128",
+        output_size=128,
+        supersample=2,
+    )
+
+    assert config["source_best_step"] == 1
+    assert config["source_best_step_source"] == "progress.csv"
 
 
 def test_replay_refuses_to_overwrite_output(tmp_path: Path) -> None:
