@@ -1,0 +1,47 @@
+{
+  "status": "phase_b0_transition_overlap_audit_complete",
+  "classification": "blank_no_op_only",
+  "cloud_native_manifest_hash_gate_passed": true,
+  "cross_split_overlap_union_count": 1,
+  "shared_fingerprint": "2d9bc444356a7674509467ad6bfaccfa6090a9cc466b938fc21157d728910d6b",
+  "shared_fingerprint_equals_analytical_blank_no_op": true,
+  "nonblank_or_unknown_overlap_count": 0,
+  "nonblank_transition_splits_disjoint": true,
+  "strict_transition_splits_disjoint": false,
+  "source_files_unchanged": true,
+  "pairwise_overlap": {
+    "train_validation": 1,
+    "train_diagnostic_test": 1,
+    "validation_diagnostic_test": 1,
+    "three_way": 1
+  },
+  "blank_no_op_occurrences": {
+    "train": 53,
+    "validation": 12,
+    "diagnostic_test": 15
+  },
+  "split_summary": {
+    "train": {
+      "samples": 2048,
+      "no_op_samples": 205,
+      "unique_fingerprints": 1996
+    },
+    "validation": {
+      "samples": 512,
+      "no_op_samples": 51,
+      "unique_fingerprints": 501
+    },
+    "diagnostic_test": {
+      "samples": 512,
+      "no_op_samples": 51,
+      "unique_fingerprints": 498
+    }
+  },
+  "original_implementation_integrity": false,
+  "original_implementation_integrity_flag_preserved": true,
+  "original_phase_b0_decision": "not_eligible",
+  "original_phase_b0_decision_preserved": true,
+  "training_performed": false,
+  "models_loaded": false,
+  "historical_output_modified": false
+}
