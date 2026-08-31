@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "status": "rgb_coarse_to_fine_fixed_set_complete",
+  "completed_date": "2026-08-31",
+  "scope": "bounded_qualitative_engineering_exact_pixel_upper_bound",
+  "source_commit": "2c50e88e4c499f30433eb6884b51d147fe23bfa5",
+  "source_branch": "phase-b/saliency-latent",
+  "target_set_sha256": "31e1fcc2bf344f8b72d3f04dfbc9109c61c39fc8cbc10668c1b78d575a673b42",
+  "aggregate_summary_sha256": "7f2c32cef077bef1737a3f00ee584cf1075b1feb5711995ab87dd9812f233c05",
+  "runtime_seconds": 94.11769184599996,
+  "completed_target_count": 5,
+  "verified_artifact_count": 94,
+  "acceptance_checks": {
+    "all_best_frames_not_worse_than_final": true,
+    "all_executed_strokes_improved": true,
+    "all_five_targets_completed": true,
+    "all_frozen_decisions_preserved": true
+  },
+  "painter_config": {
+    "planning_size": 96,
+    "replay_size": 512,
+    "supersample": 2,
+    "candidates_per_pool": 64,
+    "error_guided_fraction": 0.8,
+    "patience": 12,
+    "min_improvement": 1e-09,
+    "seed": 73,
+    "gif_stride": 3,
+    "max_attempts_per_candidate": 400,
+    "stages": [
+      {
+        "name": "global",
+        "max_steps": 40,
+        "min_length": 0.25,
+        "max_length": 0.75,
+        "min_width": 0.1,
+        "max_width": 0.22
+      },
+      {
+        "name": "structure",
+        "max_steps": 70,
+        "min_length": 0.08,
+        "max_length": 0.35,
+        "min_width": 0.035,
+        "max_width": 0.1
+      },
+      {
+        "name": "detail",
+        "max_steps": 100,
+        "min_length": 0.02,
+        "max_length": 0.15,
+        "min_width": 0.012,
+        "max_width": 0.045
+      }
+    ]
+  },
+  "targets": [
+    {
+      "target_id": "01_symbol",
+      "category": "simple_symbol",
+      "initial_mse": 0.02620945402943313,
+      "best_mse": 0.0027757169384638384,
+      "final_mse": 0.0027757169384638384,
+      "final_mae": 0.012666377314814814,
+      "high_resolution_final_mse": 0.010000524172550072,
+      "best_step": 210,
+      "executed_strokes": 210,
+      "stage_end_mse": {
+        "global": 0.016630893166089965,
+        "structure": 0.008585401514908796,
+        "detail": 0.0027757169384638384
+      }
+    },
+    {
+      "target_id": "02_geometric",
+      "category": "geometric_composition",
+      "initial_mse": 0.19338223112638303,
+      "best_mse": 0.01355986880046136,
+      "final_mse": 0.01355986880046136,
+      "final_mae": 0.0666263843500363,
+      "high_resolution_final_mse": 0.02855480060628725,
+      "best_step": 210,
+      "executed_strokes": 210,
+      "stage_end_mse": {
+        "global": 0.039049104266343435,
+        "structure": 0.022282577836871858,
+        "detail": 0.01355986880046136
+      }
+    },
+    {
+      "target_id": "03_object",
+      "category": "isolated_object",
+      "initial_mse": 0.09764857066192491,
+      "best_mse": 0.001677173887892121,
+      "final_mse": 0.001677173887892121,
+      "final_mae": 0.023607423293391428,
+      "high_resolution_final_mse": 0.0034593858123665865,
+      "best_step": 210,
+      "executed_strokes": 210,
+      "stage_end_mse": {
+        "global": 0.009288234493143662,
+        "structure": 0.003515530996803224,
+        "detail": 0.001677173887892121
+      }
+    },
+    {
+      "target_id": "04_landscape",
+      "category": "landscape",
+      "initial_mse": 0.24703028215643558,
+      "best_mse": 0.004193428097455394,
+      "final_mse": 0.004193428097455394,
+      "final_mae": 0.04253273647421931,
+      "high_resolution_final_mse": 0.008596450471273066,
+      "best_step": 210,
+      "executed_strokes": 210,
+      "stage_end_mse": {
+        "global": 0.01729938215981745,
+        "structure": 0.007599413108562234,
+        "detail": 0.004193428097455394
+      }
+    },
+    {
+      "target_id": "05_dense",
+      "category": "dense_detailed_scene",
+      "initial_mse": 0.5483736078627166,
+      "best_mse": 0.0053596996169564416,
+      "final_mse": 0.0053596996169564416,
+      "final_mae": 0.05499982979302832,
+      "high_resolution_final_mse": 0.010984026947862347,
+      "best_step": 210,
+      "executed_strokes": 210,
+      "stage_end_mse": {
+        "global": 0.012150654640487278,
+        "structure": 0.007597216548656499,
+        "detail": 0.0053596996169564416
+      }
+    }
+  ],
+  "aggregate_figure_sha256": {
+    "five_target_montage.png": "8e3c9e7c195e4c854c98862876c846147cb84d28e4626145b32cc960273b925c",
+    "aggregate_progress.png": "2cab6a9aa94d15e8a9905edd787f8f4a3192e783a98c921a14642e759670db17"
+  },
+  "raw_output_storage": "private_google_drive",
+  "raw_outputs_committed": false,
+  "source_images_committed": false,
+  "training_performed": false,
+  "learned_model_used": false,
+  "frozen_phase_b0_decision_changed": false,
+  "post_result_rerun_authorized": false
+}
