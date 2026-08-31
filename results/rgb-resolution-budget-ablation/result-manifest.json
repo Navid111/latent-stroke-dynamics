@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "result_id": "rgb_resolution_budget_ablation_2026_08_31",
+  "protocol_id": "rgb_resolution_budget_ablation_v1",
+  "run_date": "2026-08-31",
+  "status": "complete",
+  "validated_implementation_commit": "da1f10ceb5b0501479f0037da40b00ccb8ad122b",
+  "target_set_sha256": "31e1fcc2bf344f8b72d3f04dfbc9109c61c39fc8cbc10668c1b78d575a673b42",
+  "baseline_aggregate_sha256": "7f2c32cef077bef1737a3f00ee584cf1075b1feb5711995ab87dd9812f233c05",
+  "verified_baseline_artifact_count": 94,
+  "verified_new_artifact_count": 287,
+  "completed_new_condition_count": 3,
+  "runtime_seconds": 476.8426138640002,
+  "training_performed": false,
+  "learned_model_used": false,
+  "frozen_phase_b0_decision_changed": false,
+  "source_images_committed": false,
+  "generated_binary_outputs_committed": false,
+  "raw_output_location": "private_google_drive",
+  "conditions": {
+    "A": {
+      "planning_size": 96,
+      "maximum_strokes": 210,
+      "role": "archived_baseline_reused",
+      "mean_512_mse": 0.012319037602067864,
+      "mean_ratio_to_baseline": 1.0,
+      "quantitatively_eligible": false
+    },
+    "B": {
+      "planning_size": 96,
+      "maximum_strokes": 420,
+      "role": "new_condition",
+      "mean_512_mse": 0.011248509852042583,
+      "mean_ratio_to_baseline": 0.913099725432644,
+      "maximum_target_ratio_to_baseline": 0.9434079417722746,
+      "quantitatively_eligible": false
+    },
+    "C": {
+      "planning_size": 128,
+      "maximum_strokes": 210,
+      "role": "new_condition",
+      "mean_512_mse": 0.01166294492227549,
+      "mean_ratio_to_baseline": 0.9467415636687201,
+      "maximum_target_ratio_to_baseline": 0.985449734020303,
+      "quantitatively_eligible": false
+    },
+    "D": {
+      "planning_size": 128,
+      "maximum_strokes": 420,
+      "role": "new_condition",
+      "mean_512_mse": 0.010105467295105848,
+      "mean_ratio_to_baseline": 0.8203130489194669,
+      "maximum_target_ratio_to_baseline": 0.8567525935091679,
+      "quantitatively_eligible": true
+    }
+  },
+  "required_mean_512_mse": 0.011087133841861078,
+  "factor_effects_on_mean_512_mse": {
+    "budget_effect_at_96": -0.0010705277500252814,
+    "resolution_effect_at_210": -0.0006560926797923739,
+    "combined_effect": -0.0022135703069620163,
+    "interaction": -0.000486949877144361
+  },
+  "condition_d_target_reductions": {
+    "simple_symbol": 0.16908826873508787,
+    "geometric_composition": 0.1587239542522072,
+    "isolated_object": 0.1803087501538605,
+    "landscape": 0.30795948333898726,
+    "dense_scene": 0.14324740649083212
+  },
+  "private_artifact_hashes": {
+    "five_target_ablation_montage.png": "d6f92f8b56d550514cfbf8d4b2b4ab8e10f69c500b0efdb4b9666c75afac0b69",
+    "mean_512_mse_comparison.png": "69f0801b627c319cf2cadc28d28cfa51a824f7b40d5ccd9e28fb857515e09323",
+    "quantitative_decision.json": "344ebe882ab70ba23301d831cb3864800b8afaab11add71c6c55249e5048c570"
+  },
+  "machine_provisional_decision": "meaningful_improvement_pending_qualitative_review",
+  "machine_final_decision": null,
+  "qualitative_review": {
+    "date": "2026-08-31",
+    "artifact": "five_target_ablation_montage.png",
+    "all_five_target_rows_inspected": true,
+    "obvious_visual_regression_found": false,
+    "dense_scene_limitation_preserved": true,
+    "review_note": "D is consistently at least as coherent as A and shows its clearest visible gain on landscape structure; remaining failures are attributable to straight opaque line primitives and limited semantic structure rather than a regression caused by D."
+  },
+  "external_final_decision": "meaningful_improvement",
+  "selected_condition": "D",
+  "selected_configuration": {
+    "planning_size": 128,
+    "maximum_strokes": 420,
+    "stages": [80, 140, 200],
+    "common_replay_size": 512,
+    "seed": 73
+  },
+  "experimental_development_frozen": true,
+  "publication_boundary": "Private source images and generated binary outputs are not included; reproduce only with an established rights basis."
+}
