@@ -1,34 +1,28 @@
 # Current State
 
-**Last updated:** 2026-08-23  
-**Branch:** `phase-b/saliency-latent`  
-**Current stage:** Phase B0 protocol frozen; validation-only implementation next  
-**Status:** Phase B0 implementation and every experimental data phase unauthorized
+**Last updated:** 2026-09-03  
+**Branch:** `quadratic-bezier-extension`  
+**Current stage:** validation-only quadratic-Bezier renderer implementation  
+**Status:** six-chapter v0.1 preserved; comparative execution unauthorized
 
 ## Closed evidence
 
 The formal ranking-aware one-step comparison remains a strong positive result at 74.44% retrieval versus 31.44% for MSE-only.
 
-The controlled multi-step comparison remains a frozen criterion failure with implementation integrity passed: latent ranking mean final MSE was 1.996× exact pixel.
+The controlled long-horizon evidence remains closed. Latent ranking improved over random but missed the exact-pixel ratio criterion. The multi-scale prediction-only model achieved 97.61% four-way retrieval, while qualitative 128-candidate exact top-1 was 14% and the trajectory overpainted after step 50.
 
-The score audit selected the MSE-only ensemble with normalized-latent L1. Forced L1 then reduced mean final MSE by about 7.05% versus forced latent MSE on all three planner-development targets. The zero-margin no-op stopped after only 3.33 strokes on average. The Stage A decision is permanently `not_eligible`, and its confirmatory phase remains prohibited.
+The exact-pixel RGB baseline and resolution-by-budget ablation are closed. The quality-priority 128x128/420 setting improved mean common-resolution MSE by 17.97% across the fixed five-target set at a 3.56x compute proxy.
 
-## Phase B0 frozen direction
+## Manuscript state
 
-A new protocol now isolates a stronger latent model before saliency, color, or renderer changes. The fixed B0 system uses:
+All six ULAB-aligned chapters have complete v0.1 drafts in Notion. The pre-extension snapshot is dated 2026-09-03. Closed experiment conclusions cannot be rewritten by the new renderer study.
 
-- the unchanged 64×64 grayscale straight-stroke renderer;
-- a trainable multi-scale online encoder with 32×32×32 and 16×16×64 spatial latents;
-- a momentum target encoder with stop-gradient targets;
-- a two-channel pre-rendered stroke action;
-- a multi-scale latent residual predictor;
-- variance/covariance anti-collapse regularization;
-- an explicit no-op transition;
-- a target-conditioned progress head trained on exact pixel-MSE reduction;
-- fixed progress regression and candidate-ranking terms.
+## Active bounded extension
 
-All B0 development and formal seeds are new and disjoint. Development must pass eleven frozen eligibility conditions before formal B0 can be considered. B1 background→object→detail scheduling and B2 RGB/high-resolution painting each require a later separate protocol.
+The only active pre-defense experiment compares straight opaque lines with quadratic Bezier curves under exact-pixel RGB selection. It uses six deterministic procedural rights-safe targets, 128x128 planning, 512x512 evaluation, 420 accepted strokes, 64 candidates per pool, and seeds 73/137/211.
+
+The initial implementation commit is validation-only. Target hashes, execution authorization, and comparative outputs remain unfrozen or prohibited. No learned model is permitted.
 
 ## Next action
 
-Implement validation-only configuration, architecture, objective, EMA, gradient, parameter-count, and dummy-overfit checks. This stage may not load historical checkpoints, generate renderer data, create output directories, or authorize training. After the complete test suite passes on Navid's machine, archive the implementation manifest and decide whether to authorize exactly one B0 development execution.
+Run the complete local test suite and `python validate_quadratic_bezier_extension.py --validate-only`. Review the six generated target hashes, deterministic and monotonic smoke results, and no-side-effect boundary. Only after a passing report may a separate commit freeze target hashes and add or authorize the one fixed comparative runner.
