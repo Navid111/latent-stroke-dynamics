@@ -14,7 +14,11 @@ This branch begins with a validation-only scaffold. It adds:
 
 The scaffold deliberately omits an execution CLI. `execution_authorized` and `target_hashes_frozen` remain false in the config. The six target hashes printed by validation must be reviewed and frozen in a separate commit before a guarded comparison runner can be added or enabled.
 
-## Local handoff
+## Recommended Colab handoff
+
+Open `notebooks/quadratic_bezier_extension_validation.ipynb` from the public `quadratic-bezier-extension` branch and run all five cells on a standard CPU runtime. The notebook needs no token, no upload, no GPU, and no Drive mount. It pins exact implementation commit `7bdcd2e847ca7c5a1faf8a086b26441d8de1a4e1`, runs the complete test suite, validates the no-output boundary, prints the six proposed target hashes, and downloads the test log plus validation JSON.
+
+## Equivalent local handoff
 
 ```bash
 git switch quadratic-bezier-extension
