@@ -7,6 +7,7 @@ This branch begins with a validation-only scaffold. It adds:
 - unique changing curve proposals;
 - matched exact-pixel planning for straight and curved primitives;
 - action serialization round trips;
+- deterministic common-resolution high-resolution replay;
 - six deterministic procedural rights-safe targets;
 - a locked validation config and decision rule;
 - a no-output validation command and focused tests.
