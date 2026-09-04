@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-09-04  
 **Branch:** `quadratic-bezier-extension`  
-**Current stage:** one fixed comparison authorized and awaiting execution  
-**Status:** target hashes and runner environment frozen; no comparative outputs generated or viewed
+**Current stage:** authorized comparison interrupted; preserved-state inspection pending  
+**Status:** no completed comparative result; reruns and recovery suspended
 
 ## Closed evidence
 
@@ -19,12 +19,16 @@ All six ULAB-aligned chapters have complete v0.1 drafts in Notion. The pre-exten
 
 ## Active bounded extension
 
-The only active pre-defense experiment compares straight opaque lines with quadratic Bezier curves under exact-pixel RGB selection. It uses six deterministic procedural rights-safe targets, 128x128 planning, 512x512 evaluation, 420 accepted strokes, 64 candidates per pool, and seeds 73/137/211.
+The fixed comparison uses six deterministic procedural rights-safe targets, 128x128 planning, 512x512 evaluation, 420 accepted strokes, 64 candidates per pool, and seeds 73/137/211. Target hashes, source, tests, environment, and decision rules remain frozen.
 
-The scaffold passed 199 tests before the six target hashes were frozen. Fail-closed runner source commit `398a2bfb7bd65ed8b4bbc93fb8cc05564f7f3c1b` then passed all 210 tests in 60.84 seconds in Google Colab. Its validation report captured Python 3.13.15, Linux, NumPy 2.1.3, Pillow 11.3.0, and Matplotlib 3.10.0. Both primitive smoke planners were deterministic and monotonic. The unauthorized execution probe correctly raised `PermissionError` and created no output directory.
+Fail-closed runner source commit `398a2bfb7bd65ed8b4bbc93fb8cc05564f7f3c1b` passed all 210 tests and the unauthorized-output probe. Authorization commit `cc857407ed431c5583fd9e1c02a0ba619a8c187a` permits one completed comparison.
 
-Authorization commit `cc857407ed431c5583fd9e1c02a0ba619a8c187a` permits one completed execution at `/content/drive/MyDrive/latent-stroke-dynamics-rgb/quadratic-bezier-fixed-comparison-v1`. No learned model is permitted. An incomplete attempt must be preserved and reviewed before any recovery decision.
+## Interrupted attempt
+
+The first authorized attempt was manually interrupted after approximately 12 minutes when the user's internet connection dropped and Colab showed a reconnecting state. The heartbeat continued because the Colab kernel and comparison child process remained active. Pressing stop raised `KeyboardInterrupt` in the heartbeat sleep; the notebook handler then called `process.terminate()` and waited for the child process to stop.
+
+The `.incomplete` directory must be preserved. The interruption is not a completed execution and provides no scientific result. No metrics or images should be opened, and no fresh execution should begin.
 
 ## Next action
 
-Open `notebooks/quadratic_bezier_fixed_comparison_execution.ipynb` and run code cells 1–6 in order. Do not interrupt. If Cell 6 says blinded review is required, return only the blind handoff JSON, blinded montage, and blank review sheet; do not run Cell 7. If Cell 6 says blinded review is not required, return the downloaded numerical handoff. Do not rerun the comparison.
+Open `notebooks/quadratic_bezier_incomplete_run_inspection.ipynb`, run all four code cells, and return `quadratic_bezier_incomplete_diagnostic.json`. The notebook only hashes and inventories the saved state. It does not reveal metrics, open images, mutate Drive, resume execution, or start a new run. A recovery plan may be written only after this diagnostic is reviewed.
