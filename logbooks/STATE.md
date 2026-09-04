@@ -1,9 +1,9 @@
 # Current State
 
-**Last updated:** 2026-09-04  
+**Last updated:** 2026-09-05  
 **Branch:** `quadratic-bezier-extension`  
-**Current stage:** authorized comparison interrupted; preserved-state inspection pending  
-**Status:** no completed comparative result; reruns and recovery suspended
+**Current stage:** stable interrupted state confirmed; guarded recovery implementation awaiting no-output validation  
+**Status:** no completed comparative result; recovery execution unauthorized
 
 ## Closed evidence
 
@@ -23,12 +23,12 @@ The fixed comparison uses six deterministic procedural rights-safe targets, 128x
 
 Fail-closed runner source commit `398a2bfb7bd65ed8b4bbc93fb8cc05564f7f3c1b` passed all 210 tests and the unauthorized-output probe. Authorization commit `cc857407ed431c5583fd9e1c02a0ba619a8c187a` permits one completed comparison.
 
-## Interrupted attempt
+## Stable interrupted state
 
-The first authorized attempt was manually interrupted after approximately 12 minutes when the user's internet connection dropped and Colab showed a reconnecting state. The heartbeat continued because the Colab kernel and comparison child process remained active. Pressing stop raised `KeyboardInterrupt` in the heartbeat sleep; the notebook handler then called `process.terminate()` and waited for the child process to stop.
+Two identical read-only diagnostics were captured, with the second taken only after the original Colab runtime was disconnected and deleted. The stable state has no completed output or aggregate, 17 valid completed units, one partial unit (`03_organic_silhouette/seed_211/quadratic_bezier`), and 18 units that never started. No images or metrics were opened.
 
-The `.incomplete` directory must be preserved. The interruption is not a completed execution and provides no scientific result. No metrics or images should be opened, and no fresh execution should begin.
+The partial unit must be hashed and quarantined without overwrite. The 17 completed units must remain byte-for-byte unchanged. Exactly 19 missing units may eventually run in the original frozen order, after a separate no-output recovery validation and a later one-time authorization.
 
 ## Next action
 
-Open `notebooks/quadratic_bezier_incomplete_run_inspection.ipynb`, run all four code cells, and return `quadratic_bezier_incomplete_diagnostic.json`. The notebook only hashes and inventories the saved state. It does not reveal metrics, open images, mutate Drive, resume execution, or start a new run. A recovery plan may be written only after this diagnostic is reviewed.
+Run the pinned recovery-validation notebook when it is added. It must not mount Drive or access the interrupted output. Archive its JSON report and pytest log. Do not run recovery, reopen the old execution notebook, inspect generated outputs, or modify the preserved `.incomplete` directory.

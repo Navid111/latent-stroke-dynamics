@@ -20,6 +20,23 @@ Open `notebooks/quadratic_bezier_incomplete_run_inspection.ipynb` and run all fo
 
 The diagnostic reports whether a completed or incomplete directory exists, how many run summaries are complete, whether those summaries and their artifact hashes pass, whether one partial run directory exists, and whether an aggregate or failure record was written. It deliberately withholds numerical metrics and does not open images.
 
+## Stable diagnostic — 5 September 2026
+
+The read-only inspection was run twice. The original execution runtime was disconnected and deleted before the second inspection. Both diagnostics were identical:
+
+- no completed output directory;
+- one preserved `.incomplete` directory;
+- 17 completed units, all reported valid;
+- one partial unit: `03_organic_silhouette/seed_211/quadratic_bezier`;
+- 18 units not started;
+- no aggregate and no failure record;
+- 215 files totaling 6,958,862 bytes;
+- no images opened, no metrics revealed, no files deleted or renamed, and no execution resumed.
+
+The stable recovery workload is 19 units: rerun the quarantined partial unit from the beginning and execute the 18 units that never started. The 17 valid units must remain byte-for-byte unchanged.
+
 ## Recovery decision
 
-Design a recovery only after the diagnostic is returned. A valid recovery must preserve completed run directories and hashes, quarantine rather than overwrite any partial run, execute only missing units under the same frozen source and authorization, and still produce exactly one completed aggregate result. No target, seed, condition, proposal, threshold, or source setting may change.
+The recovery plan is frozen in `configs/quadratic-bezier-interrupted-recovery-plan-2026-09-05.json`. The implementation must preserve completed run directories and hashes, quarantine rather than overwrite the partial run, execute only missing units under the same frozen source and authorization, and still produce exactly one completed aggregate result. No target, seed, condition, proposal, threshold, or source setting may change.
+
+Recovery execution remains unauthorized. First validate the recovery implementation without mounting Drive or accessing the interrupted output. Only a separately archived passing report and later one-time recovery authorization may permit execution.
