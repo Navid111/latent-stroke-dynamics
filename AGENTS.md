@@ -46,7 +46,7 @@ The exact-pixel RGB baseline and resolution-by-budget ablation are complete and 
 
 ## Active task
 
-Implement and validate exactly one fail-closed runner for the bounded straight-line versus quadratic-Bezier comparison. The six procedural targets, target order, target-stream mapping, seeds, matched settings, hashes, and decision rule are frozen in `configs/quadratic-bezier-target-freeze-2026-09-04.json`. Comparative execution remains unauthorized and no outputs may be viewed yet.
+Validate exact fail-closed runner source commit `398a2bfb7bd65ed8b4bbc93fb8cc05564f7f3c1b` with `notebooks/quadratic_bezier_comparison_runner_validation.ipynb`. The six procedural targets, hashes, order, target streams, seeds, matched settings, and decision rule are frozen. Comparative execution remains unauthorized and no outputs may be viewed yet.
 
 ## Hard boundaries
 

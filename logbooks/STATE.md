@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-09-04  
 **Branch:** `quadratic-bezier-extension`  
-**Current stage:** target manifest frozen; comparison runner not yet authorized  
-**Status:** six-chapter v0.1 preserved; no comparative outputs generated or viewed
+**Current stage:** fail-closed comparison runner awaiting validation  
+**Status:** target hashes frozen; comparative execution unauthorized; no comparative outputs generated or viewed
 
 ## Closed evidence
 
@@ -21,10 +21,10 @@ All six ULAB-aligned chapters have complete v0.1 drafts in Notion. The pre-exten
 
 The only active pre-defense experiment compares straight opaque lines with quadratic Bezier curves under exact-pixel RGB selection. It uses six deterministic procedural rights-safe targets, 128x128 planning, 512x512 evaluation, 420 accepted strokes, 64 candidates per pool, and seeds 73/137/211.
 
-Validation of implementation commit `7bdcd2e847ca7c5a1faf8a086b26441d8de1a4e1` passed all 199 tests in 61.78 seconds. Both primitive smoke planners were deterministic and monotonic. No output side effects, training, learned model, comparative-output viewing, or changes to closed experiments were recorded.
+The initial scaffold validation passed all 199 tests in 61.78 seconds. The exact target definitions, individual pixel hashes, target order, target-stream mapping, seed order, ordered target-set hash, and decision rule are frozen in `configs/quadratic-bezier-target-freeze-2026-09-04.json`.
 
-The exact target definitions, individual pixel hashes, target order, target-stream mapping, seed order, ordered target-set hash, and decision rule are now frozen in `configs/quadratic-bezier-target-freeze-2026-09-04.json`. The ordered target-set hash is `26bada941bfd8f49f09333d70d397364e82f5ddbb6e1228324f24fb9d2b30bfd`.
+Fail-closed runner source commit `398a2bfb7bd65ed8b4bbc93fb8cc05564f7f3c1b` now implements the fixed 36-run schedule, complete summaries, common-resolution metrics, candidate-render and runtime accounting, artifact hashes, rights-safe plots, deterministic blinded review materials, and `.incomplete` lifecycle. It checks a separate authorization before creating any output. No authorization file exists.
 
 ## Next action
 
-Implement a fail-closed comparison runner while keeping execution unauthorized. It must report all target-seed-condition summaries, common 512x512 RGB MSE, per-target means and ratios, candidate-render counts, wall-clock time, artifact hashes, rights-safe aggregate plots and montages, blinded labels, and an `.incomplete` lifecycle. Run a fresh no-output validation before creating a separate one-time execution authorization.
+Open `notebooks/quadratic_bezier_comparison_runner_validation.ipynb` from the public branch and run all six cells on a standard Colab CPU runtime. Return `quadratic_bezier_runner_pytest.txt`, `quadratic_bezier_runner_validation.json`, and `quadratic_bezier_unauthorized_probe.txt`. Only after a clean pass may a separate commit authorize one fixed output directory and one completed comparison.
