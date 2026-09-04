@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-09-04  
 **Branch:** `quadratic-bezier-extension`  
-**Current stage:** fail-closed comparison runner awaiting validation  
-**Status:** target hashes frozen; comparative execution unauthorized; no comparative outputs generated or viewed
+**Current stage:** one fixed comparison authorized and awaiting execution  
+**Status:** target hashes and runner environment frozen; no comparative outputs generated or viewed
 
 ## Closed evidence
 
@@ -21,10 +21,10 @@ All six ULAB-aligned chapters have complete v0.1 drafts in Notion. The pre-exten
 
 The only active pre-defense experiment compares straight opaque lines with quadratic Bezier curves under exact-pixel RGB selection. It uses six deterministic procedural rights-safe targets, 128x128 planning, 512x512 evaluation, 420 accepted strokes, 64 candidates per pool, and seeds 73/137/211.
 
-The initial scaffold validation passed all 199 tests in 61.78 seconds. The exact target definitions, individual pixel hashes, target order, target-stream mapping, seed order, ordered target-set hash, and decision rule are frozen in `configs/quadratic-bezier-target-freeze-2026-09-04.json`.
+The scaffold passed 199 tests before the six target hashes were frozen. Fail-closed runner source commit `398a2bfb7bd65ed8b4bbc93fb8cc05564f7f3c1b` then passed all 210 tests in 60.84 seconds in Google Colab. Its validation report captured Python 3.13.15, Linux, NumPy 2.1.3, Pillow 11.3.0, and Matplotlib 3.10.0. Both primitive smoke planners were deterministic and monotonic. The unauthorized execution probe correctly raised `PermissionError` and created no output directory.
 
-Fail-closed runner source commit `398a2bfb7bd65ed8b4bbc93fb8cc05564f7f3c1b` now implements the fixed 36-run schedule, complete summaries, common-resolution metrics, candidate-render and runtime accounting, artifact hashes, rights-safe plots, deterministic blinded review materials, and `.incomplete` lifecycle. It checks a separate authorization before creating any output. No authorization file exists.
+Authorization commit `cc857407ed431c5583fd9e1c02a0ba619a8c187a` permits one completed execution at `/content/drive/MyDrive/latent-stroke-dynamics-rgb/quadratic-bezier-fixed-comparison-v1`. No learned model is permitted. An incomplete attempt must be preserved and reviewed before any recovery decision.
 
 ## Next action
 
-Open `notebooks/quadratic_bezier_comparison_runner_validation.ipynb` from the public branch and run all six cells on a standard Colab CPU runtime. Return `quadratic_bezier_runner_pytest.txt`, `quadratic_bezier_runner_validation.json`, and `quadratic_bezier_unauthorized_probe.txt`. Only after a clean pass may a separate commit authorize one fixed output directory and one completed comparison.
+Open `notebooks/quadratic_bezier_fixed_comparison_execution.ipynb` and run code cells 1–6 in order. Do not interrupt. If Cell 6 says blinded review is required, return only the blind handoff JSON, blinded montage, and blank review sheet; do not run Cell 7. If Cell 6 says blinded review is not required, return the downloaded numerical handoff. Do not rerun the comparison.

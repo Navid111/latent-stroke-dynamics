@@ -11,30 +11,32 @@ Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-ba
 1. `logbooks/STATE.md`;
 2. `docs/quadratic-bezier-extension-protocol.md`;
 3. `configs/quadratic-bezier-target-freeze-2026-09-04.json`;
-4. `docs/quadratic-bezier-extension-implementation.md`;
-5. `configs/quadratic-bezier-extension-2026-09-03.json`;
-6. `docs/phase-b-saliency-latent-protocol.md`;
-7. `docs/phase-b0-implementation-manifest.md`;
-8. `configs/phase-b0-aborted-local-attempt-2026-08-23.json`;
-9. `docs/phase-b0-colab-preflight-results.md`;
-10. `docs/phase-b0-colab-recovery-protocol.md`;
-11. `configs/phase-b0-colab-recovery-2026-08-24.json`;
-12. `configs/phase-b0-colab-recovery-authorization-2026-08-24.json`;
-13. `docs/phase-b0-colab-recovery-authorization-2026-08-24.md`;
-14. `docs/phase-b0-colab-recovery-implementation-manifest.md`;
-15. `docs/phase-b0-colab-recovery-local-validation-2026-08-24.md`;
-16. `docs/phase-b0-colab-recovery-validation.md`;
-17. `docs/phase-b0-colab-recovery-validation-bundle-2026-08-24.md`;
-18. `docs/phase-b0-colab-recovery-validation-results.md`;
-19. `docs/phase-b0-colab-recovery-execution-handoff.md`;
-20. `docs/phase-b0-colab-recovery-command.md`;
-21. `docs/phase-b0-development-command.md`;
-22. `docs/phase-b0-colab-preflight.md`;
-23. `docs/planner-score-development-results.md`;
-24. `docs/planner-score-audit-results.md`;
-25. `docs/planner-score-alignment-protocol.md`;
-26. `docs/latent-planner-controlled-results.md`;
-27. relevant result artifacts and code.
+4. `configs/quadratic-bezier-runner-environment-2026-09-04.json`;
+5. `configs/quadratic-bezier-execution-authorization-2026-09-04.json`;
+6. `docs/quadratic-bezier-extension-implementation.md`;
+7. `configs/quadratic-bezier-extension-2026-09-03.json`;
+8. `docs/phase-b-saliency-latent-protocol.md`;
+9. `docs/phase-b0-implementation-manifest.md`;
+10. `configs/phase-b0-aborted-local-attempt-2026-08-23.json`;
+11. `docs/phase-b0-colab-preflight-results.md`;
+12. `docs/phase-b0-colab-recovery-protocol.md`;
+13. `configs/phase-b0-colab-recovery-2026-08-24.json`;
+14. `configs/phase-b0-colab-recovery-authorization-2026-08-24.json`;
+15. `docs/phase-b0-colab-recovery-authorization-2026-08-24.md`;
+16. `docs/phase-b0-colab-recovery-implementation-manifest.md`;
+17. `docs/phase-b0-colab-recovery-local-validation-2026-08-24.md`;
+18. `docs/phase-b0-colab-recovery-validation.md`;
+19. `docs/phase-b0-colab-recovery-validation-bundle-2026-08-24.md`;
+20. `docs/phase-b0-colab-recovery-validation-results.md`;
+21. `docs/phase-b0-colab-recovery-execution-handoff.md`;
+22. `docs/phase-b0-colab-recovery-command.md`;
+23. `docs/phase-b0-development-command.md`;
+24. `docs/phase-b0-colab-preflight.md`;
+25. `docs/planner-score-development-results.md`;
+26. `docs/planner-score-audit-results.md`;
+27. `docs/planner-score-alignment-protocol.md`;
+28. `docs/latent-planner-controlled-results.md`;
+29. relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -46,15 +48,16 @@ The exact-pixel RGB baseline and resolution-by-budget ablation are complete and 
 
 ## Active task
 
-Validate exact fail-closed runner source commit `398a2bfb7bd65ed8b4bbc93fb8cc05564f7f3c1b` with `notebooks/quadratic_bezier_comparison_runner_validation.ipynb`. The six procedural targets, hashes, order, target streams, seeds, matched settings, and decision rule are frozen. Comparative execution remains unauthorized and no outputs may be viewed yet.
+Execute and adjudicate exactly one fixed straight-line versus quadratic-Bezier comparison with `notebooks/quadratic_bezier_fixed_comparison_execution.ipynb`. Exact runner commit `398a2bfb7bd65ed8b4bbc93fb8cc05564f7f3c1b` passed all 210 tests and the explicit unauthorized-output probe. Authorization commit `cc857407ed431c5583fd9e1c02a0ba619a8c187a` permits one completed execution at the fixed Google Drive output name.
 
 ## Hard boundaries
 
 - Do not rerun, tune, overwrite, or reinterpret any completed experiment.
 - Do not modify archived outputs or the preserved incomplete recovery directory.
 - Do not use the private five-target RGB set in the curve study.
-- Do not view comparative straight-versus-curve outputs before the runner implementation, complete tests, environment manifest, authorization config, and exact source commit are frozen.
 - Do not change the frozen targets, hashes, order, target-stream mapping, seeds, matched settings, or decision thresholds.
+- Do not interrupt the fixed run. If an `.incomplete` output appears, preserve it and stop pending review.
+- Do not open the blinded mapping, condition-labeled metrics, plots, aggregate summary, or execution log before a required blinded review is recorded.
 - Do not add variable width, transparency, texture, erasing, cubic curves, or mixed primitives to the primary comparison.
 - Do not train or load a learned model in the primary comparison.
 - Do not authorize a learned curved-stroke predictor unless the exact-pixel curve condition first produces a material improvement under the frozen rule.
