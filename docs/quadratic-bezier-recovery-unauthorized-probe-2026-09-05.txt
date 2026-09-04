@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "/content/latent-stroke-dynamics/run_quadratic_bezier_recovery.py", line 110, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/content/latent-stroke-dynamics/run_quadratic_bezier_recovery.py", line 76, in main
+    aggregate = run_interrupted_comparison_recovery(
+        output_dir=args.output_dir,
+    ...<5 lines>...
+        freeze_path=args.freeze,
+    )
+  File "/content/latent-stroke-dynamics/src/latent_stroke_dynamics/quadratic_bezier_recovery.py", line 845, in run_interrupted_comparison_recovery
+    recovery_authorization = validate_recovery_authorization(
+        recovery_authorization_path,
+        recovery_implementation_commit=recovery_implementation_commit,
+        plan_path=plan_path,
+    )
+  File "/content/latent-stroke-dynamics/src/latent_stroke_dynamics/quadratic_bezier_recovery.py", line 488, in validate_recovery_authorization
+    authorization = _read_json(path)
+  File "/content/latent-stroke-dynamics/src/latent_stroke_dynamics/quadratic_bezier_recovery.py", line 89, in _read_json
+    value = json.loads(path.read_text(encoding="utf-8"))
+                       ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 546, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 537, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/content/recovery-authorization-does-not-exist.json'
