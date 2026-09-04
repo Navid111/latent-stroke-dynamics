@@ -29,6 +29,10 @@ Two identical read-only diagnostics were captured, with the second taken only af
 
 The partial unit must be hashed and quarantined without overwrite. The 17 completed units must remain byte-for-byte unchanged. Exactly 19 missing units may eventually run in the original frozen order, after a separate no-output recovery validation and a later one-time authorization.
 
+## Guarded recovery implementation
+
+Recovery implementation commit `46e0c6396f0425ed84812e8fbeef9ed675ef53e9` adds strict completed-unit verification, frozen-source continuity checks, byte-preserving quarantine, missing-only execution, aggregate rebuilding, audit journals, blind-gate preservation, and an authorization guard. It does not modify the frozen runner files and is not authorized to execute.
+
 ## Next action
 
-Run the pinned recovery-validation notebook when it is added. It must not mount Drive or access the interrupted output. Archive its JSON report and pytest log. Do not run recovery, reopen the old execution notebook, inspect generated outputs, or modify the preserved `.incomplete` directory.
+Open `notebooks/quadratic_bezier_interrupted_recovery_validation.ipynb` in a fresh CPU Colab runtime and run all six code cells. Do not mount Google Drive. Return the JSON validation report, pytest log, and unauthorized-probe log, then disconnect and delete the validation runtime. Do not run recovery, reopen the old execution notebook, inspect generated outputs, or modify the preserved `.incomplete` directory.
