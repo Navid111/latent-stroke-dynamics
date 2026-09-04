@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/content/latent-stroke-dynamics/run_quadratic_bezier_comparison.py", line 71, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/content/latent-stroke-dynamics/run_quadratic_bezier_comparison.py", line 58, in main
+    report = run_fixed_comparison(
+        output_dir=args.output_dir,
+    ...<2 lines>...
+        freeze_path=args.freeze,
+    )
+  File "/content/latent-stroke-dynamics/src/latent_stroke_dynamics/quadratic_bezier_comparison.py", line 778, in run_fixed_comparison
+    authorization = validate_execution_authorization(
+        authorization_path,
+        source_commit=source_commit,
+        freeze_path=freeze_path,
+    )
+  File "/content/latent-stroke-dynamics/src/latent_stroke_dynamics/quadratic_bezier_comparison.py", line 190, in validate_execution_authorization
+    raise PermissionError("Comparison execution is not authorized.")
+PermissionError: Comparison execution is not authorized.
