@@ -1,0 +1,134 @@
+{
+  "closed_experiments_changed": false,
+  "comparative_outputs_viewed": false,
+  "config_sha256": "fb9cf09e46ae1beb51e2462a93832c80e45e17db811586d7d4e30573c3b5cbfa",
+  "dependencies": {
+    "numpy": "2.1.3",
+    "pillow": "11.3.0"
+  },
+  "execution_authorized": false,
+  "learned_model_used": false,
+  "output_side_effects": false,
+  "proposed_target_manifest": {
+    "generator": "deterministic_procedural_pillow_v1",
+    "target_count": 6,
+    "target_set_sha256": "26bada941bfd8f49f09333d70d397364e82f5ddbb6e1228324f24fb9d2b30bfd",
+    "targets": [
+      {
+        "category": "ring_symbol",
+        "height": 512,
+        "mode": "RGB",
+        "pixel_sha256": "548ee3d03644308c066f11be64234db8a28a67e0a24cb5d21bec6bd6aab4940b",
+        "provenance": "Original deterministic PIL drawing; CC0-equivalent project asset.",
+        "target_id": "01_ring_symbol",
+        "width": 512
+      },
+      {
+        "category": "curved_glyph",
+        "height": 512,
+        "mode": "RGB",
+        "pixel_sha256": "b2e0036f2eb1b4275fb553ae970ab2a93ffb08b229b21b7ebe2dd194e2d0a7da",
+        "provenance": "Original deterministic Bezier glyph; CC0-equivalent project asset.",
+        "target_id": "02_curved_glyph",
+        "width": 512
+      },
+      {
+        "category": "organic_silhouette",
+        "height": 512,
+        "mode": "RGB",
+        "pixel_sha256": "838edf87ab05d3b289af18673c87d51e5cd56f77ebef4aa6bb99c7f7685af398",
+        "provenance": "Original procedural leaf silhouette; CC0-equivalent project asset.",
+        "target_id": "03_organic_silhouette",
+        "width": 512
+      },
+      {
+        "category": "mixed_geometry",
+        "height": 512,
+        "mode": "RGB",
+        "pixel_sha256": "d660b8247c098d4fc3dac9b51330678371d3efaa73406f86cbfacc6762357f66",
+        "provenance": "Original deterministic geometric composition; CC0-equivalent project asset.",
+        "target_id": "04_mixed_geometry",
+        "width": 512
+      },
+      {
+        "category": "layered_landscape",
+        "height": 512,
+        "mode": "RGB",
+        "pixel_sha256": "4bd0794c85c2be198ee93a2ab0d155ea0758ae0f84bd56fac8428da0e604b45a",
+        "provenance": "Original procedural landscape; CC0-equivalent project asset.",
+        "target_id": "05_layered_landscape",
+        "width": 512
+      },
+      {
+        "category": "dense_scene",
+        "height": 512,
+        "mode": "RGB",
+        "pixel_sha256": "79d51333fc6d94b2e269cc3a895c0dba2fe12ca2f01d8e9565ef691614c3e3fe",
+        "provenance": "Original procedural city scene; CC0-equivalent project asset.",
+        "target_id": "06_dense_scene",
+        "width": 512
+      }
+    ]
+  },
+  "protocol": {
+    "accepted_strokes": 420,
+    "base_commit": "d5f1190ab9b62d5adff7fb56c5cc1ffd4d850177",
+    "branch": "quadratic-bezier-extension",
+    "candidates_per_pool": 64,
+    "completed_executions": 0,
+    "conditions": [
+      "straight",
+      "quadratic_bezier"
+    ],
+    "decision_rule": {
+      "blinded_review_required": true,
+      "maximum_per_target_worsening_ratio": 1.05,
+      "minimum_improved_target_count": 4,
+      "minimum_mean_mse_improvement_fraction": 0.05
+    },
+    "error_guided_fraction": 0.8,
+    "execution_authorized": false,
+    "learned_model_allowed": false,
+    "maximum_completed_executions": 1,
+    "min_improvement": 1e-09,
+    "patience": 12,
+    "planning_size": 128,
+    "protocol_id": "quadratic_bezier_extension_v1",
+    "replay_size": 512,
+    "seeds": [
+      73,
+      137,
+      211
+    ],
+    "stage_budgets": [
+      80,
+      140,
+      200
+    ],
+    "status": "implementation_validation_only",
+    "target_count": 6,
+    "target_hashes_frozen": false,
+    "target_set_sha256": null,
+    "target_sha256": {},
+    "target_source": "deterministic_procedural_rights_safe"
+  },
+  "protocol_id": "quadratic_bezier_extension_v1",
+  "status": "quadratic_bezier_extension_valid_no_outputs",
+  "synthetic_smoke": {
+    "quadratic_bezier": {
+      "deterministic": true,
+      "executed_strokes": 3,
+      "final_mse": 0.05614518254197104,
+      "initial_mse": 0.084598386638152,
+      "monotonic": true
+    },
+    "straight": {
+      "deterministic": true,
+      "executed_strokes": 3,
+      "final_mse": 0.053349117526912716,
+      "initial_mse": 0.084598386638152,
+      "monotonic": true
+    }
+  },
+  "training_performed": false
+}

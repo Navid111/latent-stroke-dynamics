@@ -1,9 +1,9 @@
 # Current State
 
-**Last updated:** 2026-09-03  
+**Last updated:** 2026-09-04  
 **Branch:** `quadratic-bezier-extension`  
-**Current stage:** validation-only quadratic-Bezier renderer implementation  
-**Status:** six-chapter v0.1 preserved; comparative execution unauthorized
+**Current stage:** target manifest frozen; comparison runner not yet authorized  
+**Status:** six-chapter v0.1 preserved; no comparative outputs generated or viewed
 
 ## Closed evidence
 
@@ -21,8 +21,10 @@ All six ULAB-aligned chapters have complete v0.1 drafts in Notion. The pre-exten
 
 The only active pre-defense experiment compares straight opaque lines with quadratic Bezier curves under exact-pixel RGB selection. It uses six deterministic procedural rights-safe targets, 128x128 planning, 512x512 evaluation, 420 accepted strokes, 64 candidates per pool, and seeds 73/137/211.
 
-The initial implementation commit is validation-only. Target hashes, execution authorization, and comparative outputs remain unfrozen or prohibited. No learned model is permitted.
+Validation of implementation commit `7bdcd2e847ca7c5a1faf8a086b26441d8de1a4e1` passed all 199 tests in 61.78 seconds. Both primitive smoke planners were deterministic and monotonic. No output side effects, training, learned model, comparative-output viewing, or changes to closed experiments were recorded.
+
+The exact target definitions, individual pixel hashes, target order, target-stream mapping, seed order, ordered target-set hash, and decision rule are now frozen in `configs/quadratic-bezier-target-freeze-2026-09-04.json`. The ordered target-set hash is `26bada941bfd8f49f09333d70d397364e82f5ddbb6e1228324f24fb9d2b30bfd`.
 
 ## Next action
 
-Run the complete local test suite and `python validate_quadratic_bezier_extension.py --validate-only`. Review the six generated target hashes, deterministic and monotonic smoke results, and no-side-effect boundary. Only after a passing report may a separate commit freeze target hashes and add or authorize the one fixed comparative runner.
+Implement a fail-closed comparison runner while keeping execution unauthorized. It must report all target-seed-condition summaries, common 512x512 RGB MSE, per-target means and ratios, candidate-render counts, wall-clock time, artifact hashes, rights-safe aggregate plots and montages, blinded labels, and an `.incomplete` lifecycle. Run a fresh no-output validation before creating a separate one-time execution authorization.

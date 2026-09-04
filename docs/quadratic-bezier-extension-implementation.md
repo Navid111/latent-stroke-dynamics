@@ -1,36 +1,20 @@
 # Quadratic-Bezier extension implementation gate
 
-This branch begins with a validation-only scaffold. It adds:
+The validated scaffold provides deterministic quadratic-Bezier rasterization, curve masks, analytically fitted RGB colors, unique changing proposals, matched exact-pixel planning, action serialization, common-resolution replay, and six original procedural targets.
 
-- deterministic quadratic-Bezier rasterization;
-- curve masks and analytically fitted RGB colors;
-- unique changing curve proposals;
-- matched exact-pixel planning for straight and curved primitives;
-- action serialization round trips;
-- deterministic common-resolution high-resolution replay;
-- six deterministic procedural rights-safe targets;
-- a locked validation config and decision rule;
-- a no-output validation command and focused tests.
+## Completed validation
 
-The scaffold deliberately omits an execution CLI. `execution_authorized` and `target_hashes_frozen` remain false in the config. The six target hashes printed by validation must be reviewed and frozen in a separate commit before a guarded comparison runner can be added or enabled.
+Validation used exact implementation commit `7bdcd2e847ca7c5a1faf8a086b26441d8de1a4e1`, reached `199 passed in 61.78s`, and returned `quadratic_bezier_extension_valid_no_outputs`. Straight and quadratic smoke planners were deterministic and monotonic. The report confirmed zero output side effects, no comparative outputs viewed, no training, no learned model, and no changes to closed experiments.
 
-## Recommended Colab handoff
+The exact returned files are preserved as:
 
-Open `notebooks/quadratic_bezier_extension_validation.ipynb` from the public `quadratic-bezier-extension` branch and run all five cells on a standard CPU runtime. The notebook needs no token, no upload, no GPU, and no Drive mount. It pins exact implementation commit `7bdcd2e847ca7c5a1faf8a086b26441d8de1a4e1`, runs the complete test suite, validates the no-output boundary, prints the six proposed target hashes, and downloads the test log plus validation JSON.
+- `docs/quadratic-bezier-pytest-2026-09-04.txt`;
+- `docs/quadratic-bezier-validation-2026-09-04.json`.
 
-## Equivalent local handoff
+## Frozen target manifest
 
-```bash
-git switch quadratic-bezier-extension
-git pull --ff-only
-python -m pytest
-python validate_quadratic_bezier_extension.py --validate-only
-```
+`configs/quadratic-bezier-target-freeze-2026-09-04.json` freezes the six target definitions, target order, zero-based target-stream mapping, seed order, individual 512x512 RGB pixel hashes, ordered target-set hash, validation evidence, and decision thresholds. The ordered target-set hash is `26bada941bfd8f49f09333d70d397364e82f5ddbb6e1228324f24fb9d2b30bfd`.
 
-Expected validation status:
+## Current boundary
 
-```text
-quadratic_bezier_extension_valid_no_outputs
-```
-
-The report must show both primitive smoke planners as deterministic and monotonic, zero output side effects, no learned model, no training, no comparative outputs viewed, and no closed experiment changes.
+Comparative execution remains unauthorized. No comparison command or output has been generated or viewed. The next commit may add a fail-closed runner, summaries, aggregate plots, blinded labels, artifact hashing, and validation tests, but it must preserve `execution_authorized: false`. A separate authorization commit is required before the single fixed execution.
