@@ -6,45 +6,55 @@ This file is the operating contract for coding and research agents working in th
 
 Bachelor's thesis on action-conditioned canvas dynamics and sequential stroke-based rendering, due 2026-09-24.
 
+## Current checkpoint — 2026-09-05
+
+The straight-line versus quadratic-Bezier comparison is complete and closed as `minor_improvement`, not material improvement. Both the original execution and missing-only recovery authorizations are consumed. Never rerun either execution Cell 5. No learned curved-stroke predictor is authorized by this result.
+
 ## Required reading order
 
 1. `logbooks/STATE.md`;
-2. `docs/quadratic-bezier-interrupted-run-recovery.md`;
-3. `docs/quadratic-bezier-interrupted-recovery-implementation.md`;
-4. `configs/quadratic-bezier-interrupted-recovery-plan-2026-09-05.json`;
-5. `docs/quadratic-bezier-interrupted-recovery-validation.md`;
-6. `docs/quadratic-bezier-interrupted-recovery-validation-results.md`;
-7. `docs/quadratic-bezier-interrupted-recovery-authorization.md`;
-8. `configs/quadratic-bezier-recovery-authorization-2026-09-05.json`;
-9. `docs/quadratic-bezier-interrupted-recovery-execution.md`;
-10. `docs/quadratic-bezier-extension-protocol.md`;
-11. `configs/quadratic-bezier-target-freeze-2026-09-04.json`;
-12. `configs/quadratic-bezier-runner-environment-2026-09-04.json`;
-13. `configs/quadratic-bezier-execution-authorization-2026-09-04.json`;
-14. `docs/quadratic-bezier-extension-implementation.md`;
-15. `configs/quadratic-bezier-extension-2026-09-03.json`;
-16. `docs/phase-b-saliency-latent-protocol.md`;
-17. `docs/phase-b0-implementation-manifest.md`;
-18. `configs/phase-b0-aborted-local-attempt-2026-08-23.json`;
-19. `docs/phase-b0-colab-preflight-results.md`;
-20. `docs/phase-b0-colab-recovery-protocol.md`;
-21. `configs/phase-b0-colab-recovery-2026-08-24.json`;
-22. `configs/phase-b0-colab-recovery-authorization-2026-08-24.json`;
-23. `docs/phase-b0-colab-recovery-authorization-2026-08-24.md`;
-24. `docs/phase-b0-colab-recovery-implementation-manifest.md`;
-25. `docs/phase-b0-colab-recovery-local-validation-2026-08-24.md`;
-26. `docs/phase-b0-colab-recovery-validation.md`;
-27. `docs/phase-b0-colab-recovery-validation-bundle-2026-08-24.md`;
-28. `docs/phase-b0-colab-recovery-validation-results.md`;
-29. `docs/phase-b0-colab-recovery-execution-handoff.md`;
-30. `docs/phase-b0-colab-recovery-command.md`;
-31. `docs/phase-b0-development-command.md`;
-32. `docs/phase-b0-colab-preflight.md`;
-33. `docs/planner-score-development-results.md`;
-34. `docs/planner-score-audit-results.md`;
-35. `docs/planner-score-alignment-protocol.md`;
-36. `docs/latent-planner-controlled-results.md`;
-37. relevant result artifacts and code.
+2. `docs/quadratic-bezier-fixed-comparison-results.md`;
+3. `docs/quadratic-bezier-fixed-comparison-result-record-2026-09-05.json`;
+4. `docs/quadratic-bezier-extension-protocol.md`;
+5. the relevant immutable source and historical validation/recovery records below.
+
+## Historical provenance references — not new execution instructions
+
+- `docs/quadratic-bezier-interrupted-run-recovery.md`;
+- `docs/quadratic-bezier-interrupted-recovery-implementation.md`;
+- `configs/quadratic-bezier-interrupted-recovery-plan-2026-09-05.json`;
+- `docs/quadratic-bezier-interrupted-recovery-validation.md`;
+- `docs/quadratic-bezier-interrupted-recovery-validation-results.md`;
+- `docs/quadratic-bezier-interrupted-recovery-authorization.md`;
+- `configs/quadratic-bezier-recovery-authorization-2026-09-05.json`;
+- `docs/quadratic-bezier-interrupted-recovery-execution.md`;
+- `configs/quadratic-bezier-target-freeze-2026-09-04.json`;
+- `configs/quadratic-bezier-runner-environment-2026-09-04.json`;
+- `configs/quadratic-bezier-execution-authorization-2026-09-04.json`;
+- `docs/quadratic-bezier-extension-implementation.md`;
+- `configs/quadratic-bezier-extension-2026-09-03.json`;
+- `docs/phase-b-saliency-latent-protocol.md`;
+- `docs/phase-b0-implementation-manifest.md`;
+- `configs/phase-b0-aborted-local-attempt-2026-08-23.json`;
+- `docs/phase-b0-colab-preflight-results.md`;
+- `docs/phase-b0-colab-recovery-protocol.md`;
+- `configs/phase-b0-colab-recovery-2026-08-24.json`;
+- `configs/phase-b0-colab-recovery-authorization-2026-08-24.json`;
+- `docs/phase-b0-colab-recovery-authorization-2026-08-24.md`;
+- `docs/phase-b0-colab-recovery-implementation-manifest.md`;
+- `docs/phase-b0-colab-recovery-local-validation-2026-08-24.md`;
+- `docs/phase-b0-colab-recovery-validation.md`;
+- `docs/phase-b0-colab-recovery-validation-bundle-2026-08-24.md`;
+- `docs/phase-b0-colab-recovery-validation-results.md`;
+- `docs/phase-b0-colab-recovery-execution-handoff.md`;
+- `docs/phase-b0-colab-recovery-command.md`;
+- `docs/phase-b0-development-command.md`;
+- `docs/phase-b0-colab-preflight.md`;
+- `docs/planner-score-development-results.md`;
+- `docs/planner-score-audit-results.md`;
+- `docs/planner-score-alignment-protocol.md`;
+- `docs/latent-planner-controlled-results.md`;
+- relevant result artifacts and code.
 
 ## Frozen evidence
 
@@ -54,25 +64,29 @@ The controlled multi-step latent planner remains a frozen criterion failure with
 
 The exact-pixel RGB baseline and resolution-by-budget ablation are complete and immutable. The 128x128/420 condition improved mean common-resolution MSE by 17.97% over 96x96/210 at a 3.56x compute proxy.
 
+The separate six-target curve comparison improved mean final 512 MSE by only 0.7425329829873983%. Four of six target means improved, but the dense scene worsened by 6.518152081149964%. The >=5% aggregate gain and <=5% worst-target worsening requirements failed. Preserve the exact `minor_improvement` category and both failed criteria. Do not rewrite the frozen protocol or original machine output to obtain a different category.
+
 ## Active task
 
-Run `notebooks/quadratic_bezier_interrupted_recovery_execution.ipynb` once in a fresh CPU Colab runtime. It pins recovery implementation commit `46e0c6396f0425ed84812e8fbeef9ed675ef53e9` and authorization commit `76b6d53bddaaa60880e7c7f1eaffd1392c9ece25`. Run code cells 1–6 in order. Do not interrupt Cell 5. If the browser disconnects, do not press Stop; reconnect later and let the existing runtime continue.
+Review the text-only result archive and the existing PR #1, then continue manuscript refinement, source-code parameter audit, rights-safe figure layout, citation reconciliation, final assembly, and defense preparation. Notion remains the canonical manuscript; its preserved pre-extension snapshot must not be modified. PR readiness is not permission to merge or to execute an experiment.
+
+No new painting run or test execution was performed for this documentation-only result-archival commit. The latest supplied execution-time test record is 217 passed in 57.21s at the pinned execution handoff; distinguish it from the earlier no-output validation timing.
 
 ## Hard boundaries
 
-- Do not rerun the old Cell 5 or start a fresh comparison.
-- Do not delete, overwrite, manually alter, or inspect comparative content in the preserved `.incomplete` output.
-- The authorized recovery may run once only through the pinned recovery execution notebook.
-- It may reuse only the 17 byte-verified completed units, must quarantine the partial unit without overwrite, and may execute only the 19 missing units in frozen order.
-- If recovery is interrupted or fails, preserve all state and audit again; automatic resume and authorization reuse are prohibited.
-- If blinded review is required, do not open metrics, method mappings, numerical plots, aggregate summaries, or logs before completing and recording the review.
+- Never rerun the old comparison Cell 5 or the recovery Cell 5; both authorizations are consumed.
+- Do not start a fresh comparison, recreate the former incomplete directory, automatically resume, or tune a closed result.
+- Preserve all 17 reused units, 19 recovered units, the final aggregate, and the quarantined partial unit byte-for-byte.
+- Do not repair the raw recovery journal's pre-final in-progress status. Completion is documented separately by the final aggregate and completion handoff.
+- No mandatory blinded review was triggered. Numerical exposure preceded descriptive montage inspection; do not claim an independent blinded visual pass.
+- The primary statistic is the ratio of overall mean final 512 MSEs, not the mean percentage change. The worsening guard applies to each target's three-seed mean, not its worst seed.
+- The progress plot uses 128x128 planning MSE, not the primary final 512x512 replay metric.
+- Distinguish notebook-reported verification of 453 artifact hashes from reviewer-side source/metadata/arithmetic checks. No independent rehash of all uploaded/Drive bytes was performed during archival.
 - Do not rerun, tune, overwrite, or reinterpret any completed historical experiment.
 - Do not modify archived outputs or the preserved incomplete multi-scale recovery directory.
-- Do not use the private five-target RGB set in the curve study.
+- Do not use the older private five-target RGB set as the six-target curve benchmark.
 - Do not change frozen targets, hashes, order, target-stream mapping, seeds, matched settings, or decision thresholds.
 - Do not add variable width, transparency, texture, erasing, cubic curves, or mixed primitives to the primary comparison.
-- Do not train or load a learned model in the primary comparison.
-- Do not authorize a learned curved-stroke predictor unless the exact-pixel curve condition first produces a material improvement under the frozen rule.
-- Do not commit source images or generated binary outputs.
-- Preserve positive and negative outcomes.
-- Do not call the approach a canonical JEPA.
+- Do not train or load a learned model in this comparison. The observed non-material result does not activate a learned curved-stroke extension.
+- Publish only the approved compact text evidence: no source images, generated binaries, private manuscript text, private attachment URLs, or secrets.
+- Preserve positive and negative outcomes and their scope. Do not call the approach a canonical JEPA.

@@ -1,4 +1,6 @@
-# Authorized interrupted-comparison recovery execution
+# Authorized interrupted-comparison recovery execution — completed
+
+> **Closed on 2026-09-05.** The single authorized recovery completed 36 runs / 18 pairs, reusing 17 completed units and executing 19 missing units. The result is `minor_improvement`, not material improvement. Both execution authorizations are consumed. Never rerun either execution Cell 5. Cell 7 is unnecessary for this observed no-required-review branch. See [the completed result](quadratic-bezier-fixed-comparison-results.md). The procedure below is retained only as historical provenance.
 
 ## Exact pins
 
@@ -7,7 +9,7 @@
 - recovery validation evidence: `5cc2e6c98bb58b6ad917b593b97dbd359033fe75`;
 - one-time recovery authorization: `76b6d53bddaaa60880e7c7f1eaffd1392c9ece25`.
 
-## Procedure
+## Historical procedure — do not execute again
 
 1. Disconnect and delete the no-output validation runtime after its three files are safely downloaded.
 2. Open `notebooks/quadratic_bezier_interrupted_recovery_execution.ipynb` in a fresh CPU runtime.
@@ -21,10 +23,12 @@
    Do not run Cell 7 or open the mapping, aggregate, metrics, plots, or logs.
 7. If Cell 6 says no blinded review is required, return the downloaded numerical and audit handoff files.
 
-## Failure boundary
+## Historical failure boundary
 
 If any cell fails, preserve every Drive file and report the exact error. Do not delete, rename manually, repair, restart, resume, or rerun the recovery. Another interruption requires a new read-only audit and authorization decision.
 
-## Scientific boundary
+## Scientific boundary and completed outcome
 
-The recovery is still the single fixed comparison. It may reuse only the 17 verified completed units, must quarantine the partial unit byte-for-byte, and may execute only 19 missing units. It cannot change the frozen runner, targets, schedule, seeds, conditions, budgets, thresholds, or blind gate.
+The recovery remained the single fixed comparison. It reused the 17 verified completed units, quarantined the partial unit byte-for-byte, and executed only 19 missing units. It did not change the frozen runner, targets, schedule, seeds, conditions, budgets, thresholds, or blind gate.
+
+The supplied execution-time suite recorded 217 passed in 57.21s. Cell 6 reported 453 verified artifact hashes, integrity passed, and no required blinded review. Mean final 512 MSE improved by 0.7425%, but the dense scene worsened by 6.5182%; material promotion failed. Preserve the completed directory and quarantine. The raw journal's in-progress label is an unmodified pre-final snapshot, not a reason to resume. No tests or painting runs were re-executed for the text-only archival update.
