@@ -1,0 +1,42 @@
+{
+  "protocol_id": "quadratic_bezier_extension_v1",
+  "status": "implementation_validation_only",
+  "branch": "quadratic-bezier-extension",
+  "base_commit": "d5f1190ab9b62d5adff7fb56c5cc1ffd4d850177",
+  "conditions": [
+    "straight",
+    "quadratic_bezier"
+  ],
+  "planning_size": 128,
+  "replay_size": 512,
+  "accepted_strokes": 420,
+  "stage_budgets": [
+    80,
+    140,
+    200
+  ],
+  "candidates_per_pool": 64,
+  "error_guided_fraction": 0.8,
+  "patience": 12,
+  "min_improvement": 1e-9,
+  "seeds": [
+    73,
+    137,
+    211
+  ],
+  "target_count": 6,
+  "target_source": "deterministic_procedural_rights_safe",
+  "target_hashes_frozen": false,
+  "target_set_sha256": null,
+  "target_sha256": {},
+  "decision_rule": {
+    "minimum_mean_mse_improvement_fraction": 0.05,
+    "minimum_improved_target_count": 4,
+    "maximum_per_target_worsening_ratio": 1.05,
+    "blinded_review_required": true
+  },
+  "execution_authorized": false,
+  "maximum_completed_executions": 1,
+  "completed_executions": 0,
+  "learned_model_allowed": false
+}

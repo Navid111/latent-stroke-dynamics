@@ -1,0 +1,14 @@
+{
+  "closed_experiments_changed": false,
+  "completed_pair_count": 18,
+  "completed_run_count": 36,
+  "completion_mode": "verified_interrupted_attempt_recovery",
+  "executed_during_recovery_run_count": 19,
+  "integrity_passed": true,
+  "learned_model_used": false,
+  "qualitative_review_required": false,
+  "quantitative_values_withheld": false,
+  "reused_completed_run_count": 17,
+  "status": "quadratic_bezier_recovery_completed_blind_gate_applied",
+  "training_performed": false
+}

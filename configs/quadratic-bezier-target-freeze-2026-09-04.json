@@ -1,0 +1,96 @@
+{
+  "protocol_id": "quadratic_bezier_extension_v1",
+  "freeze_id": "quadratic_bezier_target_freeze_v1",
+  "status": "target_hashes_frozen_execution_unauthorized",
+  "frozen_on": "2026-09-04",
+  "branch": "quadratic-bezier-extension",
+  "base_commit": "d5f1190ab9b62d5adff7fb56c5cc1ffd4d850177",
+  "validated_implementation_commit": "7bdcd2e847ca7c5a1faf8a086b26441d8de1a4e1",
+  "validation_handoff_commit": "f5037d4c64931fa57e403081c7c384845742c7fd",
+  "validation_evidence": {
+    "pytest_passed": 199,
+    "pytest_duration_seconds": 61.78,
+    "validation_status": "quadratic_bezier_extension_valid_no_outputs",
+    "validated_config_sha256": "fb9cf09e46ae1beb51e2462a93832c80e45e17db811586d7d4e30573c3b5cbfa",
+    "dependencies": {
+      "numpy": "2.1.3",
+      "pillow": "11.3.0"
+    },
+    "output_side_effects": false,
+    "comparative_outputs_viewed": false,
+    "training_performed": false,
+    "learned_model_used": false,
+    "closed_experiments_changed": false,
+    "pytest_log": "docs/quadratic-bezier-pytest-2026-09-04.txt",
+    "validation_report": "docs/quadratic-bezier-validation-2026-09-04.json"
+  },
+  "conditions": [
+    "straight",
+    "quadratic_bezier"
+  ],
+  "planning_size": 128,
+  "replay_size": 512,
+  "accepted_strokes": 420,
+  "stage_budgets": [
+    80,
+    140,
+    200
+  ],
+  "candidates_per_pool": 64,
+  "error_guided_fraction": 0.8,
+  "patience": 12,
+  "min_improvement": 1e-09,
+  "target_generator": "deterministic_procedural_pillow_v1",
+  "target_source": "deterministic_procedural_rights_safe",
+  "target_count": 6,
+  "target_order": [
+    "01_ring_symbol",
+    "02_curved_glyph",
+    "03_organic_silhouette",
+    "04_mixed_geometry",
+    "05_layered_landscape",
+    "06_dense_scene"
+  ],
+  "target_stream_by_id": {
+    "01_ring_symbol": 0,
+    "02_curved_glyph": 1,
+    "03_organic_silhouette": 2,
+    "04_mixed_geometry": 3,
+    "05_layered_landscape": 4,
+    "06_dense_scene": 5
+  },
+  "target_hashes_frozen": true,
+  "target_set_sha256": "26bada941bfd8f49f09333d70d397364e82f5ddbb6e1228324f24fb9d2b30bfd",
+  "target_sha256": {
+    "01_ring_symbol": "548ee3d03644308c066f11be64234db8a28a67e0a24cb5d21bec6bd6aab4940b",
+    "02_curved_glyph": "b2e0036f2eb1b4275fb553ae970ab2a93ffb08b229b21b7ebe2dd194e2d0a7da",
+    "03_organic_silhouette": "838edf87ab05d3b289af18673c87d51e5cd56f77ebef4aa6bb99c7f7685af398",
+    "04_mixed_geometry": "d660b8247c098d4fc3dac9b51330678371d3efaa73406f86cbfacc6762357f66",
+    "05_layered_landscape": "4bd0794c85c2be198ee93a2ab0d155ea0758ae0f84bd56fac8428da0e604b45a",
+    "06_dense_scene": "79d51333fc6d94b2e269cc3a895c0dba2fe12ca2f01d8e9565ef691614c3e3fe"
+  },
+  "target_provenance": {
+    "01_ring_symbol": "Original deterministic PIL drawing; CC0-equivalent project asset.",
+    "02_curved_glyph": "Original deterministic Bezier glyph; CC0-equivalent project asset.",
+    "03_organic_silhouette": "Original procedural leaf silhouette; CC0-equivalent project asset.",
+    "04_mixed_geometry": "Original deterministic geometric composition; CC0-equivalent project asset.",
+    "05_layered_landscape": "Original procedural landscape; CC0-equivalent project asset.",
+    "06_dense_scene": "Original procedural city scene; CC0-equivalent project asset."
+  },
+  "seed_order": [
+    73,
+    137,
+    211
+  ],
+  "schedule": "For each target in target_order, run seeds in seed_order for straight and quadratic_bezier under the same target_stream.",
+  "decision_rule": {
+    "minimum_mean_mse_improvement_fraction": 0.05,
+    "minimum_improved_target_count": 4,
+    "maximum_per_target_worsening_ratio": 1.05,
+    "blinded_review_required": true
+  },
+  "execution_authorized": false,
+  "maximum_completed_executions": 1,
+  "completed_executions": 0,
+  "learned_model_allowed": false
+}
